@@ -13,29 +13,24 @@ public class Phrases {
         this.badPhrases = badPhrases;
         this.goodPhrases = goodPhrases;
     }
+    public String getUsualPhrase(String attacker, String defender){
+        return getPhrase(attacker, defender, usualPhrases);
+    }
+    public String getBadPhrase(String attacker, String defender){
+        return getPhrase(attacker, defender, badPhrases);
+    }
+    public String getGoodPhrase(String attacker, String defender){
+        return getPhrase(attacker, defender, goodPhrases);
 
-    public String getPhrase(Player attacker, Player defender, String[] phrases){
+    }
+
+    public String getPhrase(String attacker, String defender, String[] phrases){
         int phraseNum = random.nextInt(phrases.length);
         String phrase = phrases[phraseNum];
-        phrase = phrase.replaceFirst("attacker", attacker.hero);
-        phrase = phrase.replaceFirst("defender", defender.hero);
+        phrase = phrase.replaceFirst("attacker", attacker);
+        phrase = phrase.replaceFirst("defender", defender);
 
         return phrase;
     }
-    public String getBadPhrase(Player attacker, Player defender){
-        int phraseNum = random.nextInt(phrases.length);
-        String phrase = phrases[phraseNum];
-        phrase = phrase.replaceFirst("attacker", attacker.hero);
-        phrase = phrase.replaceFirst("defender", defender.hero);
 
-        return phrase;
-    }
-    public String getGoodPhrase(Player attacker, Player defender){
-        int phraseNum = random.nextInt(phrases.length);
-        String phrase = phrases[phraseNum];
-        phrase = phrase.replaceFirst("attacker", attacker.hero);
-        phrase = phrase.replaceFirst("defender", defender.hero);
-
-        return phrase;
-    }
 }

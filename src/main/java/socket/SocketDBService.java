@@ -1,7 +1,9 @@
 package socket;
 
+import classes.Phrases;
 import classes.Player;
 import javafx.util.Pair;
+import msg.DBMsg;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -42,9 +44,11 @@ public class SocketDBService {
         return true;
     }
 
-    public void run() {
+    public Phrases run() {
         boolean continueSearching = true;
         int serverDb = 0;
+        Phrases phrases = null;
+
         while (continueSearching) {
             ObjectInputStream ois = null;
             String ip;
@@ -55,9 +59,10 @@ public class SocketDBService {
                 socket.setSoTimeout(60 * 1000);     // ждем ответа минуту
 
                 ois = new ObjectInputStream(socket.getInputStream());
-                Object o = ois.readObject();
+                DBMsg msg = (DBMsg) ois.readObject();       // получаем фразы от дб
+                phrases = new Phrases(msg.getUsualPhrases(), msg.getBadPhrases(), msg.getGoodPhrases());
 
-                System.out.println(o);
+                System.out.println();
                 continueSearching = false;
             } catch (IOException | ClassNotFoundException e) {
                 System.out.println("[x] Ошибка подключения к бд серверу");
@@ -73,5 +78,6 @@ public class SocketDBService {
             serverDb++;
             serverDb = serverDb >= serverDbNum ? 0 : serverDb;        // если нам никто не ответил, идем по новой
         }
+        return phrases;
     }
 }
