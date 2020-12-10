@@ -24,7 +24,7 @@ public class Phrases {
 
     }
 
-    public String getPhrase(String attacker, String defender, String[] phrases){
+    private String getPhrase(String attacker, String defender, String[] phrases){
         int phraseNum = random.nextInt(phrases.length);
         String phrase = phrases[phraseNum];
         phrase = phrase.replaceFirst("attacker", attacker);
