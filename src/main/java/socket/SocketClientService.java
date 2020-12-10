@@ -40,8 +40,9 @@ public class SocketClientService implements Runnable{
 //                writeToDB();
 
                 System.out.println("Ожидание нового клиента");
-                client = server.accept();          // добавляем клиента на обработку запроса
+                client = server.accept();          // принимаем клента
                 System.out.println("Новый клиент был добавлен");
+                // предобщение -> получаем id клиента и проверяем, что у нас такой есть, направляем на дуэли или в очередь
 
                 Future res = pool.submit(new ClientHandler(client));
                 queue.add(res);
