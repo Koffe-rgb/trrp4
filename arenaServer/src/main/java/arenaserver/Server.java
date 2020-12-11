@@ -18,22 +18,23 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Server implements Runnable{
     static ExecutorService pool = Executors.newFixedThreadPool(10);     // один на диспетчеров, остальные для дуэлей
-    static ConcurrentLinkedQueue<Client> queue = new ConcurrentLinkedQueue<>();     // очередь клиентов
-    static final List<Client> clientsQueue = Collections.synchronizedList(new LinkedList<>());  // хранит пару <id, socket> - очередь на дуэль
+    static final List<Client> clientsQueue = Collections.synchronizedList(new LinkedList<>());  // хранит очередь клиентов, отправивших свой id
+
     static final List<Client> duelsList = Collections.synchronizedList(new LinkedList<>());     // хранит список дуэлей
-    static final ConcurrentMap<Integer, Player> playerInfoMap = new ConcurrentHashMap<>();      // мап, хранящий инфу про клиента
+    static final Hashtable<Integer, Player> playerInfoMap = new Hashtable<>(100);      // мап, хранящий инфу про клиента, полученную от диспетчера
     static ExecutorService clientPool = Executors.newCachedThreadPool();           // пул, отвечающий за обработку конкретного клиента
     static BlockingQueue<Pair<Client, Client>> pairs = new ArrayBlockingQueue<>(4);         // очередь на дуэли из 4-х пар
 
 
     @Override
     public void run() {
+        System.out.println("Запускаем сервер арены");
         // запускаем слушателя диспетчера
         pool.execute(new DispatcherListener());
         // запускаем слушателя клиентов
-        pool.execute(new ClientListener());
+//        pool.execute(new ClientListener());
         // запускаем сервис проведения дуэли
-        pool.execute(new DuelStarter());
+//        pool.execute(new DuelStarter());
 
     }
 
@@ -44,6 +45,7 @@ public class Server implements Runnable{
         @Override
         public void run() {
             try {
+                while (true)
                 // если число дуэлей на данный момент меньше 8, то мы можем создать новую дуэль
                 synchronized (duelsCount) {
                     if (duelsCount.get() <= 8) {
@@ -63,6 +65,7 @@ public class Server implements Runnable{
 
         @Override
         public void run() {
+            System.out.println("Запускаем слушателя диспетчеров");
             try {
                 server = new ServerSocket(8002);
             } catch (IOException e) {
@@ -73,27 +76,32 @@ public class Server implements Runnable{
                     System.out.println("[x] Ожидание диспетчера");
                     client = server.accept();          // принимаем диспетчера
                     System.out.println("[x] Диспетчер был добавлен");
-                    client.setSoTimeout(10*1000);       // даем диспетчеру 20 секунд, чтобы тот сказал все, что хотел
+                    client.setSoTimeout(20*1000);       // даем диспетчеру 20 секунд, чтобы тот сказал все, что хотел
 
                     try (ObjectOutputStream oos = new ObjectOutputStream(client.getOutputStream());
                          ObjectInputStream ois = new ObjectInputStream(client.getInputStream())){
 
                         DispatcherMsg msg = (DispatcherMsg) ois.readObject();
                         // если не получили инфу про игрока, значит нас просят вернуть колво людей на сервере
-                        if (msg.getPlayer()==null){
-                            oos.writeObject(new DispatcherMsg(queue.size()));
+                        if (msg.getPlayer().getId()==-1){
+                            oos.writeObject(new DispatcherMsg(new Player(), clientsQueue.size(), ""));
                         }
                         else{
+                            System.out.println("[x] Добавляем клиента "+msg.getPlayer().getId());
                             playerInfoMap.putIfAbsent(msg.getPlayer().getId(), msg.getPlayer());        // добавляем данные про игрока
-                            // clientsQueue.add(new Client(msg.getPlayer()));      // заводим данные на нового клиента и добавляем их в список
-                            oos.writeObject(new DispatcherMsg(-1));
+                            System.out.println("[x] Колво данных об игроках = "+playerInfoMap.size());
+//                            clientsQueue.add(new Client(msg.getPlayer()));     //TODO - убрать
+                            oos.writeObject(new DispatcherMsg(new Player(), -1, ""));
                         }
                         oos.flush();        // отправляем ответ диспетчеру
 
-                    } catch (ClassNotFoundException| SocketTimeoutException e) {
+                    } catch (SocketTimeoutException e) {
+                        e.printStackTrace();
+                    } catch (ClassNotFoundException e) {
+                        System.out.println("[x] Class not found");
                         e.printStackTrace();
                     } finally {
-                        client.close();
+//                        client.close();
                     }
 
 
