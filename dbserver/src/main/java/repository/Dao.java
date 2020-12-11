@@ -157,7 +157,7 @@ public class Dao {
                 .fetch();
     }
 
-    private List<String> selectPhrases() {
+    public List<String> selectPhrases() {
         QPhrases qPhrases = QPhrases.phrases;
         return queryFactory.select(qPhrases.phrase)
                 .from(qPhrases)
