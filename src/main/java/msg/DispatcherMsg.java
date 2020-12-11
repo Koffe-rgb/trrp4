@@ -9,23 +9,30 @@ import java.io.Serializable;
  */
 public class DispatcherMsg implements Serializable {
     private Player player;      // инфа про игрока (если null-> возвращаем колво клиентов)
-    private String respond;     // ответ сервера арены
+    private int respond;     // ответ сервера арены (колво игроков или -1)
     private String request;     // запрос диспетчера
+
+    public DispatcherMsg() {
+    }
+
+    public DispatcherMsg(int respond) {
+        this.respond = respond;
+    }
 
     public Player getPlayer() {
         return player;
     }
 
-    public void setPlayer(Player player) {
-        this.player = player;
-    }
-
-    public String getRespond() {
+    public int getRespond() {
         return respond;
     }
 
-    public void setRespond(String respond) {
+    public void setRespond(int respond) {
         this.respond = respond;
+    }
+
+    public void setPlayer(Player player) {
+        this.player = player;
     }
 
     public String getRequest() {

@@ -9,6 +9,8 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.*;
 
 /**
@@ -18,10 +20,11 @@ import java.util.concurrent.*;
 public class SocketClientService implements Runnable{
     private ServerSocket server;
     private Socket client;
-
     static ExecutorService pool = Executors.newCachedThreadPool();
     public static LinkedList<ClientHandler> clientList = new LinkedList<>();
-    public ConcurrentLinkedQueue<Future> queue = new ConcurrentLinkedQueue<>();
+    //public ConcurrentLinkedQueue<Future> queue = new ConcurrentLinkedQueue<>();
+    private Queue<Client> queue = new LinkedList<>();
+    private List<Player> clientInfo = new LinkedList<>();
 
     public SocketClientService(){
         try {
@@ -29,6 +32,15 @@ public class SocketClientService implements Runnable{
 
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public Pair<Integer, Integer> checkQueue(){
+        int size = queue.size();
+        System.out.println("Воу, в очереди есть целых "+size+" клиентов");
+        if (size>=2)
+        {
+            return new Pair<>(queue.poll(), queue.poll());
         }
     }
 
@@ -101,5 +113,16 @@ public class SocketClientService implements Runnable{
         }
 
 
+
+
+    }
+    private class Client{
+        Socket socket;
+        Player player;
+
+        public Client(Socket socket, Player player) {
+            this.socket = socket;
+            this.player = player;
+        }
     }
 }

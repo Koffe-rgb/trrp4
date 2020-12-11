@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
 
-public class Duel implements Callable {
+public class Duel implements Callable<Pair<Integer, Integer>> {
     private Socket player1Socket = null;
     private Socket player2Socket = null;
     private Player player1 = null;
@@ -37,8 +37,8 @@ public class Duel implements Callable {
     }
 
     @Override
-    public Object call() throws Exception {
-        return null;
+    public Pair<Integer, Integer> call() throws Exception {
+        return runDuel();
     }
     private Pair<Integer, Integer> runDuel(){
         try {
@@ -106,7 +106,8 @@ public class Duel implements Callable {
                 enemyoos.writeObject(new ClientMsg(msgType, hodNum, phrase, enemy.getLives(), curPlayer.getLives()));
                 curoos.flush();
                 enemyoos.flush();
-
+                chronicle.add(phrase);
+                hodNum++;
             }
 
             System.out.println("[x] Закрываем дуэль");
@@ -153,7 +154,6 @@ public class Duel implements Callable {
             phrase = phrases.getGoodPhrase(curPlayer.getHero(), enemy.getHero());
         }
 
-        chronicle.add(phrase);
         return phrase;
     }
 
