@@ -11,6 +11,12 @@
 
     <artifactId>dbserver</artifactId>
 
+    <properties>
+        <connectionString>
+            jdbc:postgresql://localhost:5432/trrp4db
+        </connectionString>
+    </properties>
+
     <build>
         <plugins>
             <plugin>
@@ -26,7 +32,7 @@
                 </executions>
                 <configuration>
                     <jdbcDriver>org.postgresql.Driver</jdbcDriver>
-                    <jdbcUrl>jdbc:postgresql://localhost:5432/trrp4db</jdbcUrl>
+                    <jdbcUrl>${connectionString}</jdbcUrl>
                     <jdbcUser>postgres</jdbcUser>
                     <jdbcPassword>qwert0p12</jdbcPassword>
                     <packageName>model</packageName>
