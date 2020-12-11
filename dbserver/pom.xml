@@ -15,6 +15,12 @@
         <connectionString>
             jdbc:postgresql://localhost:5432/trrp4db
         </connectionString>
+        <password>
+            qwert0p12
+        </password>
+        <dbUser>
+            postgres
+        </dbUser>
     </properties>
 
     <build>
@@ -33,8 +39,8 @@
                 <configuration>
                     <jdbcDriver>org.postgresql.Driver</jdbcDriver>
                     <jdbcUrl>${connectionString}</jdbcUrl>
-                    <jdbcUser>postgres</jdbcUser>
-                    <jdbcPassword>qwert0p12</jdbcPassword>
+                    <jdbcUser>${dbUser}</jdbcUser>
+                    <jdbcPassword>${password}</jdbcPassword>
                     <packageName>model</packageName>
                     <targetFolder>${project.basedir}/target/generated-sources/java</targetFolder>
                     <sourceFolder/>
