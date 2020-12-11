@@ -12,9 +12,11 @@ import java.net.Socket;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public class Duel implements Callable<Pair<Integer, Integer>> {
+public class Duel implements Runnable {
     private Socket player1Socket = null;
     private Socket player2Socket = null;
     private Player player1 = null;
@@ -25,6 +27,17 @@ public class Duel implements Callable<Pair<Integer, Integer>> {
     private Phrases phrases;
     private int winnerId = -1;
     private int loserId = -1;
+    private AtomicInteger duelsCount;
+
+    public Duel(Pair<Client, Client> pair, AtomicInteger duelsCount) {
+        this.duelsCount = duelsCount;
+        Client cl1 = pair.getKey();
+        Client cl2 = pair.getValue();
+        player1 = cl1.player;
+        player2 = cl2.player;
+        player1Socket = cl1.socket;
+        player2Socket = cl2.socket;
+    }
 
     public Duel(Socket player1Socket, Socket player2Socket, Player player1, Player player2, Phrases phrases) {
         this.player1Socket = player1Socket;
@@ -37,10 +50,10 @@ public class Duel implements Callable<Pair<Integer, Integer>> {
     }
 
     @Override
-    public Pair<Integer, Integer> call() throws Exception {
-        return runDuel();
+    public void run(){
+        runDuel();
     }
-    private Pair<Integer, Integer> runDuel(){
+    private void runDuel(){
         try {
             ObjectInputStream ois1 = new ObjectInputStream(player1Socket.getInputStream());
             ObjectInputStream ois2 = new ObjectInputStream(player2Socket.getInputStream());
@@ -117,12 +130,21 @@ public class Duel implements Callable<Pair<Integer, Integer>> {
             oos2.close();
             player1Socket.close();
             player2Socket.close();
+            // отправляем результаты в БД
+            sendResultToDB();
+
         } catch (IOException e) {
             System.out.println("[x] Проблемы со стримами");
             e.printStackTrace();
         }
 
-        return new Pair<>(winnerId, loserId);
+        finally {
+            duelsCount.decrementAndGet();
+        }
+
+
+        //return new Pair<>(winnerId, loserId);
+
     }
 
     // игра заканчивается, когда у противника на очередном ходе заканчивается здоровье
@@ -157,6 +179,12 @@ public class Duel implements Callable<Pair<Integer, Integer>> {
         return phrase;
     }
 
+    /**
+     * Отправляет результаты в бд
+     */
+    private void sendResultToDB(){
+        //send(winnerId, loserId);
+    }
     public synchronized void reconnect(Socket player){
         //if (!player1.isConnected())
 

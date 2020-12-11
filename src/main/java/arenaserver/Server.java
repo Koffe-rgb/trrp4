@@ -15,6 +15,7 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Server implements Runnable{
     static ExecutorService pool = Executors.newFixedThreadPool(10);     // один на диспетчеров, остальные для дуэлей
@@ -28,30 +29,46 @@ public class Server implements Runnable{
 
     @Override
     public void run() {
-
-        // добавляем в очередь
-        // запускаем таймер проведения дуэлей
-        Timer queueTimer = new Timer();
-        queueTimer.scheduleAtFixedRate(new QueueChecker(), 10*1000, 5*1000);
-
         // запускаем слушателя диспетчера
         pool.execute(new DispatcherListener());
         // запускаем слушателя клиентов
         pool.execute(new ClientListener());
-                
-        // запускаем запись в mq
-
-
+        // запускаем сервис проведения дуэли
+        pool.execute(new DuelStarter());
 
     }
 
 
+    private class DuelStarter implements Runnable{
+        AtomicInteger duelsCount = new AtomicInteger(0);
+        ExecutorService duels = Executors.newFixedThreadPool(8);
+        @Override
+        public void run() {
+            try {
+                // если число дуэлей на данный момент меньше 8, то мы можем создать новую дуэль
+                synchronized (duelsCount) {
+                    if (duelsCount.get() <= 8) {
+                        duelsCount.addAndGet(1);
+                        duels.execute(new Duel(pairs.take(), duelsCount));     // отправляем пару на дуэль
+                    }
+                }
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
     private class DispatcherListener implements Runnable{
         private ServerSocket server;
         private Socket client;
 
         @Override
         public void run() {
+            try {
+                server = new ServerSocket(8002);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             while(!server.isClosed()){
                 try {
                     System.out.println("[x] Ожидание диспетчера");
@@ -208,79 +225,4 @@ public class Server implements Runnable{
         }
     }
 
-    private class Client{
-        private Future<Integer> id;
-        private Socket socket;
-        private Player player;
-
-
-        public Client(Socket socket, Player player) {
-            this.socket = socket;
-            this.player = player;
-        }
-
-        public Client(Player player) {
-            this.player = player;
-        }
-
-        public Client(Future<Integer> id, Socket socket, Player player) {
-            this.id = id;
-            this.socket = socket;
-            this.player = player;
-        }
-
-        public Client(Future<Integer> id, Player player) {
-            this.id = id;
-            this.player = player;
-        }
-    }
-
-    private class QueueChecker extends TimerTask {
-        Pair<Client, Client> pair = null;
-        @Override
-        public void run() {
-            pair = null;
-            try {
-                pair = startDuel();
-            } catch (ExecutionException | InterruptedException e) {
-                e.printStackTrace();
-            }
-            if (pair!=null && pair.getKey()!=null){
-                // отправляем в дуэль
-                
-            }
-        }
-        // проверяет колво людей в очереди и колво доступных дуэлей
-        private Pair<Client, Client> startDuel() throws ExecutionException, InterruptedException {
-            Client cl1 = null, cl2 = null;
-            synchronized (clientsQueue){
-                // если в очереди есть клиенты
-                if (clientsQueue.size()>0){
-                    boolean isFound = false;
-                    int i = 0;
-                    // пробуем найти двух готовых игроков
-                    while (!isFound && i<clientsQueue.size()){
-                        // если клиент нам передал id
-                        if(clientsQueue.get(i).id.isDone()){
-                            if (cl1==null)cl1 = clientsQueue.get(i);
-                            else {
-                                cl2 = clientsQueue.get(i);
-                                isFound = true;
-                            }
-
-                        }
-                    }
-                }
-            }
-            // ищем инфу по клиентам
-            if (cl1!=null && cl2!=null){
-                Player pl1 = playerInfoMap.get(cl1.id);
-                Player pl2 = playerInfoMap.get(cl2.id);
-                cl1.player = pl1;
-                cl2.player = pl2;
-
-            }
-            return new Pair<>(cl1, cl2);
-        }
-    }
 }
