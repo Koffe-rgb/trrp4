@@ -6,71 +6,14 @@
 
     <groupId>ru.psu.trrp.lab4</groupId>
     <artifactId>db-server</artifactId>
+    <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>com.querydsl</groupId>
-                <artifactId>querydsl-maven-plugin</artifactId>
-                <version>4.4.0</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>export</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <jdbcDriver>org.postgresql.Driver</jdbcDriver>
-                    <jdbcUrl>jdbc:postgresql://localhost:5432/trrp4db</jdbcUrl>
-                    <jdbcUser>postgres</jdbcUser>
-                    <jdbcPassword>qwert0p12</jdbcPassword>
-                    <packageName>model</packageName>
-                    <targetFolder>${project.basedir}/target/generated-sources/java</targetFolder>
-                    <sourceFolder/>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.postgresql</groupId>
-                        <artifactId>postgresql</artifactId>
-                        <version>42.2.16</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
-        </plugins>
-    </build>
 
-    <dependencies>
-        <!-- database connection pool -->
-        <dependency>
-            <groupId>com.zaxxer</groupId>
-            <artifactId>HikariCP</artifactId>
-            <version>3.4.5</version>
-        </dependency>
+    <modules>
+        <module>dbserver</module>
+    </modules>
 
-        <!-- ORM -->
-        <dependency>
-            <groupId>com.querydsl</groupId>
-            <artifactId>querydsl-sql</artifactId>
-            <version>4.4.0</version>
-        </dependency>
-        <!-- PostgresQL DB driver -->
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>42.2.16</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.7</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-nop</artifactId>
-            <version>1.7.13</version>
-        </dependency>
-    </dependencies>
+
 
 </project>
