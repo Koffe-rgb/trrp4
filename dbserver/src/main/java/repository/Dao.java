@@ -149,6 +149,11 @@ public class Dao {
         }
     }
 
+    public void upsertStatistic(int idWinner, int idLoser) {
+        upsertStatistic(idWinner, 1, 0);
+        upsertStatistic(idLoser, 0, 1);
+    }
+
     private List<String> selectPhrases(int type) {
         QPhrases qPhrases = QPhrases.phrases;
         return queryFactory.select(qPhrases.phrase)

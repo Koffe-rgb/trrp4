@@ -65,6 +65,13 @@
     </build>
 
     <dependencies>
+        <!-- RabbitMQ -->
+        <dependency>
+            <groupId>com.rabbitmq</groupId>
+            <artifactId>amqp-client</artifactId>
+            <version>5.10.0</version>
+        </dependency>
+
         <!-- database connection pool -->
         <dependency>
             <groupId>com.zaxxer</groupId>
@@ -84,6 +91,8 @@
             <artifactId>postgresql</artifactId>
             <version>42.2.16</version>
         </dependency>
+
+        <!-- other -->
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
