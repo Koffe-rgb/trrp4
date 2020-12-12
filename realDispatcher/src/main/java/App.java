@@ -18,7 +18,7 @@ public class App {
 
         for(int i=0; i<10; i++) {
             try {
-                pool.execute(new ArenaService(clientsQueue.take(), arenaServerIPs));
+                pool.execute(new ArenaService(clientsQueue.take(), arenaServerIPs, "realDispatcher/src/main/resources/arenaServersIps.properties"));
                 Thread.sleep(5*1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();

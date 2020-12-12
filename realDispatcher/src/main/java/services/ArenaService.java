@@ -4,6 +4,7 @@ import classes.Player;
 import javafx.util.Pair;
 import msg.DispatcherMsg;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -15,10 +16,15 @@ public class ArenaService implements Runnable{
     private int id;
     private CopyOnWriteArrayList<Pair<String, Integer>> arenaServerIPs;
     private static int idPl = 0;
+    private Properties properties = new Properties();
+    private FileInputStream fis;
+    private int serverArenaNum;
+    private String propertiesFile;
 
-    public ArenaService(int id, CopyOnWriteArrayList<Pair<String, Integer>> arenaServerIPs) {
+    public ArenaService(int id, CopyOnWriteArrayList<Pair<String, Integer>> arenaServerIPs, String propertiesFile) {
         this.arenaServerIPs = arenaServerIPs;
         this.id = id;
+        this.propertiesFile = propertiesFile;
     }
 
     @Override
@@ -27,17 +33,37 @@ public class ArenaService implements Runnable{
         System.out.println("Запускаем поток для очередного клиента");
         sendToServer();
     }
+    public boolean loadConfig() {
+        try {
+            fis = new FileInputStream(propertiesFile); //"src/main/resources/JdbcConfig.properties"
+            properties.load(fis);
+        } catch (IOException e) {
+            System.out.println("Не удалось загрузить конфиг файл");
+            e.printStackTrace();
+            return false;
+        }
+        try {
+            serverArenaNum = Integer.parseInt(properties.getProperty("servers.num"));
+        } catch (NumberFormatException e) {
+            System.out.println("Не удалось прочитать колво серверов дб");
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
 
 
     private void sendToServer(){
         int arenaServer = 0;
         List<Pair<Integer, Integer>> clientsNums = new LinkedList<>();
+        if(!loadConfig()) return;
 
-        while (arenaServer<arenaServerIPs.size()) {
+        while (arenaServer < serverArenaNum) {
             String ip;
             int port;
-            ip = arenaServerIPs.get(arenaServer).getKey();
-            port = arenaServerIPs.get(arenaServer).getValue();
+            ip = properties.getProperty("ip."+arenaServer);
+            port = Integer.parseInt(properties.getProperty("port."+arenaServer));
 
             System.out.println("[x] Сервер арены: "+ip+ " "+ port);
             try (Socket socket = new Socket(ip, port);

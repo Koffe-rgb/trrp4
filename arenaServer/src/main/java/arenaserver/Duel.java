@@ -77,7 +77,7 @@ public class Duel implements Runnable {
         pool.execute(new Reader());
         pool.execute(new Sender());
 
-        
+
         // отправляем результаты в БД
         // sendResultToDB();
 

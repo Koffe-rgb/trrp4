@@ -70,6 +70,7 @@ public class SocketDBService {
             } finally {
                 try {
                     if (ois != null) ois.close();
+                    fis.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
