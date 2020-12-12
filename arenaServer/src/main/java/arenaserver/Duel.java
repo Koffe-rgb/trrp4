@@ -38,8 +38,8 @@ public class Duel implements Runnable {
     public Duel(Socket client) {
         random = new Random();
 //        player1 = cl1.player;
-        this.player1 = new Player(1, 100, "Cool Guy", "Hercules");
-        this.player2 = new Player(1, 100, "Darth Veider", "Luke");
+        this.player1 = new Player(1, 300, "Cool Guy", "Hercules");
+        this.player2 = new Player(1, 300, "Darth Veider", "Luke");
         player1Socket = client;
         chronicle = new LinkedList<>();
     }
@@ -107,11 +107,13 @@ public class Duel implements Runnable {
     private void Close(){
         System.out.println("[x] Закрываем дуэль");
         try {
-            if(ois!=null) ois.close();
-            if(oos!=null) oos.close();
-            player1Socket.close();
+            if(!player1Socket.isClosed()) {
+                if (ois != null) ois.close();
+                if (oos != null) oos.close();
+                player1Socket.close();
+            }
         } catch (IOException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
         }
         pool.shutdownNow();
     }
@@ -159,24 +161,26 @@ public class Duel implements Runnable {
     private class Sender implements Runnable{
         @Override
         public void run() {
-            try {
-                sendHod();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+
+            sendHod();
             Close();
         }
-        private void sendHod() throws InterruptedException {
+        private void sendHod() {
             boolean isDuelRunning = true;
             Player curPlayer;
             Player enemy;
 
             // начинаем дуэль
             while (isDuelRunning){
-                Thread.sleep(5*1000);
+                try {
+                    Thread.sleep(5*1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 if(hodNum%2==0) {curPlayer = player1; enemy=player2;}
                 else {curPlayer = player2; enemy = player1; }
                 String phrase = getHodResult(-1, curPlayer, enemy);
+                System.out.println("[!] Результаты хода "+hodNum+": "+player1.getLives() +" "+player2.getLives());
                 isDuelRunning = !isGameFinished();
                 // отправляем результаты хода
                 System.out.println("[x] Заканчиваем дуэль? " + !isDuelRunning);
@@ -188,6 +192,7 @@ public class Duel implements Runnable {
                 else {
                     msgType = 0;
                     phrase+=" \n "+curPlayer.getHero()+" одержал оглушительную победу над "+enemy.getHero();
+                    System.out.println(phrase);
                     winnerId = curPlayer.getId();
                     loserId = enemy.getId();
                 }
@@ -198,7 +203,7 @@ public class Duel implements Runnable {
                     oos.flush();
                 } catch (IOException e) {
                     System.out.println("[x] Клиент был отключен");
-                    e.printStackTrace();
+//                    e.printStackTrace();
                 }
 
                 chronicle.add(phrase);
@@ -241,5 +246,17 @@ public class Duel implements Runnable {
 //                }
 //                isDuelRunning = isGameFinished();       // проверяем не пора ли заканчивать
         }
+    }
+    public synchronized void reconnect(Socket socket){
+//        Close();
+        System.out.println("[x] Reconnection");
+        player1Socket = socket;
+        try {
+            oos = new ObjectOutputStream(player1Socket.getOutputStream());
+            ois = new ObjectInputStream(player1Socket.getInputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println("[x] Reconnection complete");
     }
 }

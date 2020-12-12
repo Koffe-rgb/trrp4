@@ -15,17 +15,17 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
+
 public class Server implements Runnable{
+    private static int _count = 0;
     static ExecutorService pool = Executors.newFixedThreadPool(10);     // один на диспетчеров, остальные для дуэлей
     static final List<Client> clientsQueue = Collections.synchronizedList(new LinkedList<>());  // хранит очередь клиентов, отправивших свой id
 
     static final List<Client> duelsList = Collections.synchronizedList(new LinkedList<>());     // хранит список дуэлей
     static final Hashtable<Integer, Player> playerInfoMap = new Hashtable<>(100);      // мап, хранящий инфу про клиента, полученную от диспетчера
     static ExecutorService clientPool = Executors.newCachedThreadPool();           // пул, отвечающий за обработку конкретного клиента
-    static BlockingQueue<Client> pairs = new ArrayBlockingQueue<>(4);         // очередь на дуэли из 4-х пар
-    static final ExecutorService duels = Executors.newCachedThreadPool();
-    Socket scl1 = null, scl2 = null;
 
+    
 
     @Override
     public void run() {
@@ -95,6 +95,7 @@ public class Server implements Runnable{
 
 
     }
+    Duel _duel;
     private class ClientListener implements Runnable{
         private ServerSocket server;
         @Override
@@ -111,7 +112,12 @@ public class Server implements Runnable{
                     System.out.println("Ожидание нового клиента");
                     // предобщение -> получаем id клиента, добавляем его в очередь
                     Socket client = server.accept();
-                    pool.execute(new Duel(client));
+                    _count++;
+                    if(_count==1) {
+                        _duel = new Duel(client);
+                        pool.execute(_duel);
+                    }
+                    else _duel.reconnect(client);
 //                    findPair();         // при добавлении нового клиента, проверяем нельзя ли найти ему пару для дуэли
 
                 } catch (IOException e) {

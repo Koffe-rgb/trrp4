@@ -23,6 +23,7 @@ public class ArenaService implements Runnable{
     private ObjectInputStream ois = null;
     private ObjectOutputStream oos = null;
 
+
     public ArenaService(int id, CopyOnWriteArrayList<Pair<String, Integer>> arenaServerIPs) {
         this.arenaServerIPs = arenaServerIPs;
         this.id = id;

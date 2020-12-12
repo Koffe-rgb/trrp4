@@ -14,7 +14,7 @@ public class App {
         for(int i=0; i<10; i++){
             clientsQueue.add(i);
         }
-        arenaServerIPs.add(new Pair<>("localhost", 8006));
+        arenaServerIPs.add(new Pair<>("192.168.0.9", 8006));
 
 //        for(int i=0; i<10; i++) {
 //            try {
