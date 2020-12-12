@@ -17,7 +17,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class Server implements Runnable{
-    private static int _count = 0;
     private static ExecutorService pool = Executors.newFixedThreadPool(10);     // один на диспетчеров, остальные для дуэлей
     private static final List<Client> clientsQueue = Collections.synchronizedList(new LinkedList<>());  // хранит очередь клиентов, отправивших свой id
 
@@ -161,14 +160,15 @@ public class Server implements Runnable{
                 {
                     System.out.println("[x] клиент: "+player1Socket.getLocalAddress()+" был добавлен");
                 }
-                oos.writeInt(-1);
+                oos.writeInt(1);
                 oos.flush();
 
-
+                player1Socket.setSoTimeout(100*60*1000);   // ждем id от клиента в течение минуты
             } catch (IOException  e) {
                 e.printStackTrace();
             }
-            Player pl1 = new Player(-1);
+
+            Player pl1 = new Player(1);
             return pl1;
         }
 
