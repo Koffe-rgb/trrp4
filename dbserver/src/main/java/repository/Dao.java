@@ -88,6 +88,10 @@ public class Dao {
                 .execute();
     }
 
+    public void deleteUser(User user) {
+        deleteUser(user.getId());
+    }
+
     public Hero selectHero(int id) {
         QHeroes qHeroes = QHeroes.heroes;
         return queryFactory.select(Projections.constructor(Hero.class,
@@ -122,6 +126,10 @@ public class Dao {
                 .execute();
     }
 
+    public void deleteHero(Hero hero) {
+        deleteHero(hero.getId());
+    }
+
     public Statistic selectStatistic(int idUser) {
         QStatistic qStatistic = QStatistic.statistic;
         return queryFactory.select(Projections.constructor(Statistic.class,
@@ -138,7 +146,7 @@ public class Dao {
         if (existed == null) {
             queryFactory.insert(qStatistic)
                     .columns(qStatistic.idUser, qStatistic.wins, qStatistic.loses)
-                    .values(idUser, 0, 0)
+                    .values(idUser, nWins, nLoses)
                     .execute();
         } else {
             queryFactory.update(qStatistic)

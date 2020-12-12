@@ -17,9 +17,6 @@ public class ArenaSocketServerListener implements Runnable {
     private final ExecutorService threadPool;
     private int port;
 
-    // TODO пример использования:
-    //  ExecutorService threadPool = Executors.newCachedThreadPool();
-    //  threadPool.execute(new ArenaSocketServerListener(new Dao(), 8000));
 
     public ArenaSocketServerListener(Dao dbManager, int port) {
         this.dbManager = dbManager;
@@ -28,14 +25,13 @@ public class ArenaSocketServerListener implements Runnable {
     }
 
     public void run() {
-        try {
-            ServerSocket serverSocket = new ServerSocket(port);
+        try (ServerSocket serverSocket = new ServerSocket(port)) {
 
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 System.out.println(("[x] Shutting down Arena Listener since JVM is shutting down"));
                 try {
-                    serverSocket.close();
-                    threadPool.shutdown();
+                    if (!serverSocket.isClosed()) serverSocket.close();
+                    if (!threadPool.isShutdown()) threadPool.shutdown();
                 } catch (IOException e) { e.printStackTrace(); }
                 System.out.println("[x] Arena Listener shut down");
             }));
@@ -52,7 +48,7 @@ public class ArenaSocketServerListener implements Runnable {
         }
     }
 
-    private static class PhraseRequestHandler implements Runnable {
+    private class PhraseRequestHandler implements Runnable {
         private final Socket socket;
         private final Dao dbManager;
 
@@ -75,6 +71,7 @@ public class ArenaSocketServerListener implements Runnable {
                 System.out.println("[.] Phrases packed : " + LocalDateTime.now());
 
                 oos.writeObject(message);
+                oos.flush();
                 System.out.println("[.] Sent to client : " + LocalDateTime.now());
 
             } catch (IOException e) {

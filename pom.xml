@@ -12,6 +12,7 @@
 
     <modules>
         <module>dbserver</module>
+        <module>dispatcher</module>
     </modules>
 
 

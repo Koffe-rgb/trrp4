@@ -25,15 +25,6 @@ public class ArenaMqServerConsumer implements Runnable {
         this.dbManager = dbManager;
     }
 
-    public ArenaMqServerConsumer(String host, int port, String username, String password, String queueName, Dao dbManager) {
-        this.host = host;
-        this.port = port;
-        this.username = username;
-        this.password = password;
-        this.queueName = queueName;
-        this.dbManager = dbManager;
-    }
-
     @Override
     public void run() {
         ConnectionFactory factory = new ConnectionFactory();
