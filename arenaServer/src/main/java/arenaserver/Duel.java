@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -18,7 +19,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Duel implements Runnable {
     private Socket player1Socket = null;
-    private Socket player2Socket = null;
     private Player player1 = null;
     private Player player2 = null;
     private int hodNum;
@@ -29,24 +29,13 @@ public class Duel implements Runnable {
     private int loserId = -1;
     private AtomicInteger duelsCount;
 
-    public Duel(Pair<Client, Client> pair, AtomicInteger duelsCount) {
-        this.duelsCount = duelsCount;
-        Client cl1 = pair.getKey();
-        Client cl2 = pair.getValue();
-        player1 = cl1.player;
-        player2 = cl2.player;
-        player1Socket = cl1.socket;
-        player2Socket = cl2.socket;
-    }
-
-    public Duel(Socket player1Socket, Socket player2Socket, Player player1, Player player2, Phrases phrases) {
-        this.player1Socket = player1Socket;
-        this.player2Socket = player2Socket;
-        this.player1 = player1;
-        this.player2 = player2;
+    public Duel(Client client, AtomicInteger duelsCount) {
         random = new Random();
-        chronicle = new LinkedList<>();
-        this.phrases = phrases;
+        this.duelsCount = duelsCount;
+//        player1 = cl1.player;
+        this.player1 = new Player(1, 100, "Cool Guy", "Hercules");
+        this.player2 = new Player(1, 100, "Darth Veider", "Luke");
+        player1Socket = client.socket;
     }
 
     @Override
@@ -54,22 +43,32 @@ public class Duel implements Runnable {
         runDuel();
     }
     private void runDuel(){
+        System.out.println("[x] Начинаем дуэль");
+        ObjectInputStream ois1 = null;
+        ObjectOutputStream oos1= null;
         try {
-            ObjectInputStream ois1 = new ObjectInputStream(player1Socket.getInputStream());
-            ObjectInputStream ois2 = new ObjectInputStream(player2Socket.getInputStream());
-            ObjectOutputStream oos1 = new ObjectOutputStream(player1Socket.getOutputStream());
-            ObjectOutputStream oos2 = new ObjectOutputStream(player2Socket.getOutputStream());
+            ois1 = new ObjectInputStream(player1Socket.getInputStream());
+            oos1 = new ObjectOutputStream(player1Socket.getOutputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("[x] Не удалось получить стримы");
+        }
 
-            // отправляем "приветы"
+        // отправляем "приветы"
+        System.out.println("[x] Отправляем приветы");
             String hiPhrase = "На поле битвы сошлись "+player1.getNickname()+" и "+player2.getNickname();
             chronicle.add(hiPhrase);
             ClientMsg clientMsg1 = new ClientMsg(hiPhrase, player1.getLives(), player2.getLives(), false);
-            ClientMsg clientMsg2 = new ClientMsg(hiPhrase, player2.getLives(), player1.getLives(), true);
 
+        try {
             oos1.writeObject(clientMsg1);
-            oos2.writeObject(clientMsg2);
             oos1.flush();
-            oos2.flush();
+            System.out.println("[x] Приветы отправленны");
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("[x] Не удалось отправить приветствие");
+        }
+
 
             boolean isDuelRunning = true;
             Player curPlayer;
@@ -82,25 +81,35 @@ public class Duel implements Runnable {
 
             // начинаем дуэль
             while (isDuelRunning){
-                if(hodNum%2==0) {curPlayer = player1; enemy=player2; curSocket = player1Socket; curois = ois1; curoos=oos1;enemyoos = oos2;}
-                else {curPlayer = player2; curSocket = player2Socket; curois = ois2; enemy = player1; curoos=oos2; enemyoos = oos1;}
+                curSocket=null;
+                if(hodNum%2==0) {curPlayer = player1; enemy=player2; curSocket = player1Socket; curois = ois1; curoos=oos1; enemyoos=null;}
+                else {curPlayer = player2; enemy = player1; enemyoos = oos1; curois=null; curoos=null;}
 
-                curSocket.setSoTimeout(30*1000);    //ждем ответа от клиента (ms)
+                if (curSocket!=null){
+                    try {
+                        curSocket.setSoTimeout(30*1000);    //ждем ответа от клиента (ms)
+                    } catch (SocketException e) {
+                        e.printStackTrace();
+                        System.out.println("[x] Ошибка установки тайм-аута");
+                    }
+                }
+
                 clientMsg1.clear();
                 String phrase = "";
                 int glas = -1;
-                try {
-                    // пытаемся получить воздействие
-                    clientMsg1 = (ClientMsg) curois.readObject();
-                    glas = clientMsg1.getGlas();
+                if (curSocket!=null) {
+                    try {
+                        // пытаемся получить воздействие
+                        clientMsg1 = (ClientMsg) curois.readObject();
+                        glas = clientMsg1.getGlas();
 
-                } catch (ClassNotFoundException e) {
-                    System.out.println("Воздействия не было на " + hodNum + " ходу");
-                    // e.printStackTrace();
-                }
-                finally {
-                    // получаем результат хода
-                    phrase = getHodResult(glas, curPlayer, enemy);
+                    } catch (ClassNotFoundException | IOException e) {
+                        System.out.println("Воздействия не было на " + hodNum + " ходу");
+                        // e.printStackTrace();
+                    } finally {
+                        // получаем результат хода
+                        phrase = getHodResult(glas, curPlayer, enemy);
+                    }
                 }
                 isDuelRunning = isGameFinished();       // проверяем не пора ли заканчивать
                 // отправляем результаты хода
@@ -115,35 +124,37 @@ public class Duel implements Runnable {
                     winnerId = curPlayer.getId();
                     loserId = enemy.getId();
                 }
-                curoos.writeObject(new ClientMsg(msgType, hodNum, phrase, curPlayer.getLives(), enemy.getLives()));
-                enemyoos.writeObject(new ClientMsg(msgType, hodNum, phrase, enemy.getLives(), curPlayer.getLives()));
-                curoos.flush();
-                enemyoos.flush();
+
+                    try {
+                        if (curoos!=null) {
+                            curoos.writeObject(new ClientMsg(msgType, hodNum, phrase, curPlayer.getLives(), enemy.getLives()));
+                            curoos.flush();
+                        }
+                        else{
+                            enemyoos.writeObject(new ClientMsg(msgType, hodNum, phrase, enemy.getLives(), curPlayer.getLives()));
+                            enemyoos.flush();
+
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        System.out.println("[x] Клиент был отключен");
+                }
+
                 chronicle.add(phrase);
                 hodNum++;
             }
 
             System.out.println("[x] Закрываем дуэль");
-            ois1.close();
-            ois2.close();
-            oos1.close();
-            oos2.close();
+        try {
+            if(ois1!=null) ois1.close();
+            if(oos1!=null) oos1.close();
             player1Socket.close();
-            player2Socket.close();
-            // отправляем результаты в БД
-            sendResultToDB();
-
         } catch (IOException e) {
-            System.out.println("[x] Проблемы со стримами");
             e.printStackTrace();
         }
-
-        finally {
-            duelsCount.decrementAndGet();
-        }
-
-
-        //return new Pair<>(winnerId, loserId);
+            // отправляем результаты в БД
+        sendResultToDB();
+        duelsCount.decrementAndGet();
 
     }
 
@@ -183,7 +194,7 @@ public class Duel implements Runnable {
      * Отправляет результаты в бд
      */
     private void sendResultToDB(){
-        //send(winnerId, loserId);
+        //send(new int[2]{winnerId, loserId});
     }
     public synchronized void reconnect(Socket player){
         //if (!player1.isConnected())

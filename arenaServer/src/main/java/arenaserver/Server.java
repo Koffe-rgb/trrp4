@@ -23,25 +23,26 @@ public class Server implements Runnable{
     static final List<Client> duelsList = Collections.synchronizedList(new LinkedList<>());     // хранит список дуэлей
     static final Hashtable<Integer, Player> playerInfoMap = new Hashtable<>(100);      // мап, хранящий инфу про клиента, полученную от диспетчера
     static ExecutorService clientPool = Executors.newCachedThreadPool();           // пул, отвечающий за обработку конкретного клиента
-    static BlockingQueue<Pair<Client, Client>> pairs = new ArrayBlockingQueue<>(4);         // очередь на дуэли из 4-х пар
+    static BlockingQueue<Client> pairs = new ArrayBlockingQueue<>(4);         // очередь на дуэли из 4-х пар
+    static final ExecutorService duels = Executors.newCachedThreadPool();
+    Socket scl1 = null, scl2 = null;
 
 
     @Override
     public void run() {
         System.out.println("Запускаем сервер арены");
         // запускаем слушателя диспетчера
-        pool.execute(new DispatcherListener());
+//        pool.execute(new DispatcherListener());
         // запускаем слушателя клиентов
-//        pool.execute(new ClientListener());
+        pool.execute(new ClientListener());
         // запускаем сервис проведения дуэли
-//        pool.execute(new DuelStarter());
+        pool.execute(new DuelStarter());
 
     }
 
 
     private class DuelStarter implements Runnable{
         AtomicInteger duelsCount = new AtomicInteger(0);
-        ExecutorService duels = Executors.newFixedThreadPool(8);
         @Override
         public void run() {
             try {
@@ -50,7 +51,9 @@ public class Server implements Runnable{
                 synchronized (duelsCount) {
                     if (duelsCount.get() <= 8) {
                         duelsCount.addAndGet(1);
-                        duels.execute(new Duel(pairs.take(), duelsCount));     // отправляем пару на дуэль
+                        System.out.println("[x] Размер очереди пар "+pairs.size());
+                        Client newCl = pairs.take();
+                        duels.execute(new Duel(newCl, duelsCount));     // отправляем пару на дуэль
                     }
                 }
 
@@ -90,7 +93,7 @@ public class Server implements Runnable{
                             System.out.println("[x] Добавляем клиента "+msg.getPlayer().getId());
                             playerInfoMap.putIfAbsent(msg.getPlayer().getId(), msg.getPlayer());        // добавляем данные про игрока
                             System.out.println("[x] Колво данных об игроках = "+playerInfoMap.size());
-//                            clientsQueue.add(new Client(msg.getPlayer()));     //TODO - убрать
+                            clientsQueue.add(new Client(msg.getPlayer()));     //TODO - убрать
                             oos.writeObject(new DispatcherMsg(new Player(), -1, ""));
                         }
                         oos.flush();        // отправляем ответ диспетчеру
@@ -117,25 +120,29 @@ public class Server implements Runnable{
     }
     private class ClientListener implements Runnable{
         private ServerSocket server;
-
         @Override
         public void run() {
+            System.out.println("Запускаем слушателя клиентов");
+            try {
+                server = new ServerSocket(8006);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             // ждем клиента
             while(!server.isClosed()){
                 try {
-
                     System.out.println("Ожидание нового клиента");
-                    Socket client = server.accept();          // принимаем клиента
-                    System.out.println("Новый клиент был добавлен");
                     // предобщение -> получаем id клиента, добавляем его в очередь
+                    Socket client = server.accept();
                     pool.execute(new ClientHandler(client));
-                    findPair();         // при добавлении нового клиента, проверяем нельзя ли найти ему пару для дуэли
-
-
+//                    findPair();         // при добавлении нового клиента, проверяем нельзя ли найти ему пару для дуэли
+                    if(client!=null) System.out.println("---> "+client.isClosed());
+                    pairs.add(new Client(client, new Player()));
 
                 } catch (IOException e) {
                     //if (!server.isClosed()){server.close();}
                     System.out.println("Сервер закрыт - "+server.isClosed());
+
                     System.out.println(e.getMessage());
                     //System.exit(1);
                 }
@@ -143,41 +150,49 @@ public class Server implements Runnable{
         }
     }
 
-
-
     // проверяет колво людей в очереди и добавляет пару игроков в очередь на дуэль
     private void findPair(){
+        System.out.println("[x] Ищем пары");
         Client cl1 = null, cl2 = null;
-        int cl1Index = -1, cl2Index = -1;
         synchronized (clientsQueue){
             // если в очереди есть клиенты
-            if (clientsQueue.size()>0){
+            if (clientsQueue.size()>0) {
                 boolean isFound = false;
                 int i = 0;
 
                 // пробуем найти двух готовых игроков
-                while (!isFound && i<clientsQueue.size()){
+                while (!isFound && i < clientsQueue.size()) {
+                    System.out.println("[x] closed, conn = " + clientsQueue.get(i).socket.isClosed() + clientsQueue.get(i).socket.isConnected());
                     if (clientsQueue.get(i).socket.isConnected()) {
                         if (cl1 == null) {
                             cl1 = clientsQueue.get(i);
-                            cl1Index = i;
                         } else {
                             cl2 = clientsQueue.get(i);
                             isFound = true;
-                            cl2Index = i;
+                            System.out.println("[x] Найдена пара");
                         }
                         i++;
-                    }
-                    else{
+                    } else {
                         clientsQueue.remove(i);         // удаляем клиента из очереди, если он отключился
-                        System.out.println("[х] Удаляем клиента номер "+i+" из очереди");
+                        System.out.println("[х] Удаляем клиента номер " + i + " из очереди ");
                     }
                 }
                 // добавляем пару в очередь на дуэль, если такая находится
-                if(pairs.offer(new Pair<>(cl1, cl2))){
-                    // удаляем из очереди клиентов
-                    clientsQueue.remove(cl1);
-                    clientsQueue.remove(cl2);
+                System.out.println("cl size " + clientsQueue.size());
+                if (cl1 != null) System.out.println("[x] cl1 id " + cl1.player.getId());
+                if (cl2 != null) System.out.println("[x] cl2 id " + cl2.player.getId());
+
+                if (isFound) {
+                    cl1.socket = scl1;
+                    cl2.socket = scl2;
+                    System.out.println("Сервер закрыт - " + cl1.socket.isClosed());
+                    System.out.println("Сервер закрыт - " + cl2.socket.isClosed());
+//                    if (pairs.offer(new Pair<>(cl1, cl2))) {
+//                        System.out.println("[x] Добавляем клиентов в очередь");
+//                        // удаляем из очереди клиентов
+//                        clientsQueue.remove(cl1);
+//                        clientsQueue.remove(cl2);
+//                    }
                 }
             }
 
@@ -198,7 +213,6 @@ public class Server implements Runnable{
         @Override
         public void run() {
             handleWithSocket();
-            //return handleWithSocket();
         }
 
         /**
@@ -214,18 +228,28 @@ public class Server implements Runnable{
             }
             try (ObjectInputStream ois = new ObjectInputStream(client.getInputStream());
                 ObjectOutputStream oos = new ObjectOutputStream(client.getOutputStream())){
-                ClientMsg msg = (ClientMsg) ois.readObject();
-                id = msg.getIdClient();
+//                ClientMsg msg = (ClientMsg) ois.readObject();
+//                id = msg.getIdClient();
+                id = ois.readInt();     // TODO получение сообщения
                 // проверяем, что у нас есть данные об этом клиенте
-                Player pl1 = playerInfoMap.get(id);
+//                Player pl1 = playerInfoMap.get(id);
                 Client cl;
-                if (pl1!=null) {
-                    cl = new Client(client, pl1);       // добавляем клиента в очередь, если данные найдены
-                    clientsQueue.add(cl);
-                    oos.writeChars("Welcome to queue");     //отправляем клиенту сообщение, что мы поставили его в очередь
+//                if (pl1!=null) {      //Todo
+                {
+//                    cl = new Client(client, pl1);       // добавляем клиента в очередь, если данные найдены
+                    cl = new Client(client, new Player(69));       // добавляем клиента в очередь, если данные найдены
+                    System.out.println("[x] клиент: "+client.getLocalAddress()+" был добавлен");
+//                    oos.writeChars("Welcome to queue");     //отправляем клиенту сообщение, что мы поставили его в очередь
+                    oos.writeBoolean(true);
                     oos.flush();
+                    clientsQueue.add(cl);
+                    System.out.println("[x] клиентов в очереди - "+clientsQueue.size());
+
+//                    pairs.add(cl);
+                    //findPair();
                 }
-            } catch (IOException | ClassNotFoundException e) {
+
+            } catch (IOException  e) {
                 e.printStackTrace();
             }
 

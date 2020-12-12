@@ -14,18 +14,23 @@ public class App {
         for(int i=0; i<10; i++){
             clientsQueue.add(i);
         }
-        arenaServerIPs.add(new Pair<>("localhost", 8002));
+        arenaServerIPs.add(new Pair<>("localhost", 8006));
 
-        for(int i=0; i<10; i++) {
-            try {
-                pool.execute(new ArenaService(clientsQueue.take(), arenaServerIPs));
-                Thread.sleep(5*1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+//        for(int i=0; i<10; i++) {
+//            try {
+//                pool.execute(new ArenaService(clientsQueue.take(), arenaServerIPs));
+//                Thread.sleep(5*1000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//        }
+
+        try {
+            pool.execute(new ArenaService(clientsQueue.take(), arenaServerIPs));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-
-        pool.shutdown();
+//        pool.shutdown();
 
         // до бесконечности
 //        while (true) {
