@@ -23,7 +23,6 @@ public class ArenaService implements Runnable{
     private ObjectInputStream ois = null;
     private ObjectOutputStream oos = null;
 
-
     public ArenaService(int id, CopyOnWriteArrayList<Pair<String, Integer>> arenaServerIPs) {
         this.arenaServerIPs = arenaServerIPs;
         this.id = id;
@@ -57,10 +56,18 @@ public class ArenaService implements Runnable{
             oos = new ObjectOutputStream(socket.getOutputStream());
             ois = new ObjectInputStream(socket.getInputStream());
 
-            socket.setSoTimeout(20 * 1000);     // ждем ответа минуту
+            socket.setSoTimeout(60 * 1000);     // ждем ответа минуту
             oos.writeInt(1);
             oos.flush();
             System.out.println("[x] id отправлен серверу "+ip+" "+port);
+            int success = ois.readInt();
+            System.out.println("[x] is success: "+ success);
+            // TODO: если не получили подтверждения подключения, то на сервере нет информации про клиента
+            // сообщаем пользователю и кидаем на главный экран
+            if (success!=1){
+                Close();
+                return;
+            }
 
         } catch (IOException e) {
             System.out.println("[x] Ошибка подключения к серверу арены");

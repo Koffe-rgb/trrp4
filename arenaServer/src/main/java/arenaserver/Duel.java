@@ -12,13 +12,8 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.*;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Duel implements Runnable {
@@ -34,20 +29,24 @@ public class Duel implements Runnable {
     private ObjectInputStream ois;
     private ObjectOutputStream oos;
     ExecutorService pool = Executors.newFixedThreadPool(2);
+    private Map<Integer, Duel> clientIdsInDuel;
 
-    public Duel(Socket client) {
+    public Duel(Socket client, Map<Integer, Duel> clientIdsInDuel, ObjectInputStream ois, ObjectOutputStream oos, Player player) {
         random = new Random();
 //        player1 = cl1.player;
-        this.player1 = new Player(1, 300, "Cool Guy", "Hercules");
+        this.player1 = new Player(1, 300, "Cool Guy", "Hercules"); //player;
         this.player2 = new Player(1, 300, "Darth Veider", "Luke");
         player1Socket = client;
         chronicle = new LinkedList<>();
+        this.clientIdsInDuel = clientIdsInDuel;
+        this.oos = oos;
+        this.ois = ois;
     }
 
     @Override
     public void run(){
-        handleWithSocket();
         runDuel();
+
     }
     /**
      * Обрабатывает первое сообщение от пользователя (получает id),
@@ -116,6 +115,9 @@ public class Duel implements Runnable {
 //            e.printStackTrace();
         }
         pool.shutdownNow();
+
+        // удаляем ид клиента
+        clientIdsInDuel.remove(player1.getId());
     }
 
     // игра заканчивается, когда у противника на очередном ходе заканчивается здоровье
@@ -247,16 +249,17 @@ public class Duel implements Runnable {
 //                isDuelRunning = isGameFinished();       // проверяем не пора ли заканчивать
         }
     }
-    public synchronized void reconnect(Socket socket){
+
+    /**
+     * Метод, вызываемый внешним потоком для реконнекта клиента
+     * @param socket
+     */
+    public synchronized void reconnect(Socket socket, ObjectOutputStream oos, ObjectInputStream ois){
 //        Close();
         System.out.println("[x] Reconnection");
         player1Socket = socket;
-        try {
-            oos = new ObjectOutputStream(player1Socket.getOutputStream());
-            ois = new ObjectInputStream(player1Socket.getInputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        this.oos = oos;
+        this.ois = ois;
         System.out.println("[x] Reconnection complete");
     }
 }

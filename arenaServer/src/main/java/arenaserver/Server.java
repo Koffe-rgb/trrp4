@@ -18,14 +18,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Server implements Runnable{
     private static int _count = 0;
-    static ExecutorService pool = Executors.newFixedThreadPool(10);     // один на диспетчеров, остальные для дуэлей
-    static final List<Client> clientsQueue = Collections.synchronizedList(new LinkedList<>());  // хранит очередь клиентов, отправивших свой id
+    private static ExecutorService pool = Executors.newFixedThreadPool(10);     // один на диспетчеров, остальные для дуэлей
+    private static final List<Client> clientsQueue = Collections.synchronizedList(new LinkedList<>());  // хранит очередь клиентов, отправивших свой id
 
-    static final List<Client> duelsList = Collections.synchronizedList(new LinkedList<>());     // хранит список дуэлей
-    static final Hashtable<Integer, Player> playerInfoMap = new Hashtable<>(100);      // мап, хранящий инфу про клиента, полученную от диспетчера
-    static ExecutorService clientPool = Executors.newCachedThreadPool();           // пул, отвечающий за обработку конкретного клиента
+    private static final List<Client> duelsList = Collections.synchronizedList(new LinkedList<>());     // хранит список дуэлей
+    private static final Hashtable<Integer, Player> playerInfoMap = new Hashtable<>(100);      // мап, хранящий инфу про клиента, полученную от диспетчера
+    private static ExecutorService clientPool = Executors.newCachedThreadPool();           // пул, отвечающий за обработку конкретного клиента
+    private static ConcurrentMap<Integer, Duel> clientIdsInDuel = new ConcurrentHashMap<>(100);    // мап, хранящий дуэли и ид клиентов, участвующих на данный момент в дуэлях
 
-    
+
 
     @Override
     public void run() {
@@ -95,7 +96,7 @@ public class Server implements Runnable{
 
 
     }
-    Duel _duel;
+
     private class ClientListener implements Runnable{
         private ServerSocket server;
         @Override
@@ -112,14 +113,24 @@ public class Server implements Runnable{
                     System.out.println("Ожидание нового клиента");
                     // предобщение -> получаем id клиента, добавляем его в очередь
                     Socket client = server.accept();
-                    _count++;
-                    if(_count==1) {
-                        _duel = new Duel(client);
-                        pool.execute(_duel);
-                    }
-                    else _duel.reconnect(client);
-//                    findPair();         // при добавлении нового клиента, проверяем нельзя ли найти ему пару для дуэли
+                    // ищем данные от диспетчера
+                    ObjectInputStream ois = new ObjectInputStream(client.getInputStream());
+                    ObjectOutputStream oos = new ObjectOutputStream(client.getOutputStream());
 
+                    Player pl = handleWithSocket(client, oos, ois);
+                    System.out.println("----> client id = "+pl.getId());
+                    Duel _duel = new Duel(client, clientIdsInDuel, ois, oos, pl);
+                    if(pl.getId()==-1) {}
+                    else {
+                        System.out.println("-----> size = "+clientIdsInDuel.size());
+                        Duel d = clientIdsInDuel.putIfAbsent(pl.getId(), _duel);
+                        System.out.println("-----> size = "+clientIdsInDuel.size());
+
+                        if (d==null)
+                            pool.execute(_duel);
+                        else
+                            d.reconnect(client, oos, ois);
+                    }
                 } catch (IOException e) {
                     //if (!server.isClosed()){server.close();}
                     System.out.println("Сервер закрыт - "+server.isClosed());
@@ -128,7 +139,42 @@ public class Server implements Runnable{
                     //System.exit(1);
                 }
             }
+
         }
+        /**
+         * Обрабатывает первое сообщение от пользователя (получает id),
+         * возвращает ответ клиенту, добавляет его в очередь
+         */
+        private Player handleWithSocket(Socket player1Socket, ObjectOutputStream oos, ObjectInputStream ois){
+            int id = -1;
+            try {
+                player1Socket.setSoTimeout(2*1000);   // ждем id от клиента в течение минуты
+            } catch (SocketException e) {
+                e.printStackTrace();
+            }
+            try {
+                id = ois.readInt();
+                // проверяем, что у нас есть данные об этом клиенте
+//                Player pl1 = playerInfoMap.get(id);
+
+//                if (pl1!=null) {      //Todo
+                {
+                    System.out.println("[x] клиент: "+player1Socket.getLocalAddress()+" был добавлен");
+                }
+                oos.writeInt(-1);
+                oos.flush();
+
+
+            } catch (IOException  e) {
+                e.printStackTrace();
+            }
+            Player pl1 = new Player(-1);
+            return pl1;
+        }
+
+
+
+
     }
 
 
