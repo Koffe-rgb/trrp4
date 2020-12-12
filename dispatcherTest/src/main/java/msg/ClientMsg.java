@@ -56,8 +56,6 @@ public class ClientMsg implements Serializable {
     }
 
 
-
-
     public void clear(){
         type = -1;
         hodNum = -1;

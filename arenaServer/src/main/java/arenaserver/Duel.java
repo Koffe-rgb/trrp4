@@ -2,6 +2,7 @@ package arenaserver;
 
 import classes.Phrases;
 import classes.Player;
+import com.sun.xml.internal.ws.resources.ClientMessages;
 import javafx.util.Pair;
 import msg.ClientMsg;
 
@@ -88,8 +89,7 @@ public class Duel implements Runnable {
             ClientMsg clientMsg1 = new ClientMsg(hiPhrase, player1.getLives(), player2.getLives(), false);
 
         try {
-//            oos1.writeObject(clientMsg1);
-            oos.writeInt(1);
+            oos.writeObject(clientMsg1);
             oos.flush();
             System.out.println("[x] Приветы отправленны");
         } catch (IOException e) {
@@ -120,8 +120,8 @@ public class Duel implements Runnable {
     private boolean isGameFinished(){
         // если ход четный, проверяем здоровье второго (нечетного) игрока
         if (hodNum%2==0)
-            return player2.getLives()<0;
-        else return player1.getLives()<0;
+            return player1.getLives()<=0;
+        else return player2.getLives()<=0;
     }
 
     /**
@@ -139,13 +139,13 @@ public class Duel implements Runnable {
         enemy.setLives(enemy.getLives()-damage);
         if (glas==0){   //"плохо"
             enemy.setLives(enemy.getLives()-plus);
-            phrase = phrases.getBadPhrase(curPlayer.getHero(), enemy.getHero());
+//            phrase = phrases.getBadPhrase(curPlayer.getHero(), enemy.getHero());
         }
         else if (glas==1){   //"хорошо"
             curPlayer.setLives(curPlayer.getLives()+plus);
-            phrase = phrases.getGoodPhrase(curPlayer.getHero(), enemy.getHero());
+//            phrase = phrases.getGoodPhrase(curPlayer.getHero(), enemy.getHero());
         }
-
+        if (enemy.getLives()<0) enemy.setLives(0);
         return phrase;
     }
 
@@ -167,22 +167,17 @@ public class Duel implements Runnable {
             Close();
         }
         private void sendHod() throws InterruptedException {
-            long time = System.currentTimeMillis()/1000;
             boolean isDuelRunning = true;
             Player curPlayer;
             Player enemy;
-            Socket curSocket;
 
-            ObjectInputStream curois;
-            ObjectOutputStream curoos;
-            ObjectOutputStream enemyoos;
             // начинаем дуэль
             while (isDuelRunning){
                 Thread.sleep(5*1000);
-                if(hodNum%2==0) {curPlayer = player1; enemy=player2; curoos=oos; enemyoos=null;}
-                else {curPlayer = player2; enemy = player1; enemyoos = oos; curoos=null;}
-                String phrase = "";
-                isDuelRunning = hodNum<3;
+                if(hodNum%2==0) {curPlayer = player1; enemy=player2;}
+                else {curPlayer = player2; enemy = player1; }
+                String phrase = getHodResult(-1, curPlayer, enemy);
+                isDuelRunning = !isGameFinished();
                 // отправляем результаты хода
                 System.out.println("[x] Заканчиваем дуэль? " + !isDuelRunning);
                 int msgType = 1;
@@ -192,41 +187,24 @@ public class Duel implements Runnable {
                 // заканчиваем дуэль
                 else {
                     msgType = 0;
-                    phrase+=". \n "+curPlayer.getHero()+" одержал оглушительную победу над "+enemy.getHero();
+                    phrase+=" \n "+curPlayer.getHero()+" одержал оглушительную победу над "+enemy.getHero();
                     winnerId = curPlayer.getId();
                     loserId = enemy.getId();
                 }
+                ClientMsg clientMsg = new ClientMsg(msgType, hodNum, phrase, hodNum%2!=0?curPlayer.getLives():enemy.getLives(), hodNum%2!=0?enemy.getLives():curPlayer.getLives());
 
                 try {
-                    if (curoos!=null) {
-//                            curoos.writeObject(new ClientMsg(msgType, hodNum, phrase, curPlayer.getLives(), enemy.getLives()));
-                        if(!isDuelRunning)
-                            curoos.writeInt(2);
-                        else
-                            curoos.writeInt(6);
-                        curoos.flush();
-                    }
-                    else{
-//                            enemyoos.writeObject(new ClientMsg(msgType, hodNum, phrase, enemy.getLives(), curPlayer.getLives()));
-                        if(!isDuelRunning)
-                            enemyoos.writeInt(2);
-                        else
-                            enemyoos.writeInt(3);
-
-                        enemyoos.flush();
-
-                    }
+                    oos.writeObject(clientMsg);
+                    oos.flush();
                 } catch (IOException e) {
-                    e.printStackTrace();
                     System.out.println("[x] Клиент был отключен");
+                    e.printStackTrace();
                 }
 
                 chronicle.add(phrase);
                 hodNum++;
             }
-
         }
-
     }
     private class Reader implements Runnable{
 
@@ -241,6 +219,7 @@ public class Duel implements Runnable {
                     int n = ois.readInt();
                     System.out.println(n);
                 } catch (IOException e) {
+                    System.out.println("[x] Сокет был закрыт. Прерывем поток чтения");
                     e.printStackTrace();
                     break;
                 }

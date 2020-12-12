@@ -1,6 +1,7 @@
 package services;
 
 import javafx.util.Pair;
+import msg.ClientMsg;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -55,7 +56,7 @@ public class ArenaService implements Runnable{
             oos = new ObjectOutputStream(socket.getOutputStream());
             ois = new ObjectInputStream(socket.getInputStream());
 
-            socket.setSoTimeout(10 * 1000);     // ждем ответа минуту
+            socket.setSoTimeout(20 * 1000);     // ждем ответа минуту
             oos.writeInt(1);
             oos.flush();
             System.out.println("[x] id отправлен серверу "+ip+" "+port);
@@ -72,7 +73,7 @@ public class ArenaService implements Runnable{
 
         // если нормально связались с сервером, начинаем дуэль
         pool.execute(new Reader());
-        pool.execute(new Sender());
+//        pool.execute(new Sender());
     }
 
     /**
@@ -137,10 +138,11 @@ public class ArenaService implements Runnable{
             // или при получении последнего хода
             while (true){
                 try {
-                    int n = ois.readInt();
-                    System.out.println(n);
-                    if(n==2) break;
-                } catch (IOException e) {
+                    ClientMsg msg = (ClientMsg) ois.readObject();
+                    System.out.println("[x] "+msg.getType()+" "+msg.getPhrase()+" "+msg.getLives()+" "+msg.getEnemyLives());
+                    if (msg.getType()==0)
+                        break;
+                } catch (IOException | ClassNotFoundException e) {
                     if (e instanceof SocketTimeoutException){
                         // TODO: сообщение клиенту что с сервером проблемы
                         System.out.println("[e] Time-out");
