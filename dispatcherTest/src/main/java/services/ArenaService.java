@@ -1,24 +1,26 @@
 package services;
 
-import classes.Player;
-import com.sun.xml.internal.ws.resources.ClientMessages;
 import javafx.util.Pair;
-import msg.ClientMsg;
-import msg.DispatcherMsg;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ArenaService implements Runnable{
     private int id;
-    private CopyOnWriteArrayList<Pair<String, Integer>> arenaServerIPs;
+    private CopyOnWriteArrayList<Pair<String, Integer>> arenaServerIPs;     //TODO: заменить на один ip сервера
     private static int idPl = 0;
-    Socket socket;
+    private Socket socket;
+    private ExecutorService pool = Executors.newFixedThreadPool(2);
+    private ObjectInputStream ois = null;
+    private ObjectOutputStream oos = null;
 
     public ArenaService(int id, CopyOnWriteArrayList<Pair<String, Integer>> arenaServerIPs) {
         this.arenaServerIPs = arenaServerIPs;
@@ -27,69 +29,130 @@ public class ArenaService implements Runnable{
 
     @Override
     public void run() {
-        idPl++;
         System.out.println("Запускаем поток для очередного клиента");
-        sendToServer();
+        communicateWithServer();
     }
 
 
-    private void sendToServer(){
-        int arenaServer = 0;
-        List<Pair<Integer, Integer>> clientsNums = new LinkedList<>();
-
-        String ip;
-        int port;
-        ip = arenaServerIPs.get(arenaServer).getKey();
-        port = arenaServerIPs.get(arenaServer).getValue();
+    private void communicateWithServer(){
+        String ip = arenaServerIPs.get(0).getKey();
+        int port = arenaServerIPs.get(0).getValue();
 
         System.out.println("[x] Сервер арены: "+ip+ " "+ port);
 
-        ObjectOutputStream oos = null;
-        ObjectInputStream ois = null;
+        // создаем сокет для подключения
         try {
             socket = new Socket(ip, port);
         } catch (IOException e) {
             e.printStackTrace();
+            // TODO: сообщение клиенту, что не смогли достучаться до сервера арены
+            Close();
+            return;
         }
+
+        // отправляем id серверу
         try {
-                oos = new ObjectOutputStream(socket.getOutputStream());
-                ois = new ObjectInputStream(socket.getInputStream());
+            oos = new ObjectOutputStream(socket.getOutputStream());
+            ois = new ObjectInputStream(socket.getInputStream());
 
-                socket.setSoTimeout(60 * 1000);     // ждем ответа минуту
-//                oos.writeObject(new DispatcherMsg(new Player(), -1,"How many clients?"));
-                oos.writeInt(1);
-                oos.flush();
-//                boolean msg = ois.readBoolean();
-//                DispatcherMsg respond = (DispatcherMsg) ois.readObject();   // получаем колво клиентов
-//                clientsNums.add(new Pair<>(arenaServer,respond.getRespond()));
+            socket.setSoTimeout(10 * 1000);     // ждем ответа минуту
+            oos.writeInt(1);
+            oos.flush();
+            System.out.println("[x] id отправлен серверу "+ip+" "+port);
 
-//                System.out.println("[x] У диспетчера "+ip+" "+port+" - "+ respond.getRespond()+" клиентов");
-                System.out.println("[x] У диспетчера "+ip+" "+port+" - "+ " клиентов");
-                while (true){
-                    try {
-                        int n = ois.readInt();
-                        System.out.println(n);
-                        if(n==2) break;
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        break;
-                    }
-                }
+        } catch (IOException e) {
+            System.out.println("[x] Ошибка подключения к серверу арены");
+            e.printStackTrace();
+            // TODO: сообщение клиенту, что не смогли достучаться до сервера арены
+            // причины -> 1)сервер упал, 2)на сервере нет информации про клиента
+            // решение -> кинуть на главный экран, пусть еще раз стучиться по диспетчерам
+            Close();
+            return;
+        }
 
-
-            } catch (IOException e) {
-                System.out.println("[x] Ошибка подключения к серверу арены");
-                e.printStackTrace();
-                clientsNums.add(new Pair<>(arenaServer,-1));    // если не получили ответа
-            }
-            try {
-                System.out.println("[x] Closing...");
-                if (oos!=null) oos.close();
-                if (ois!=null) ois.close();
-                socket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
+        // если нормально связались с сервером, начинаем дуэль
+        pool.execute(new Reader());
+        pool.execute(new Sender());
     }
+
+    /**
+     * Метод закрытия соединения
+     */
+    private void Close(){
+        System.out.println("[x] Закрываем дуэль");
+        try {
+            if(ois!=null) ois.close();
+            if(oos!=null) oos.close();
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        pool.shutdownNow();
+    }
+
+    /**
+     * Класс отправки сообщений
+     *
+     */
+    private class Sender implements Runnable{
+        // TODO: нужна блокировка кнопок в не свой ход
+        @Override
+        public void run() {
+            try {
+                sendMsg();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        private void sendMsg() throws InterruptedException {
+            System.out.println("[x] is socket closed? "+socket.isClosed());
+            while(!socket.isClosed()){
+                System.out.println("[x] Sleeping...");
+                Thread.sleep(7*1000);
+                System.out.println("[x] Waking up!");
+                try {
+                    System.out.println("Writing msg...");
+                    oos.writeInt(77);
+                    oos.flush();
+                    System.out.println("Msg was sent");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    /**
+     * Класс получения сообщений
+     */
+    private class Reader implements Runnable{
+        @Override
+        public void run() {
+            readMsg();
+            Close();
+        }
+        private void readMsg(){
+            // Выход возможен при тайм-ауте на получение (через ошибку),
+            // при отказе сокета
+            // или при получении последнего хода
+            while (true){
+                try {
+                    int n = ois.readInt();
+                    System.out.println(n);
+                    if(n==2) break;
+                } catch (IOException e) {
+                    if (e instanceof SocketTimeoutException){
+                        // TODO: сообщение клиенту что с сервером проблемы
+                        System.out.println("[e] Time-out");
+                    }else {
+                        e.printStackTrace();
+                        // TODO: спросить о переподключении
+                    }
+
+                    break;
+                }
+            }
+        }
+    }
+
 }

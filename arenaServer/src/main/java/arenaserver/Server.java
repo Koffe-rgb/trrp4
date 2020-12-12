@@ -1,7 +1,6 @@
 package arenaserver;
 
 import classes.Player;
-import javafx.util.Pair;
 import msg.ClientMsg;
 import msg.DispatcherMsg;
 

@@ -97,10 +97,10 @@ public class Duel implements Runnable {
             System.out.println("[x] Не удалось отправить приветствие");
         }
 
-        pool.execute(new Sender());
         pool.execute(new Reader());
+        pool.execute(new Sender());
 
-            // отправляем результаты в БД
+        // отправляем результаты в БД
         sendResultToDB();
 
     }
@@ -157,12 +157,6 @@ public class Duel implements Runnable {
     }
 
     private class Sender implements Runnable{
-//        ObjectOutputStream _oos;
-//
-//        public Sender(ObjectOutputStream _oos) {
-//            this._oos = _oos;
-//        }
-
         @Override
         public void run() {
             try {
@@ -185,27 +179,9 @@ public class Duel implements Runnable {
             // начинаем дуэль
             while (isDuelRunning){
                 Thread.sleep(5*1000);
-                curSocket=null;
-                if(hodNum%2==0) {curPlayer = player1; enemy=player2; curSocket = player1Socket; curois = ois; curoos=oos; enemyoos=null;}
-                else {curPlayer = player2; enemy = player1; enemyoos = oos; curois=null; curoos=null;}
-
+                if(hodNum%2==0) {curPlayer = player1; enemy=player2; curoos=oos; enemyoos=null;}
+                else {curPlayer = player2; enemy = player1; enemyoos = oos; curoos=null;}
                 String phrase = "";
-                int glas = -1;
-//                if (curSocket!=null) {
-//                    try {
-//                        // пытаемся получить воздействие
-//                        clientMsg1 = (ClientMsg) curois.readObject();
-//                        glas = clientMsg1.getGlas();
-//
-//                    } catch (ClassNotFoundException | IOException e) {
-//                        System.out.println("Воздействия не было на " + hodNum + " ходу");
-//                        // e.printStackTrace();
-//                    } finally {
-//                        // получаем результат хода
-//                        phrase = getHodResult(glas, curPlayer, enemy);
-//                    }
-//                }
-//                isDuelRunning = isGameFinished();       // проверяем не пора ли заканчивать
                 isDuelRunning = hodNum<3;
                 // отправляем результаты хода
                 System.out.println("[x] Заканчиваем дуэль? " + !isDuelRunning);
@@ -253,30 +229,38 @@ public class Duel implements Runnable {
 
     }
     private class Reader implements Runnable{
-//        ObjectInputStream _ois;
-//
-//        public Reader(ObjectInputStream _ois) {
-//            this._ois = _ois;
-//        }
 
         @Override
         public void run() {
             receiveMsg();
         }
         private void receiveMsg(){
-            while (player1Socket!=null&&!player1Socket.isClosed()){
+            while (true){
+                System.out.println("[x] Ждем сообщения...");
                 try {
-//                    player1Socket.setSoTimeout(5*1000);    //ждем ответа от клиента (ms)
-                    if (ois.available()>0)
-                        ois.readInt();
-                } catch (SocketException e) {
-                    e.printStackTrace();
-                    System.out.println("[x] Ошибка установки тайм-аута");
+                    int n = ois.readInt();
+                    System.out.println(n);
                 } catch (IOException e) {
-                    System.out.println("[x] Тайм-аут");
                     e.printStackTrace();
+                    break;
                 }
             }
+
+            //                if (curSocket!=null) {
+//                    try {
+//                        // пытаемся получить воздействие
+//                        clientMsg1 = (ClientMsg) curois.readObject();
+//                        glas = clientMsg1.getGlas();
+//
+//                    } catch (ClassNotFoundException | IOException e) {
+//                        System.out.println("Воздействия не было на " + hodNum + " ходу");
+//                        // e.printStackTrace();
+//                    } finally {
+//                        // получаем результат хода
+//                        phrase = getHodResult(glas, curPlayer, enemy);
+//                    }
+//                }
+//                isDuelRunning = isGameFinished();       // проверяем не пора ли заканчивать
         }
     }
 }
