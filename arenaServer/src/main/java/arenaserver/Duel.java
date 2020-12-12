@@ -2,12 +2,10 @@ package arenaserver;
 
 import classes.Phrases;
 import classes.Player;
-import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.sun.xml.internal.ws.resources.ClientMessages;
-import javafx.util.Pair;
 import msg.ClientMsg;
 
 import java.io.ByteArrayOutputStream;
@@ -80,7 +78,7 @@ public class Duel implements Runnable {
         pool.execute(new Sender());
 
         // отправляем результаты в БД
-        sendResultToDB();
+        // sendResultToDB();
 
     }
 

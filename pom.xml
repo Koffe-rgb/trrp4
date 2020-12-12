@@ -23,6 +23,7 @@
     <modules>
         <module>arenaServer</module>
         <module>dispatcherTest</module>
+        <module>realDispatcher</module>
     </modules>
     <dependencies>
         <dependency>

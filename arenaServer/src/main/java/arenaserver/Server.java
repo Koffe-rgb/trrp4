@@ -110,12 +110,13 @@ public class Server implements Runnable{
             while(!server.isClosed()){
                 try {
                     System.out.println("Ожидание нового клиента");
-                    // предобщение -> получаем id клиента, добавляем его в очередь
+
                     Socket client = server.accept();
-                    // ищем данные от диспетчера
+
                     ObjectInputStream ois = new ObjectInputStream(client.getInputStream());
                     ObjectOutputStream oos = new ObjectOutputStream(client.getOutputStream());
 
+                    // предобщение -> получаем id клиента, добавляем его в очередь
                     Player pl = handleWithSocket(client, oos, ois);
                     System.out.println("----> client id = "+pl.getId());
                     Duel _duel = new Duel(client, clientIdsInDuel, ois, oos, pl);
