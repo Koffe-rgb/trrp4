@@ -1,3 +1,6 @@
 [submodule "Godville"]
 	path = Godville
 	url = C:\\Users\\dhbdt\\source\\repos\\Godville
+[submodule "Godville-Client"]
+	path = Godville-Client
+	url = ../../dhbdt/Godville-Client.git
