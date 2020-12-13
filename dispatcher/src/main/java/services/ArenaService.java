@@ -15,17 +15,17 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ArenaService implements Runnable{
     private int id;
-    private CopyOnWriteArrayList<Pair<String, Integer>> arenaServerIPs;
     private static int idPl = 0;
     private Properties properties = new Properties();
     private FileInputStream fis;
     private int serverArenaNum;
     private String propertiesFile;
+    private List<MutablePair<String, Integer>> arenaServerIPs;
 
-    public ArenaService(int id, CopyOnWriteArrayList<Pair<String, Integer>> arenaServerIPs, String propertiesFile) {
-        this.arenaServerIPs = arenaServerIPs;
+    public ArenaService(int id, String propertiesFile) {
         this.id = id;
         this.propertiesFile = propertiesFile;
+        this.arenaServerIPs = new LinkedList<>();
     }
 
     @Override
@@ -65,6 +65,7 @@ public class ArenaService implements Runnable{
             int port;
             ip = properties.getProperty("ip."+arenaServer);
             port = Integer.parseInt(properties.getProperty("port."+arenaServer));
+            arenaServerIPs.add(new MutablePair<>(ip, port));
 
             System.out.println("[x] Сервер арены: "+ip+ " "+ port);
             try (Socket socket = new Socket(ip, port);
@@ -79,7 +80,7 @@ public class ArenaService implements Runnable{
 
                 System.out.println("[x] У диспетчера "+ip+" "+port+" - "+ respond.getRespond()+" клиентов");
             } catch (IOException | ClassNotFoundException e) {
-                System.out.println("[x] Ошибка подключения к серверу арены");
+                System.out.println("[!] Ошибка подключения к серверу арены");
                 e.printStackTrace();
                 clientsNums.add(new MutablePair<>(arenaServer,-1));    // если не получили ответа
             }
@@ -89,12 +90,7 @@ public class ArenaService implements Runnable{
 
         if (clientsNums.size()>0) {
             // отправляем самому ненагруженному нечетному
-            clientsNums.sort(new Comparator<Pair<Integer, Integer>>() {
-                @Override
-                public int compare(Pair<Integer, Integer> o1, Pair<Integer, Integer> o2) {
-                    return Integer.compare(o1.getValue(), o2.getValue());
-                }
-            });
+            clientsNums.sort(Comparator.comparingInt(Pair::getValue));
 
             int num = clientsNums.get(0).getKey();
             sendPlayerInfo(arenaServerIPs.get(num).getKey(), arenaServerIPs.get(num).getValue());
