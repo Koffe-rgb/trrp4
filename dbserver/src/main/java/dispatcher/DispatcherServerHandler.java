@@ -94,8 +94,12 @@ class DispatcherServerHandler implements Runnable {
                         toDispatcher.writeObject(new DispatcherDbServerMsg("selectHero", hero));
                         break;
 
-                    case "logout":  // --
-                        sendToAllDispatchers(new DispatcherDbServerMsg("logout", msg.getUser()));
+                    case "logout":  // user-tag
+                        sendToAllDispatchers(new DispatcherDbServerMsg(msg.getUser(), "out"));
+                        //authUsers.remove(msg.getUser());
+                        break;
+                    case "out":
+                        System.out.println(msg.getUser().getLogin());
                         authUsers.remove(msg.getUser());
                         break;
 
@@ -117,12 +121,16 @@ class DispatcherServerHandler implements Runnable {
 
     private void sendToAllDispatchers(DispatcherDbServerMsg msg) {
         for (DispatcherServerHandler dispatcher : otherDispatchers) {
+            //if (dispatcher.equals(DispatcherServerHandler.this)) continue;
             try {
                 dispatcher.toDispatcher.writeObject(msg);
                 dispatcher.toDispatcher.flush();
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+        if (msg.getTag().equals("out")) {
+            authUsers.remove((User) msg.getResponse());
         }
     }
 

@@ -8,6 +8,7 @@ import java.net.Socket;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -20,7 +21,7 @@ public class DispatcherSocketServer implements Runnable {
     public DispatcherSocketServer(Dao dbManager, int port) {
         this.dbManager = dbManager;
         this.port = port;
-        handlerList = new ArrayList<>();
+        handlerList = new CopyOnWriteArrayList<>();
         threadPool = Executors.newCachedThreadPool();
     }
 
@@ -38,7 +39,7 @@ public class DispatcherSocketServer implements Runnable {
             }));
 
             while (true) {
-                System.out.println("[.] Awaiting client-dispatcher : " + LocalDateTime.now());
+                System.out.println("[.] Awaiting client-dispatcher on port " + port + " : " + LocalDateTime.now());
                 Socket clientSocket = serverSocket.accept();
 
                 DispatcherServerHandler handler = new DispatcherServerHandler(clientSocket, handlerList, dbManager);

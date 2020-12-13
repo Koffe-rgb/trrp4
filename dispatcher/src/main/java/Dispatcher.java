@@ -21,7 +21,7 @@ public class Dispatcher {
     private ObjectInputStream fromDbServer;
     private ObjectOutputStream toDbServer;
 
-    private final ExecutorService poolForWriting = Executors.newCachedThreadPool();
+    private final ExecutorService poolForWriting = Executors.newSingleThreadExecutor();
 
     private final List<User> authUsers;
 
@@ -61,6 +61,7 @@ public class Dispatcher {
     }
 
     public void logout(User user) {
+        authUsers.remove(user);
         write(new DispatcherDbServerMsg(user, "logout"));
     }
 
@@ -88,6 +89,8 @@ public class Dispatcher {
     private void write(DispatcherDbServerMsg msg) {
         poolForWriting.execute(new Writer(msg));
     }
+
+
 
     private static String cryptographyThis(String str) {
         try {
@@ -190,6 +193,7 @@ public class Dispatcher {
                         }
                         case "logout":
                             User userToDelete = (User) msg.getResponse();
+                            System.out.println(userToDelete.getLogin());
                             authUsers.remove(userToDelete);
                             break;
                         case "badLoginPassword":
