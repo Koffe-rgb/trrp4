@@ -1,9 +1,10 @@
 package arenaserver;
 
 import classes.Player;
-import javafx.util.Pair;
 import msg.ClientMsg;
 import msg.DispatcherMsg;
+import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -166,7 +167,7 @@ public class Server implements Runnable{
                     }
                 }
                 // добавляем пару в очередь на дуэль, если такая находится
-                if(pairs.offer(new Pair<>(cl1, cl2))){
+                if(pairs.offer(new MutablePair<>(cl1, cl2))){
                     // удаляем из очереди клиентов
                     clientsQueue.remove(cl1);
                     clientsQueue.remove(cl2);

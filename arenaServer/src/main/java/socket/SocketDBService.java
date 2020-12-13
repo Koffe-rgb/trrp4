@@ -1,20 +1,13 @@
 package socket;
 
 import classes.Phrases;
-import classes.Player;
-import javafx.util.Pair;
 import msg.DBMsg;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
-import java.util.LinkedList;
 import java.util.Properties;
-import java.util.concurrent.*;
 
 public class SocketDBService {
     private Properties properties = new Properties();

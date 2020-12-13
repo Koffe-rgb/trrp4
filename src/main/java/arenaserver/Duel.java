@@ -2,8 +2,8 @@ package arenaserver;
 
 import classes.Phrases;
 import classes.Player;
-import javafx.util.Pair;
 import msg.ClientMsg;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;

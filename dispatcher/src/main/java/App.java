@@ -1,14 +1,44 @@
-import model.Hero;
-import model.User;
+import classes.Player;
+import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+import services.ArenaService;
+
+import java.util.concurrent.*;
 
 public class App {
-    static Dispatcher dispatcher;
+    static ConcurrentMap<Integer, Player> playerInfo = new ConcurrentHashMap<>();
+    static ExecutorService pool = Executors.newCachedThreadPool();
+    static BlockingQueue<Integer> clientsQueue = new LinkedBlockingQueue<>();
+    static CopyOnWriteArrayList<Pair<String, Integer>> arenaServerIPs = new CopyOnWriteArrayList();     // адрес и порт
 
-    public static void main(String[] args) throws InterruptedException {
-        dispatcher = new Dispatcher("localhost", 8000);
+    public static void main(String[] args) {
+        for(int i=0; i<10; i++){
+            clientsQueue.add(i);
+        }
+        arenaServerIPs.add(new MutablePair<>("localhost", 8002));
 
-        User user = new User(10, "log", "23" ,"23" ,"lag");
-        Thread.sleep(10*1000);
-        dispatcher.logout(user);
+        for(int i=0; i<10; i++) {
+            try {
+                pool.execute(new ArenaService(clientsQueue.take(), arenaServerIPs, "realDispatcher/src/main/resources/arenaServersIps.properties"));
+                Thread.sleep(5*1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        pool.shutdown();
+
+        // до бесконечности
+//        while (true) {
+//
+//            try {
+//                pool.execute(new ArenaService(clientsQueue.take(), arenaServerIPs));
+//                Thread.sleep(5*1000);
+//
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//        }
+
     }
 }

@@ -1,8 +1,9 @@
 package services;
 
 import classes.Player;
-import javafx.util.Pair;
 import msg.DispatcherMsg;
+import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -74,13 +75,13 @@ public class ArenaService implements Runnable{
                 oos.writeObject(new DispatcherMsg(new Player(), -1,"How many clients?"));
                 oos.flush();
                 DispatcherMsg respond = (DispatcherMsg) ois.readObject();   // получаем колво клиентов
-                clientsNums.add(new Pair<>(arenaServer,respond.getRespond()));
+                clientsNums.add(new MutablePair<>(arenaServer,respond.getRespond()));
 
                 System.out.println("[x] У диспетчера "+ip+" "+port+" - "+ respond.getRespond()+" клиентов");
             } catch (IOException | ClassNotFoundException e) {
                 System.out.println("[x] Ошибка подключения к серверу арены");
                 e.printStackTrace();
-                clientsNums.add(new Pair<>(arenaServer,-1));    // если не получили ответа
+                clientsNums.add(new MutablePair<>(arenaServer,-1));    // если не получили ответа
             }
 
             arenaServer++;
