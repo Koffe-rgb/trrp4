@@ -63,7 +63,7 @@ public class Duel implements Runnable {
         System.out.println("[x] Отправляем приветы");
         String hiPhrase = "На поле битвы сошлись " + player1.getNickname() + " и " + player2.getNickname();
         chronicle.add(hiPhrase);
-        ClientMsg clientMsg1 = new ClientMsg(hiPhrase, player1.getLives(), player2.getLives(), false);
+        ClientMsg clientMsg1 = new ClientMsg(hiPhrase, player1.getLives(), player2.getLives(), false, player2.getNickname());
 
         try {
             oos.writeObject(clientMsg1);

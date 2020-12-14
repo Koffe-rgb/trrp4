@@ -93,6 +93,9 @@ public class ArenaService implements Runnable{
             clientsNums.sort(Comparator.comparingInt(Pair::getValue));
 
             int num = clientsNums.get(0).getKey();
+
+            // TODO: если никто не ответил, отправляем юзеру сообщение об этом
+            if (clientsNums.get(0).getValue()==-1) {};
             sendPlayerInfo(arenaServerIPs.get(num).getKey(), arenaServerIPs.get(num).getValue());
         }
     }
