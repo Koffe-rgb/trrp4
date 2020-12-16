@@ -137,7 +137,6 @@ public class Duel implements Runnable {
     private class Sender implements Runnable {
         @Override
         public void run() {
-
             sendHod();
             Close();
         }
@@ -150,7 +149,7 @@ public class Duel implements Runnable {
             // начинаем дуэль
             while (isDuelRunning) {
                 try {
-                    Thread.sleep(5 * 1000);
+                    Thread.sleep(5 * 1000);         // отправляем результат каждые ... секунд
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -183,8 +182,10 @@ public class Duel implements Runnable {
                 try {
                     oos.writeObject(clientMsg);
                     oos.flush();
+
                 } catch (IOException e) {
                     System.out.println("[x] Клиент был отключен");
+                    isDuelRunning = false;
 //                    e.printStackTrace();
                 }
 

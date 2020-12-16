@@ -121,17 +121,10 @@ public class Server implements Runnable{
                     // предобщение -> получаем id клиента, добавляем его в очередь
                     Player pl = handleWithSocket(client, oos, ois);
                     System.out.println("----> client id = "+pl.getId());
-                    Duel _duel = new Duel(client, clientIdsInDuel, ois, oos, pl);
                     if(pl.getId()==-1) {}
                     else {
-                        System.out.println("-----> size = "+clientIdsInDuel.size());
-                        Duel d = clientIdsInDuel.putIfAbsent(pl.getId(), _duel);
-                        System.out.println("-----> size = "+clientIdsInDuel.size());
-
-                        if (d==null)
-                            pool.execute(_duel);
-                        else
-                            d.reconnect(client, oos, ois);
+                        Duel _duel = new Duel(client, clientIdsInDuel, ois, oos, pl);
+                        pool.execute(_duel);
                     }
                 } catch (IOException e) {
                     //if (!server.isClosed()){server.close();}
