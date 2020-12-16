@@ -1,42 +1,31 @@
 import classes.Player;
-import org.apache.commons.lang3.tuple.MutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import services.ArenaService;
 
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class App {
-    static ConcurrentMap<Integer, Player> playerInfo = new ConcurrentHashMap<>();
+    static ConcurrentMap<Integer, Player> playerInfo = new ConcurrentHashMap<>();    // хранит инфу про аутент клиентов
     static ExecutorService pool = Executors.newCachedThreadPool();
-    static BlockingQueue<Integer> clientsQueue = new LinkedBlockingQueue<>();
+    static BlockingQueue<Integer> clientsArenaQueue = new LinkedBlockingQueue<>();       // хранит id пользователей на арену
 
     public static void main(String[] args) {
+        AtomicBoolean continueListen = new AtomicBoolean(true);
         for(int i=0; i<10; i++){
-            clientsQueue.add(i);
+            clientsArenaQueue.add(i);
         }
 
-        for(int i=0; i<10; i++) {
+
+        while (continueListen.get()) {
             try {
-                pool.execute(new ArenaService(clientsQueue.take(), "dispatcher/src/main/resources/arenaServersIps.properties"));
-                Thread.sleep(5*1000);
-            } catch (InterruptedException e) {
+                pool.execute(new ArenaService(clientsArenaQueue.take(), "dispatcher/src/main/resources/arenaServersIps.properties"));
+            } catch(InterruptedException e){
                 e.printStackTrace();
             }
         }
 
         pool.shutdown();
-
-        // до бесконечности
-//        while (true) {
-//
-//            try {
-//                pool.execute(new ArenaService(clientsQueue.take(), arenaServerIPs));
-//                Thread.sleep(5*1000);
-//
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//        }
 
     }
 }
