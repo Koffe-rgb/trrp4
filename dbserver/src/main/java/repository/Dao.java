@@ -92,12 +92,12 @@ public class Dao {
         deleteUser(user.getId());
     }
 
-    public Hero selectHero(int id) {
+    public Hero selectHero(int userId) {
         QHeroes qHeroes = QHeroes.heroes;
         return queryFactory.select(Projections.constructor(Hero.class,
                 qHeroes.id, qHeroes.idUser, qHeroes.name, qHeroes.health))
                 .from(qHeroes)
-                .where(qHeroes.id.eq(id))
+                .where(qHeroes.idUser.eq(userId))
                 .fetchFirst();
     }
 

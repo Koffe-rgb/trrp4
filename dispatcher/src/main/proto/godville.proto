@@ -1,44 +1,60 @@
 syntax = "proto3";
 
 option csharp_namespace = "GodvilleClient";
-package greet;
+
 option java_generic_services = true;
 option java_multiple_files = true;
 
+
+package greet;
+
+
 service GodvilleService {
-  rpc Login(LoginData) returns (ServerAddress);
-  rpc Register(RegisterData) returns (ServerAddress);
+  rpc Login(LoginData) returns (UserLoginOuput);
+  rpc Register(RegisterData) returns (UserRegOutput);
   rpc Logout(ClientId) returns (Empty);
-  rpc StartDuel(ClientData) returns (ServerAddress);
-  rpc GetStatistics(ClientId) returns (ServerAddress);
+  rpc StartDuel(ClientId) returns (ServerIp);
+  rpc GetStatistic(ClientId) returns (Statistic);
   rpc Check(Empty) returns (Empty);
 }
 
 message LoginData {
   string login = 1;
   string password = 2;
-  string clientIp = 3;
 }
 
 message RegisterData {
   LoginData loginData = 1;
   string nickname = 2;
-  string clientIp = 3;
+  string heroname = 3;
 }
 
-message ServerAddress {
-	string ip = 1;
+message UserLoginOuput {
+  int64 id = 1;
+  string nickname = 2;
+  int64 healthCount = 3;
+  string heroName = 4;
+}
+
+message UserRegOutput {
+  int64 id = 1;
+  string login = 2;
+  string hash = 3;
+  string salt = 4;
+  string nickname = 5;
 }
 
 message ClientId {
-	int64 id = 1;
-}
-
-message ClientData {
-	int64 id = 1;
-	string nickname = 2;
-	int64 healthCount = 3;
-	string heroName = 4;
+  int64 id = 1;
 }
 
 message Empty {}
+
+message ServerIp {
+  string ip = 1;
+}
+
+message Statistic {
+  int64 wins = 1;
+  int64 loses = 2;
+}

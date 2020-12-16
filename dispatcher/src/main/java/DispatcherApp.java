@@ -1,11 +1,12 @@
 import classes.Player;
+import greet.GodvilleService;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import services.ArenaService;
 
 import java.util.concurrent.*;
 
-public class App {
+public class DispatcherApp {
     static ConcurrentMap<Integer, Player> playerInfo = new ConcurrentHashMap<>();
     static ExecutorService pool = Executors.newCachedThreadPool();
     static BlockingQueue<Integer> clientsQueue = new LinkedBlockingQueue<>();
