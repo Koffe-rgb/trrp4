@@ -124,8 +124,11 @@ namespace GodvilleClient
                         //Model.ClientMsg clientMsg = JsonSerializer.Deserialize<Model.ClientMsg>(input);
                         // заглушка
                         Model.ClientMsg clientMsg = new Model.ClientMsg();
-                        clientMsg.Type = 1;
+                        clientMsg.Type = 4;
+                        clientMsg.EnemyName = "bugurt";
+                        clientMsg.EnemyLives = 89;
                         clientMsg.IsEven = true;
+                        clientMsg.Phrase = "ФРАЗАФРАЗАФРАЗА";
                         //
                         if (clientMsg.Type == 4)
                         {
@@ -186,31 +189,17 @@ namespace GodvilleClient
 
         void StatisticReader()
         {
-            //GrpcChannel channel = Connection.GetDispatcherChannel();
-            //var client = new GodvilleServiceClient(channel);
-            //string serverAddress = client.GetStatistics(new ClientId { Id = Program.Client.Id }).Ip;
-
-            // заглушка
-            string serverAddress = "192.168.100.6:8888";
-            var lines = serverAddress.Split(":");
-
-            int port = int.Parse(lines[1]);
-            using (TcpClient tcpClient = new TcpClient(lines[0], port))
+            try
             {
-                NetworkStream networkStreamRead = tcpClient.GetStream();
-                string input;
-                StreamReader sr = new StreamReader(networkStreamRead);
-
-                while ((input = sr.ReadLine()) != null)
-                {
-                    // заполнить данные для StatisticForm
-                }
+                GrpcChannel channel = Connection.GetDispatcherChannel();
+                var client = new GodvilleServiceClient(channel);
+                var statistic = client.GetStatistic(new ClientId { Id = Program.Client.Id });
+                MessageBox.Show(string.Format("Всего побед: {0}, поражений: {1}", statistic.Wins, statistic.Loses));
+            } catch (Exception e)
+            {
+                MessageBox.Show("Простите, статистика временно не может быть получена");
+                Logger.AddErrorMessage(e.Message);
             }
-
-            StatisticForm sf = new StatisticForm(
-                new List<string>() { "123", "345" },
-                new List<List<string>>() { new List<string>() { "567", "78" }, new List<string>() { "afv", "bvc", "hjj" } });
-            sf.ShowDialog();
         }
 
         private void linkLogout_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)

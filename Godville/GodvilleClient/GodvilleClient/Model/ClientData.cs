@@ -13,9 +13,9 @@ namespace GodvilleClient.Model
     [Serializable]
     public class ClientData 
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
         public string Nickname { get; set; }
-        public int CountLives { get; set; }
+        public long CountLives { get; set; }
         public string HeroName { get; set; }
 
         public ClientData()
@@ -57,6 +57,11 @@ namespace GodvilleClient.Model
             {
                 Logger.AddErrorMessage(e.Message);
             }
+        }
+
+        public long GetLivesCount()
+        {
+            return 100;
         }
     }
 }

@@ -15,7 +15,6 @@ namespace GodvilleClient
 {
     static class Program
     {
-        static readonly string ip = GetLocalIPAddress();
         public static Model.ClientData Client { get; set; } = new Model.ClientData();
         /// <summary>
         ///  The main entry point for the application.
@@ -36,29 +35,34 @@ namespace GodvilleClient
                 // логин
                 if (result == DialogResult.OK)
                 {
-                    using var channel = Connection.GetDispatcherChannel();
-                    var serviceClient = new GodvilleServiceClient(channel);
-                    string serverIp;
+                    UserLoginOuput userLoginOutput;
                     try
                     {
-                        serverIp = serviceClient.Login(
+                        using var channel = Connection.GetDispatcherChannel();
+                        var serviceClient = new GodvilleServiceClient(channel);
+                        userLoginOutput = serviceClient.Login(
                             new LoginData
                             {
                                 Login = loginData.Login,
                                 Password = loginData.Password,
-                                ClientIp = ip
-                            }).Ip;
+                            });
                     }
                     catch (Exception e)
                     {
                         Logger.AddErrorMessage(e.Message);
                         return;
                     }
-                    Client.Id = ConnectServerGetClientData(serverIp);
-                    if (Client.Id == -1)
+                    
+                    if (userLoginOutput.Id == -1)
                         MessageBox.Show("Ќеверное им€ пользовател€ или пароль");
                     else
+                    {
+                        Client.Id = userLoginOutput.Id;
+                        Client.Nickname = userLoginOutput.Nickname;
+                        Client.CountLives = userLoginOutput.HealthCount;
+                        Client.HeroName = userLoginOutput.HeroName;
                         Client.SetClientData();
+                    }
                 }
                 // регистраци€
                 else if (result == DialogResult.Ignore)
@@ -70,22 +74,31 @@ namespace GodvilleClient
                         using var channel = Connection.GetDispatcherChannel();
                         var serviceClient = new GodvilleServiceClient(channel);
 
-                        string serverIp;
+                        UserRegOutput userRegOutput;
                         try
                         {
-                            serverIp = serviceClient.Register(
+                            userRegOutput = serviceClient.Register(
                                 new RegisterData
                                 {
-                                    LoginData = new LoginData { Login = regData.Login, Password = regData.Password, ClientIp = ip },
+                                    LoginData = new LoginData { Login = regData.Login, Password = regData.Password},
                                     Nickname = regData.Nickname
-                                }).Ip;
+                                });
                         } catch(Exception e)
                         {
                             Logger.AddErrorMessage(e.Message);
                             return;
                         }
-                        Client.Id = ConnectServerGetClientData(serverIp);
-                        Client.SetClientData();
+                        
+                        if (userRegOutput.Id == -1)
+                            MessageBox.Show("Ћогин зан€т, выберите другой");
+                        else
+                        {
+                            Client.Id = userRegOutput.Id;
+                            Client.Nickname = userRegOutput.Nickname;
+                            Client.CountLives = Client.GetLivesCount();
+                            Client.HeroName = regData.HeroName;
+                            Client.SetClientData();
+                        }
                     }
                     else
                         return;
@@ -95,42 +108,6 @@ namespace GodvilleClient
                     return;
             }
             Application.Run(new StartForm());
-        }
-        
-        public static string GetLocalIPAddress()
-        {
-            var host = Dns.GetHostEntry(Dns.GetHostName());
-            foreach (var ip in host.AddressList)
-            {
-                if (ip.AddressFamily == AddressFamily.InterNetwork)
-                {
-                    return ip.ToString();
-                }
-            }
-            throw new Exception("No network adapters with an IPv4 address in the system!");
-        }
-
-        static int ConnectServerGetClientData(string serverAddres)
-        {
-            var lines = serverAddres.Split(":");
-            try
-            {
-                using (TcpClient tcpClient = new TcpClient(lines[0], int.Parse(lines[1])))
-                {
-                    using (NetworkStream networkStream = tcpClient.GetStream())
-                    {
-                        using (StreamReader sr = new StreamReader(networkStream))
-                        {
-                            string input = sr.ReadLine();
-                            Client.Deserialize(input);
-                        }
-                    }
-                }
-            } catch(Exception e)
-            {
-                Logger.AddErrorMessage(e.Message);
-            }
-            return Client.Id;
         }
     }
 }
