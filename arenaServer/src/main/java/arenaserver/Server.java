@@ -141,33 +141,34 @@ public class Server implements Runnable{
          * возвращает ответ клиенту, добавляет его в очередь
          */
         private Player handleWithSocket(Socket player1Socket, ObjectOutputStream oos, ObjectInputStream ois){
-            int id = -1;
-            try {
-                player1Socket.setSoTimeout(2*1000);   // ждем id от клиента в течение минуты
-            } catch (SocketException e) {
-                e.printStackTrace();
-            }
-            Player pl1 = new Player(-1);
-            try {
-                id = ois.readInt();
-                // проверяем, что у нас есть данные об этом клиенте
-                pl1 = playerInfoMap.get(id);
-
-                if (pl1!=null) {
-                    System.out.println("[x] клиент: "+player1Socket.getLocalAddress()+" был добавлен");
-                    oos.writeInt(1);
-                }
-                else {
-                    pl1 = new Player(-1);
-                    oos.writeInt(-1);
-                }
-                oos.flush();
-
-                player1Socket.setSoTimeout(100*60*1000);   // ждем id от клиента в течение минуты
-            } catch (IOException  e) {
-                e.printStackTrace();
-            }
-            return pl1;
+//            int id = -1;
+//            try {
+//                player1Socket.setSoTimeout(2*1000);   // ждем id от клиента в течение минуты
+//            } catch (SocketException e) {
+//                e.printStackTrace();
+//            }
+//            Player pl1 = new Player(-1);
+//            try {
+//                id = ois.readInt();
+//                // проверяем, что у нас есть данные об этом клиенте
+//                pl1 = playerInfoMap.get(id);
+//
+//                if (pl1!=null) {
+//                    System.out.println("[x] клиент: "+player1Socket.getLocalAddress()+" был добавлен");
+//                    oos.writeInt(1);
+//                }
+//                else {
+//                    pl1 = new Player(-1);
+//                    oos.writeInt(-1);
+//                }
+//                oos.flush();
+//
+//                player1Socket.setSoTimeout(100*60*1000);   // ждем id от клиента в течение минуты
+//            } catch (IOException  e) {
+//                e.printStackTrace();
+//            }
+//            return pl1;
+            return new Player(1);
         }
     }
 }
