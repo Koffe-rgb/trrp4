@@ -70,7 +70,7 @@ namespace GodvilleClient
             //}
 
             //заглушка
-            serverIp = "localhost:8006";
+            serverIp = "127.0.0.1:8006";
 
             var lines = serverIp.Split(":");
             //var ping = new Ping();
@@ -91,12 +91,11 @@ namespace GodvilleClient
 
             using (TcpClient tcpClient = new TcpClient(lines[0], port))
             {
-                //tcpClient.Connect(server, port);
                 NetworkStream networkStream = tcpClient.GetStream();
                 WriteStream.WriteNetworkStream = tcpClient.GetStream();
                 BinaryReader sr = new BinaryReader(networkStream);
                 BinaryWriter sw = new BinaryWriter(networkStream);
-                sr.BaseStream.ReadTimeout = 1000; // таймаут на отклик сервера - 0,2 минуты
+                sr.BaseStream.ReadTimeout = 3000; // таймаут на отклик сервера - 0,2 минуты
                 sw.Write(Program.Client.Id); // послать серверу свой id и начать взаимодействие
                 sw.Flush();
                 while (true)
@@ -206,6 +205,7 @@ namespace GodvilleClient
                 var channel = Connection.GetDispatcherChannel();
                 var client = new GodvilleServiceClient(channel);
                 client.Logout(new ClientId { Id = Program.Client.Id });
+                Program.Client.ClearClientData();
             }
             catch (Exception ex)
             {

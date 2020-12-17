@@ -52,7 +52,7 @@ namespace GodvilleClient.Model
             try
             {
                 string json = JsonSerializer.Serialize(this);
-                File.WriteAllText(Model.Config.MyIdFilePath, json);
+                File.WriteAllText(Config.MyIdFilePath, json);
             } catch(Exception e)
             {
                 Logger.AddErrorMessage(e.Message);
@@ -62,6 +62,11 @@ namespace GodvilleClient.Model
         public long GetLivesCount()
         {
             return 100;
+        }
+
+        public void ClearClientData()
+        {
+            File.WriteAllText(Config.MyIdFilePath, "");
         }
     }
 }
