@@ -26,7 +26,8 @@ namespace GodvilleClient
             bool password = !string.IsNullOrEmpty(txtPassword.Text);
             bool passwordCheck = !string.IsNullOrEmpty(txtPasswordCheck.Text);
             bool nick = !string.IsNullOrEmpty(txtNickname.Text);
-            return login && password && passwordCheck && nick; 
+            bool heroName = !string.IsNullOrEmpty(txtHeroName.Text);
+            return login && password && passwordCheck && nick && heroName; 
         }
 
         private void btnOk_Click(object sender, EventArgs e)
@@ -34,11 +35,15 @@ namespace GodvilleClient
             if (!txtPassword.Text.Equals(txtPasswordCheck.Text))
             {
                 MessageBox.Show("Пароли должны совпадать!");
-                return;
+                DialogResult = DialogResult.None;
             }
-            regData.Login = txtLogin.Text;
-            regData.Password = txtPassword.Text;
-            regData.Nickname = txtNickname.Text;
+            else
+            {
+                regData.Login = txtLogin.Text;
+                regData.Password = txtPassword.Text;
+                regData.Nickname = txtNickname.Text;
+                regData.HeroName = txtHeroName.Text;
+            }
         }
 
         private void txtNickname_TextChanged(object sender, EventArgs e)
@@ -57,6 +62,11 @@ namespace GodvilleClient
         }
 
         private void txtPasswordCheck_TextChanged(object sender, EventArgs e)
+        {
+            btnOk.Enabled = OpenOkBtn();
+        }
+
+        private void txtHeroName_TextChanged(object sender, EventArgs e)
         {
             btnOk.Enabled = OpenOkBtn();
         }

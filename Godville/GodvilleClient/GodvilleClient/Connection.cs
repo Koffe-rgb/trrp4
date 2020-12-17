@@ -16,23 +16,25 @@ namespace GodvilleClient
             int dispatcher = 0;
             while (!CheckDispatcherIsAlive(dispatcher) && dispatcher < Model.Config.DispatcherList.Count)
                 dispatcher++;
-
-            return GrpcChannel.ForAddress(Model.Config.DispatcherList[dispatcher]);
+            if (dispatcher < Model.Config.DispatcherList.Count)
+                return GrpcChannel.ForAddress(Model.Config.DispatcherList[dispatcher]);
+            return GrpcChannel.ForAddress(Model.Config.DispatcherList[0]);
         }
 
         public static bool CheckDispatcherIsAlive(int index)
-        {
-            var channel = GrpcChannel.ForAddress(Model.Config.DispatcherList[index]);
-            var client = new GodvilleServiceClient(channel);
+        { 
             try
             {
+                AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
+                var channel = GrpcChannel.ForAddress(Model.Config.DispatcherList[index]);
+                var client = new GodvilleServiceClient(channel);
                 client.Check(new Empty { }, deadline: DateTime.UtcNow.AddSeconds(5));
                 return true;
             }
             catch (Exception)
             { // диспетчер недоступен, ничего не делаем
+                return false;
             }
-            return false;
         }
 
     }
