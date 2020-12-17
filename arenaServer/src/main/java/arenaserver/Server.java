@@ -3,9 +3,7 @@ package arenaserver;
 import classes.Player;
 import msg.DispatcherMsg;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
@@ -114,8 +112,11 @@ public class Server implements Runnable{
                     System.out.println("Ожидание нового клиента");
                     Socket client = server.accept();
 
-                    ObjectInputStream ois = new ObjectInputStream(client.getInputStream());
-                    ObjectOutputStream oos = new ObjectOutputStream(client.getOutputStream());
+//                    ObjectInputStream ois = new ObjectInputStream(client.getInputStream());
+//                    ObjectOutputStream oos = new ObjectOutputStream(client.getOutputStream());
+                    BufferedReader ois = new BufferedReader(new InputStreamReader(client.getInputStream()));
+                    PrintWriter oos = new PrintWriter(new OutputStreamWriter(client.getOutputStream()), true);
+
 
                     // предобщение -> получаем id клиента, добавляем его в очередь
                     Player pl = handleWithSocket(client, oos, ois);
@@ -141,7 +142,7 @@ public class Server implements Runnable{
          * Обрабатывает первое сообщение от пользователя (получает id),
          * возвращает ответ клиенту, добавляет его в очередь
          */
-        private Player handleWithSocket(Socket player1Socket, ObjectOutputStream oos, ObjectInputStream ois){
+        private Player handleWithSocket(Socket player1Socket, PrintWriter oos, BufferedReader ois){
             System.out.println("sth");
             int id = -1;
             try {
@@ -152,7 +153,8 @@ public class Server implements Runnable{
             Player pl1 = new Player(-1);
             try {
                 System.out.println("Получаем ид");
-                id = ois.readInt();
+                id = ois.read();
+//                id = ois.readInt();
                 // проверяем, что у нас есть данные об этом клиенте
 //                pl1 = playerInfoMap.get(id);
 

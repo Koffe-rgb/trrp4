@@ -26,8 +26,6 @@ public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
 
     static ConcurrentMap<Integer, Player> playerInfo = new ConcurrentHashMap<>();
     static ExecutorService pool = Executors.newCachedThreadPool();
-    static BlockingQueue<Integer> clientsQueue = new LinkedBlockingQueue<>();
-    static CopyOnWriteArrayList<Pair<String, Integer>> arenaServerIPs = new CopyOnWriteArrayList();     // адрес и порт
 
     private final ExecutorService poolForWriting = Executors.newSingleThreadExecutor();
 
@@ -72,37 +70,6 @@ public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
             e.printStackTrace();
         }
     }
-
-//    public static void main(String[] args) {
-//        for(int i=0; i<10; i++){
-//            clientsQueue.add(i);
-//        }
-//        arenaServerIPs.add(new MutablePair<>("localhost", 8002));
-//
-//        for(int i=0; i<10; i++) {
-//            try {
-//                pool.execute(new ArenaService(clientsQueue.take(), arenaServerIPs, "realDispatcher/src/main/resources/arenaServersIps.properties"));
-//                Thread.sleep(5*1000);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//
-//        pool.shutdown();
-//
-//        // до бесконечности
-////        while (true) {
-////
-////            try {
-////                pool.execute(new ArenaService(clientsQueue.take(), arenaServerIPs));
-////                Thread.sleep(5*1000);
-////
-////            } catch (InterruptedException e) {
-////                e.printStackTrace();
-////            }
-////        }
-//
-//    }
 
     private void stop() throws InterruptedException {
         if (grpcServer != null) {
@@ -199,11 +166,29 @@ public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
         responseObserver.onCompleted();
     }
 
-    // todo
+
+
+    /**
+     * Закрытие всех потоков
+     */
+    private void Close(){
+        pool.shutdownNow();
+    }
+
     @Override
     public void startDuel(ClientId request, StreamObserver<ServerIp> responseObserver) {
         System.out.println("Dispatcher.startDuel");
         super.startDuel(request, responseObserver);
+
+        // поиск арены для клиента
+        int id = (int) request.getId();
+        Future<String> addressF = pool.submit(new ArenaService(id, "dispatcher/src/main/resources/arenaServersIps.properties"));
+        try {
+            String address = addressF.get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+        // TODO: вернуть результат address клиенту
     }
 
     @Override

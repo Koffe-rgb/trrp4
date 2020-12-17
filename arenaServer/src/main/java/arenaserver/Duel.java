@@ -1,5 +1,6 @@
 package arenaserver;
 
+import classes.JSONParser;
 import classes.Phrases;
 import classes.Player;
 import com.rabbitmq.client.Channel;
@@ -8,10 +9,7 @@ import com.rabbitmq.client.ConnectionFactory;
 import com.sun.xml.internal.ws.resources.ClientMessages;
 import msg.ClientMsg;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
@@ -30,8 +28,8 @@ public class Duel implements Runnable {
     private Phrases phrases;
     private int winnerId = -1;
     private int loserId = -1;
-    private ObjectInputStream ois;
-    private ObjectOutputStream oos;
+    private BufferedReader ois;
+    private PrintWriter oos;
     private ExecutorService pool = Executors.newFixedThreadPool(2);
     private Map<Integer, Duel> clientIdsInDuel;
     private AtomicInteger glas = new AtomicInteger(-1);
@@ -39,7 +37,7 @@ public class Duel implements Runnable {
     private final int GOOD_GLAS = 1;
 
 
-    public Duel(Socket client, Map<Integer, Duel> clientIdsInDuel, ObjectInputStream ois, ObjectOutputStream oos, Player player) {
+    public Duel(Socket client, Map<Integer, Duel> clientIdsInDuel, BufferedReader ois, PrintWriter oos, Player player) {
         dailyMonsters = new String[]{"Aвитаминосец", "Aвтомогиль", "Aдепт Пивного Культа", "Aдминистратор Годвилля", "Aдский Вертихвост", "Aдский Вратарь", "Aктивированный Угорь", "Aленький Цветочник", "Aлименталист", "Aлкоголем", "Aлхимический Металлист", "Aль Монах", "Aльтер Эго", "Aльфа-кентавр", "Aнархиоптерикс", "Aнатомический Нонсенс", "Aнгел-Бранитель", "Aнгел-Хоронитель", "Aндед-Мороз", "Aнизотропный Голем", "Aнонимный Aнонимус", "Aнонимный Доброжелатель", "Aнтагонист", "Aнтигерой", "Aнтракторист", "Aнтропоморфный Дендромутант", "Aппручник", "Aргх-Aнгел", "Aривидервиш", "Aристокрот", "Aрхибаг", "Aрхивирус", "Aрхимедик", "Aсексуальный Маньяк", "Aссассинизатор", "Aстралопитек", "Aтомный Редактор", "Баал-Бес", "Байкер Из Склепа", "Банзаец", "Бардобрей", "Бармаглот", "Барон Суббота", "Барсук Кхорна", "Бахиллес", "Баш-Орк", "Безбашенный Всадник", "Безбашенный Кран", "Бездомный Домовой"};
         random = new Random();
         this.player1 = new Player(1, 300, "Cool Guy", "Hercules"); //player;
@@ -65,14 +63,10 @@ public class Duel implements Runnable {
         chronicle.add(hiPhrase);
         ClientMsg clientMsg1 = new ClientMsg(hiPhrase, player1.getLives(), player2.getLives(), false, player2.getNickname());
 
-        try {
-            oos.writeObject(clientMsg1);
-            oos.flush();
-            System.out.println("[x] Приветы отправленны");
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("[x] Не удалось отправить приветствие");
-        }
+        //            oos.writeObject(clientMsg1);
+        oos.println(JSONParser.Parser(clientMsg1));
+        oos.flush();
+        System.out.println("[x] Приветы отправленны");
 
         pool.execute(new Reader());
         pool.execute(new Sender());
@@ -179,15 +173,10 @@ public class Duel implements Runnable {
                 }
                 ClientMsg clientMsg = new ClientMsg(msgType, hodNum, phrase, hodNum % 2 != 0 ? curPlayer.getLives() : enemy.getLives(), hodNum % 2 != 0 ? enemy.getLives() : curPlayer.getLives());
 
-                try {
-                    oos.writeObject(clientMsg);
-                    oos.flush();
-
-                } catch (IOException e) {
-                    System.out.println("[x] Клиент был отключен");
-                    isDuelRunning = false;
-//                    e.printStackTrace();
-                }
+                // TODO: клиент мб отлететь
+                //                    oos.writeObject(clientMsg);
+                oos.println(JSONParser.Parser(clientMsg));
+                oos.flush();
 
                 chronicle.add(phrase);
                 hodNum++;
@@ -205,7 +194,7 @@ public class Duel implements Runnable {
             while (!player1Socket.isClosed()) {
                 System.out.println("[x] Ждем сообщения...");
                 try {
-                    int n = ois.readInt();
+                    int n = ois.read();
                     // хорошо
                     if (n == 1) {
                         glas.set(GOOD_GLAS);
@@ -222,19 +211,6 @@ public class Duel implements Runnable {
                 }
             }
         }
-    }
-
-    /**
-     * Метод, вызываемый внешним потоком для реконнекта клиента
-     *
-     * @param socket
-     */
-    public synchronized void reconnect(Socket socket, ObjectOutputStream oos, ObjectInputStream ois) {
-        System.out.println("[x] Reconnection");
-        player1Socket = socket;
-        this.oos = oos;
-        this.ois = ois;
-        System.out.println("[x] Reconnection complete");
     }
 
     /**

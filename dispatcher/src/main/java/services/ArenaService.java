@@ -1,6 +1,7 @@
 package services;
 
 import classes.Player;
+import jdk.nashorn.internal.parser.JSONParser;
 import msg.DispatcherMsg;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -11,9 +12,13 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.*;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class ArenaService implements Runnable{
+/**
+ * Класс, возвращающий адресс свободного сервера в формате ip:port или -1
+ */
+public class ArenaService implements Callable<String> {
     private int id;
     private static int idPl = 0;
     private Properties properties = new Properties();
@@ -29,10 +34,10 @@ public class ArenaService implements Runnable{
     }
 
     @Override
-    public void run() {
+    public String call() {
         idPl++;
         System.out.println("Запускаем поток для очередного клиента");
-        sendToServer();
+        return sendToServer();
     }
     public boolean loadConfig() {
         try {
@@ -53,12 +58,12 @@ public class ArenaService implements Runnable{
         return true;
     }
 
-
-
-    private void sendToServer(){
+    private String sendToServer(){
+        int arenaFreePort = -1;
+        String arenaFreeIp = "";
         int arenaServer = 0;
         List<Pair<Integer, Integer>> clientsNums = new LinkedList<>();
-        if(!loadConfig()) return;
+        if(!loadConfig()) return "-1";      // возвращаем ошибку клиенту
 
         while (arenaServer < serverArenaNum) {
             String ip;
@@ -91,13 +96,17 @@ public class ArenaService implements Runnable{
         if (clientsNums.size()>0) {
             // отправляем самому ненагруженному нечетному
             clientsNums.sort(Comparator.comparingInt(Pair::getValue));
-
             int num = clientsNums.get(0).getKey();
 
             // TODO: если никто не ответил, отправляем юзеру сообщение об этом
-            if (clientsNums.get(0).getValue()==-1) {};
-            sendPlayerInfo(arenaServerIPs.get(num).getKey(), arenaServerIPs.get(num).getValue());
+            if (clientsNums.get(0).getValue()==-1) {
+                return "-1";
+            };
+            arenaFreeIp = arenaServerIPs.get(num).getKey();
+            arenaFreePort = arenaServerIPs.get(num).getValue();
+            sendPlayerInfo(arenaFreeIp, arenaFreePort);
         }
+        return arenaFreeIp + ":" + arenaFreePort;
     }
     private void sendPlayerInfo(String ip, int port){
         ObjectInputStream ois = null;
