@@ -35,7 +35,7 @@ public class Server implements Runnable{
     public void run() {
         System.out.println("Запускаем сервер арены");
         // запускаем слушателя диспетчера
-        pool.execute(new DispatcherListener());
+//        pool.execute(new DispatcherListener());
         // запускаем слушателя клиентов
         pool.execute(new ClientListener());
 
@@ -112,7 +112,6 @@ public class Server implements Runnable{
             while(!server.isClosed()){
                 try {
                     System.out.println("Ожидание нового клиента");
-
                     Socket client = server.accept();
 
                     ObjectInputStream ois = new ObjectInputStream(client.getInputStream());
@@ -120,9 +119,11 @@ public class Server implements Runnable{
 
                     // предобщение -> получаем id клиента, добавляем его в очередь
                     Player pl = handleWithSocket(client, oos, ois);
-                    System.out.println("----> client id = "+pl.getId());
+                    System.out.println("----> client id:");
+                    System.out.println(pl.getId());
                     if(pl.getId()==-1) {}
                     else {
+                        System.out.println("Выделяем поток под дуэль");
                         Duel _duel = new Duel(client, clientIdsInDuel, ois, oos, pl);
                         pool.execute(_duel);
                     }
@@ -141,18 +142,20 @@ public class Server implements Runnable{
          * возвращает ответ клиенту, добавляет его в очередь
          */
         private Player handleWithSocket(Socket player1Socket, ObjectOutputStream oos, ObjectInputStream ois){
-//            int id = -1;
-//            try {
-//                player1Socket.setSoTimeout(2*1000);   // ждем id от клиента в течение минуты
-//            } catch (SocketException e) {
-//                e.printStackTrace();
-//            }
-//            Player pl1 = new Player(-1);
-//            try {
-//                id = ois.readInt();
-//                // проверяем, что у нас есть данные об этом клиенте
+            System.out.println("sth");
+            int id = -1;
+            try {
+                player1Socket.setSoTimeout(60*1000);   // ждем id от клиента в течение минуты
+            } catch (SocketException e) {
+                e.printStackTrace();
+            }
+            Player pl1 = new Player(-1);
+            try {
+                System.out.println("Получаем ид");
+                id = ois.readInt();
+                // проверяем, что у нас есть данные об этом клиенте
 //                pl1 = playerInfoMap.get(id);
-//
+
 //                if (pl1!=null) {
 //                    System.out.println("[x] клиент: "+player1Socket.getLocalAddress()+" был добавлен");
 //                    oos.writeInt(1);
@@ -162,11 +165,12 @@ public class Server implements Runnable{
 //                    oos.writeInt(-1);
 //                }
 //                oos.flush();
-//
-//                player1Socket.setSoTimeout(100*60*1000);   // ждем id от клиента в течение минуты
-//            } catch (IOException  e) {
-//                e.printStackTrace();
-//            }
+                System.out.println("Ид получен");
+                player1Socket.setSoTimeout(100*60*1000);   // ждем id от клиента в течение минуты
+            } catch (IOException  e) {
+                System.out.println("Ошибка при получении ид");
+                e.printStackTrace();
+            }
 //            return pl1;
             return new Player(1);
         }
