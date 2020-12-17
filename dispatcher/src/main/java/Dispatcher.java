@@ -1,5 +1,7 @@
 import classes.Player;
 import greet.*;
+import io.grpc.Server;
+import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
 import model.Hero;
 import model.Statistic;
@@ -31,14 +33,36 @@ public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
 
     private final List<User> authUsers;
 
-    public Dispatcher(String host, int port) {
+    private int grpcServerPort;
+    private Server grpcServer;
+
+    public Dispatcher(String dbServerHost, int dbServerPort, int grpcServerPort) {
 
         this.authUsers = new ArrayList<>();
 
+
+
         try {
-            Socket socket = new Socket(host, port);
+            Socket socket = new Socket(dbServerHost, dbServerPort);
             toDbServer = new ObjectOutputStream(socket.getOutputStream());
             fromDbServer = new ObjectInputStream(socket.getInputStream());
+
+            System.out.println("GRPC Server have started on localhost:" + grpcServerPort);
+            grpcServer = ServerBuilder
+                    .forPort(grpcServerPort)
+                    .addService(this)
+                    .build()
+                    .start();
+
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                System.out.println(("*** shutting down gRPC server since JVM is shutting down"));
+                try {
+                    stop();
+                } catch (InterruptedException e) {
+                    e.printStackTrace(System.err);
+                }
+                System.out.println("*** server shut down");
+            }));
 
 
             // принимаем список аутентифицированных юзеров
@@ -49,43 +73,55 @@ public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
         }
     }
 
-    public static void main(String[] args) {
-        for(int i=0; i<10; i++){
-            clientsQueue.add(i);
-        }
-        arenaServerIPs.add(new MutablePair<>("localhost", 8002));
-
-        for(int i=0; i<10; i++) {
-            try {
-                pool.execute(new ArenaService(clientsQueue.take(), arenaServerIPs, "realDispatcher/src/main/resources/arenaServersIps.properties"));
-                Thread.sleep(5*1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
-        pool.shutdown();
-
-        // до бесконечности
-//        while (true) {
+//    public static void main(String[] args) {
+//        for(int i=0; i<10; i++){
+//            clientsQueue.add(i);
+//        }
+//        arenaServerIPs.add(new MutablePair<>("localhost", 8002));
 //
+//        for(int i=0; i<10; i++) {
 //            try {
-//                pool.execute(new ArenaService(clientsQueue.take(), arenaServerIPs));
+//                pool.execute(new ArenaService(clientsQueue.take(), arenaServerIPs, "realDispatcher/src/main/resources/arenaServersIps.properties"));
 //                Thread.sleep(5*1000);
-//
 //            } catch (InterruptedException e) {
 //                e.printStackTrace();
 //            }
 //        }
+//
+//        pool.shutdown();
+//
+//        // до бесконечности
+////        while (true) {
+////
+////            try {
+////                pool.execute(new ArenaService(clientsQueue.take(), arenaServerIPs));
+////                Thread.sleep(5*1000);
+////
+////            } catch (InterruptedException e) {
+////                e.printStackTrace();
+////            }
+////        }
+//
+//    }
 
+    private void stop() throws InterruptedException {
+        if (grpcServer != null) {
+            grpcServer.shutdown().awaitTermination(5, TimeUnit.SECONDS);
+        }
+    }
+
+    public void blockUntilShutdown() throws InterruptedException {
+        if (grpcServer != null) {
+            grpcServer.awaitTermination();
+        }
     }
 
     @Override
     public void login(LoginData request, StreamObserver<UserLoginOuput> responseObserver) {
         String login = request.getLogin();
         String password = request.getPassword();
-        User userToLogIn = new User(-1, login, password, "", "");
-        Sender logUser = new Sender(new DispatcherDbServerMsg(userToLogIn, "login"));
+        User stub = new User(-1, login, password, "", "");
+        Sender logUser = new Sender(new DispatcherDbServerMsg(stub, "login"));
         Future<Object> response = poolForWriting.submit(logUser);
 
         try {
@@ -156,62 +192,52 @@ public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
     @Override
     public void logout(ClientId request, StreamObserver<Empty> responseObserver) {
         int id = (int) request.getId();
-        User userToLogOut = new User(id, "", "", "", "");
-        Sender outUser = new Sender(new DispatcherDbServerMsg(userToLogOut, "logout"));
+        User stub = new User(id, "", "", "", "");
+        Sender outUser = new Sender(new DispatcherDbServerMsg(stub, "logout"));
         poolForWriting.submit(outUser);
+        responseObserver.onNext(Empty.newBuilder().build());
         responseObserver.onCompleted();
     }
 
+    // todo
     @Override
     public void startDuel(ClientId request, StreamObserver<ServerIp> responseObserver) {
+        System.out.println("Dispatcher.startDuel");
         super.startDuel(request, responseObserver);
     }
 
     @Override
     public void getStatistic(ClientId request, StreamObserver<greet.Statistic> responseObserver) {
         int id = (int) request.getId();
-        User whosStatistic = new User(id, "", "", "", "");
-        Sender getStat = new Sender(new DispatcherDbServerMsg(whosStatistic, "statistic"));
+        User stub = new User(id, "", "", "", "");
+        Sender getStat = new Sender(new DispatcherDbServerMsg(stub, "statistic"));
         Future<Object> reponse = poolForWriting.submit(getStat);
 
-        DispatcherDbServerMsg msg = (DispatcherDbServerMsg) reponse;
-        Statistic stat = (Statistic) msg.getResponse();
+        DispatcherDbServerMsg msg = null;
+        try {
+            msg = (DispatcherDbServerMsg) reponse.get();
+            Statistic stat = (Statistic) msg.getResponse();
 
-        greet.Statistic statistic = greet.Statistic.newBuilder()
-                .setWins(stat.getWins())
-                .setLoses(stat.getLoses())
-                .build();
-        responseObserver.onNext(statistic);
-        responseObserver.onCompleted();
+            if (stat == null) {
+                responseObserver.onNext(greet.Statistic.newBuilder().setLoses(0).setWins(0).build());
+                responseObserver.onCompleted();
+                return;
+            }
+            greet.Statistic statistic = greet.Statistic.newBuilder()
+                    .setWins(stat.getWins())
+                    .setLoses(stat.getLoses())
+                    .build();
+            responseObserver.onNext(statistic);
+            responseObserver.onCompleted();;
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
     }
 
-    // todo
     @Override
     public void check(Empty request, StreamObserver<Empty> responseObserver) {
-        super.check(request, responseObserver);
-    }
-
-    private class Writer implements Runnable {
-        private final DispatcherDbServerMsg messageToWrite;
-
-        public Writer(DispatcherDbServerMsg messageToWrite) {
-            this.messageToWrite = messageToWrite;
-        }
-
-        @Override
-        public void run() {
-            try {
-                // todo : написать перенаправление на другой сервер при падении бд сервера
-                System.out.println("[.] Start sending message to db server " + LocalDateTime.now());
-                toDbServer.writeObject(messageToWrite);
-                toDbServer.flush();
-                System.out.println("[.] Message has been sent " + LocalDateTime.now());
-
-            } catch (IOException e) {
-                System.out.println("[x] The DbServer was shut down probably " + LocalDateTime.now());
-                e.printStackTrace();
-            }
-        }
+        responseObserver.onNext(Empty.newBuilder().build());
+        responseObserver.onCompleted();
     }
 
     private class Sender implements Callable<Object> {

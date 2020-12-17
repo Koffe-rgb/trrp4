@@ -94,7 +94,7 @@ class DispatcherServerHandler implements Runnable {
                         break;
 
                     case "updateUser": dbManager.updateUser(msg.getUser()); break;
-                    case "addHero": dbManager.insertHero(msg.getHero(), msg.getUser().getId()); break;
+                    case "addHero": dbManager.insertHero(msg.getHero()); break;
                 }
 
                 toDispatcher.flush();
@@ -102,6 +102,12 @@ class DispatcherServerHandler implements Runnable {
 
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
+                try {
+                    socket.close();
+                    System.out.println("[x] Dispatcher closed connection " + LocalDateTime.now());
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
             }
         }
     }
@@ -130,8 +136,10 @@ class DispatcherServerHandler implements Runnable {
         User user;
         user = msg.getUser();
         boolean isUnique = dbManager.isLoginUnique(user.getLogin());
-        if (!isUnique)
+        if (!isUnique) {
             toDispatcher.writeObject(new DispatcherDbServerMsg("badLogin", null));
+            return;
+        }
 
         String generatedSalt = UUID.randomUUID().toString();
         String hash = cryptographyThis(generatedSalt + user.getHash());

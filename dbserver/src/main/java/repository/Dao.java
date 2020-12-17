@@ -101,11 +101,11 @@ public class Dao {
                 .fetchFirst();
     }
 
-    public void insertHero(Hero hero, int userId) {
+    public void insertHero(Hero hero) {
         QHeroes qHeroes = QHeroes.heroes;
         Integer key = queryFactory.insert(qHeroes)
                 .columns(qHeroes.idUser, qHeroes.name, qHeroes.health)
-                .values(userId, hero.getName(), hero.getHealth())
+                .values(hero.getIdUser(), hero.getName(), hero.getHealth())
                 .executeWithKey(Integer.class);
         hero.setId(key);
     }
