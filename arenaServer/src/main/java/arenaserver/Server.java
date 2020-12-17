@@ -1,7 +1,6 @@
 package arenaserver;
 
 import classes.Player;
-import msg.ClientMsg;
 import msg.DispatcherMsg;
 
 import java.io.IOException;
@@ -11,9 +10,14 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Collections;
+import java.util.Hashtable;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 public class Server implements Runnable{
@@ -117,17 +121,10 @@ public class Server implements Runnable{
                     // предобщение -> получаем id клиента, добавляем его в очередь
                     Player pl = handleWithSocket(client, oos, ois);
                     System.out.println("----> client id = "+pl.getId());
-                    Duel _duel = new Duel(client, clientIdsInDuel, ois, oos, pl);
                     if(pl.getId()==-1) {}
                     else {
-                        System.out.println("-----> size = "+clientIdsInDuel.size());
-                        Duel d = clientIdsInDuel.putIfAbsent(pl.getId(), _duel);
-                        System.out.println("-----> size = "+clientIdsInDuel.size());
-
-                        if (d==null)
-                            pool.execute(_duel);
-                        else
-                            d.reconnect(client, oos, ois);
+                        Duel _duel = new Duel(client, clientIdsInDuel, ois, oos, pl);
+                        pool.execute(_duel);
                     }
                 } catch (IOException e) {
                     //if (!server.isClosed()){server.close();}
@@ -177,29 +174,5 @@ public class Server implements Runnable{
 
 
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }
