@@ -12,7 +12,8 @@ public class App {
 
     public static void main(String[] args) {
         AtomicBoolean continueListen = new AtomicBoolean(true);
-        for(int i=0; i<10; i++){
+        // TODO: добавлять в очередь id при запросе клиента
+        for(int i=0; i<1; i++){
             clientsArenaQueue.add(i);
         }
 
