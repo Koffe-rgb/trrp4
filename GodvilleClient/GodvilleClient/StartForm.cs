@@ -55,33 +55,33 @@ namespace GodvilleClient
         void ReadClientMsg()
         {
             string serverIp;
-            try
-            {
-                GrpcChannel channel = Connection.GetDispatcherChannel();
-                var client = new GodvilleServiceClient(channel);
-                serverIp = client.StartDuel(new ClientId { Id = Program.Client.Id }).Ip;
-            }
-            catch (Exception e)
-            {
-                //Выбранный диспетчер вдруг умер после проверки на активность
-                Logger.AddErrorMessage(e.Message);
-                MessageBox.Show("Дуэль не может быть начата");
-                return;
-            }
+            //try
+            //{
+            //    GrpcChannel channel = Connection.GetDispatcherChannel();
+            //    var client = new GodvilleServiceClient(channel);
+            //    serverIp = client.StartDuel(new ClientId { Id = Program.Client.Id }).Ip;
+            //}
+            //catch (Exception e)
+            //{
+            //    //Выбранный диспетчер вдруг умер после проверки на активность
+            //    Logger.AddErrorMessage(e.Message);
+            //    MessageBox.Show("Дуэль не может быть начата");
+            //    return;
+            //}
 
             //заглушка
-            serverIp = "192.168.100.6:8888";
+            serverIp = "localhost:8006";
 
             var lines = serverIp.Split(":");
-            var ping = new Ping();
-            var reply = ping.Send(lines[0], 200); // 0,2 минуты тайм-аут
-            if (!reply.Status.ToString().Equals("Success"))
-            {
-                MessageBox.Show("Дуэль закончилась, не начавшись: ваш противник внезано провалился сквозь землю");
-                return;
-            }
-            else
-                ToggleDuelState(true);
+            //var ping = new Ping();
+            //var reply = ping.Send(lines[0], 200); // 0,2 минуты тайм-аут
+            //if (!reply.Status.ToString().Equals("Success"))
+            //{
+            //    MessageBox.Show("Дуэль закончилась, не начавшись: ваш противник внезано провалился сквозь землю");
+            //    return;
+            //}
+            //else
+            //    ToggleDuelState(true);
 
 
             int port = int.Parse(lines[1]);
@@ -91,13 +91,14 @@ namespace GodvilleClient
 
             using (TcpClient tcpClient = new TcpClient(lines[0], port))
             {
-                tcpClient.Connect(server, port);
+                //tcpClient.Connect(server, port);
                 NetworkStream networkStream = tcpClient.GetStream();
                 WriteStream.WriteNetworkStream = tcpClient.GetStream();
                 BinaryReader sr = new BinaryReader(networkStream);
                 BinaryWriter sw = new BinaryWriter(networkStream);
-                sr.BaseStream.ReadTimeout = 200; // таймаут на отклик сервера - 0,2 минуты
+                sr.BaseStream.ReadTimeout = 1000; // таймаут на отклик сервера - 0,2 минуты
                 sw.Write(Program.Client.Id); // послать серверу свой id и начать взаимодействие
+                sw.Flush();
                 while (true)
                 {
                     Model.ClientMsg clientMsg;

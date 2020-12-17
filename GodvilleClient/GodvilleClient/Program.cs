@@ -81,7 +81,8 @@ namespace GodvilleClient
                                 new RegisterData
                                 {
                                     LoginData = new LoginData { Login = regData.Login, Password = regData.Password},
-                                    Nickname = regData.Nickname
+                                    Nickname = regData.Nickname,
+                                    Heroname = regData.HeroName
                                 });
                         } catch(Exception e)
                         {
