@@ -18,7 +18,6 @@ private static final long serialVersionUID = 0L;
   private LoginData() {
     login_ = "";
     password_ = "";
-    clientIp_ = "";
   }
 
   @java.lang.Override
@@ -61,12 +60,6 @@ private static final long serialVersionUID = 0L;
             java.lang.String s = input.readStringRequireUtf8();
 
             password_ = s;
-            break;
-          }
-          case 26: {
-            java.lang.String s = input.readStringRequireUtf8();
-
-            clientIp_ = s;
             break;
           }
           default: {
@@ -177,44 +170,6 @@ private static final long serialVersionUID = 0L;
     }
   }
 
-  public static final int CLIENTIP_FIELD_NUMBER = 3;
-  private volatile java.lang.Object clientIp_;
-  /**
-   * <code>string clientIp = 3;</code>
-   * @return The clientIp.
-   */
-  @java.lang.Override
-  public java.lang.String getClientIp() {
-    java.lang.Object ref = clientIp_;
-    if (ref instanceof java.lang.String) {
-      return (java.lang.String) ref;
-    } else {
-      com.google.protobuf.ByteString bs = 
-          (com.google.protobuf.ByteString) ref;
-      java.lang.String s = bs.toStringUtf8();
-      clientIp_ = s;
-      return s;
-    }
-  }
-  /**
-   * <code>string clientIp = 3;</code>
-   * @return The bytes for clientIp.
-   */
-  @java.lang.Override
-  public com.google.protobuf.ByteString
-      getClientIpBytes() {
-    java.lang.Object ref = clientIp_;
-    if (ref instanceof java.lang.String) {
-      com.google.protobuf.ByteString b = 
-          com.google.protobuf.ByteString.copyFromUtf8(
-              (java.lang.String) ref);
-      clientIp_ = b;
-      return b;
-    } else {
-      return (com.google.protobuf.ByteString) ref;
-    }
-  }
-
   private byte memoizedIsInitialized = -1;
   @java.lang.Override
   public final boolean isInitialized() {
@@ -235,9 +190,6 @@ private static final long serialVersionUID = 0L;
     if (!getPasswordBytes().isEmpty()) {
       com.google.protobuf.GeneratedMessageV3.writeString(output, 2, password_);
     }
-    if (!getClientIpBytes().isEmpty()) {
-      com.google.protobuf.GeneratedMessageV3.writeString(output, 3, clientIp_);
-    }
     unknownFields.writeTo(output);
   }
 
@@ -252,9 +204,6 @@ private static final long serialVersionUID = 0L;
     }
     if (!getPasswordBytes().isEmpty()) {
       size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, password_);
-    }
-    if (!getClientIpBytes().isEmpty()) {
-      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, clientIp_);
     }
     size += unknownFields.getSerializedSize();
     memoizedSize = size;
@@ -275,8 +224,6 @@ private static final long serialVersionUID = 0L;
         .equals(other.getLogin())) return false;
     if (!getPassword()
         .equals(other.getPassword())) return false;
-    if (!getClientIp()
-        .equals(other.getClientIp())) return false;
     if (!unknownFields.equals(other.unknownFields)) return false;
     return true;
   }
@@ -292,8 +239,6 @@ private static final long serialVersionUID = 0L;
     hash = (53 * hash) + getLogin().hashCode();
     hash = (37 * hash) + PASSWORD_FIELD_NUMBER;
     hash = (53 * hash) + getPassword().hashCode();
-    hash = (37 * hash) + CLIENTIP_FIELD_NUMBER;
-    hash = (53 * hash) + getClientIp().hashCode();
     hash = (29 * hash) + unknownFields.hashCode();
     memoizedHashCode = hash;
     return hash;
@@ -431,8 +376,6 @@ private static final long serialVersionUID = 0L;
 
       password_ = "";
 
-      clientIp_ = "";
-
       return this;
     }
 
@@ -461,7 +404,6 @@ private static final long serialVersionUID = 0L;
       greet.LoginData result = new greet.LoginData(this);
       result.login_ = login_;
       result.password_ = password_;
-      result.clientIp_ = clientIp_;
       onBuilt();
       return result;
     }
@@ -516,10 +458,6 @@ private static final long serialVersionUID = 0L;
       }
       if (!other.getPassword().isEmpty()) {
         password_ = other.password_;
-        onChanged();
-      }
-      if (!other.getClientIp().isEmpty()) {
-        clientIp_ = other.clientIp_;
         onChanged();
       }
       this.mergeUnknownFields(other.unknownFields);
@@ -699,82 +637,6 @@ private static final long serialVersionUID = 0L;
   checkByteStringIsUtf8(value);
       
       password_ = value;
-      onChanged();
-      return this;
-    }
-
-    private java.lang.Object clientIp_ = "";
-    /**
-     * <code>string clientIp = 3;</code>
-     * @return The clientIp.
-     */
-    public java.lang.String getClientIp() {
-      java.lang.Object ref = clientIp_;
-      if (!(ref instanceof java.lang.String)) {
-        com.google.protobuf.ByteString bs =
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        clientIp_ = s;
-        return s;
-      } else {
-        return (java.lang.String) ref;
-      }
-    }
-    /**
-     * <code>string clientIp = 3;</code>
-     * @return The bytes for clientIp.
-     */
-    public com.google.protobuf.ByteString
-        getClientIpBytes() {
-      java.lang.Object ref = clientIp_;
-      if (ref instanceof String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        clientIp_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-    /**
-     * <code>string clientIp = 3;</code>
-     * @param value The clientIp to set.
-     * @return This builder for chaining.
-     */
-    public Builder setClientIp(
-        java.lang.String value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  
-      clientIp_ = value;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string clientIp = 3;</code>
-     * @return This builder for chaining.
-     */
-    public Builder clearClientIp() {
-      
-      clientIp_ = getDefaultInstance().getClientIp();
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string clientIp = 3;</code>
-     * @param value The bytes for clientIp to set.
-     * @return This builder for chaining.
-     */
-    public Builder setClientIpBytes(
-        com.google.protobuf.ByteString value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-      
-      clientIp_ = value;
       onChanged();
       return this;
     }
