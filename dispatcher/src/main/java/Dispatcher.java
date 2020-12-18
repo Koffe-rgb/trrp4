@@ -25,8 +25,8 @@ public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
     static ExecutorService pool = Executors.newCachedThreadPool();
 
 
-    private final Map<String, MutablePair<ObjectInputStream, ObjectOutputStream>> loginStreams = new HashMap<>();
-    private final Map<Integer, MutablePair<ObjectInputStream, ObjectOutputStream>> idStreams = new HashMap<>();
+    private final Map<String, MutablePair<ObjectInputStream, ObjectOutputStream>> loginStreams = new ConcurrentHashMap<>();
+    private final Map<Integer, MutablePair<ObjectInputStream, ObjectOutputStream>> idStreams = new ConcurrentHashMap<>();
     private final String dbServerHost;
     private final int dbServerPort;
     private ObjectInputStream fromDbServer;
