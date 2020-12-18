@@ -10,7 +10,6 @@ public class App {
 
     public static void main(String[] args) {
         DispatcherSocketServer server = new DispatcherSocketServer(new Dao(), 8000);
-
         executorService.execute(server);
     }
 }

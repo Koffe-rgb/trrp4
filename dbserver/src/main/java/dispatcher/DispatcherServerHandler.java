@@ -4,6 +4,7 @@ import model.Hero;
 import model.Statistic;
 import model.User;
 import msg.DispatcherDbServerMsg;
+import org.apache.commons.lang3.tuple.MutablePair;
 import org.bouncycastle.util.encoders.Hex;
 import repository.Dao;
 
@@ -15,26 +16,23 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 class DispatcherServerHandler implements Runnable {
     private final Socket socket;
     private final DispatcherSocketServer mainServer;
     private final Dao dbManager;
-    private final List<User> authUsers;
-    private ObjectOutputStream toDispatcher;
-    private ObjectInputStream fromDispatcher;
+    private ObjectOutputStream toClient;
+    private ObjectInputStream fromClient;
 
-    public DispatcherServerHandler(Socket socket, DispatcherSocketServer server, Dao dbManager) {
+    public DispatcherServerHandler(Socket socket, DispatcherSocketServer mainServer, Dao dbManager) {
         this.socket = socket;
         this.dbManager = dbManager;
-        this.mainServer = server;
-        this.authUsers = mainServer.getAuthUsers();
+        this.mainServer = mainServer;
 
         try {
-            fromDispatcher = new ObjectInputStream(socket.getInputStream());
-            toDispatcher = new ObjectOutputStream(socket.getOutputStream());
+            fromClient = new ObjectInputStream(socket.getInputStream());
+            toClient = new ObjectOutputStream(socket.getOutputStream());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -55,49 +53,29 @@ class DispatcherServerHandler implements Runnable {
     public synchronized void run() {
         System.out.println("[.] Dispatcher connected : " + LocalDateTime.now());
 
-        // на старте надо отправить диспетчеру список аутентифицированных юзеров
-        try {
-            toDispatcher.writeObject(authUsers);
-            toDispatcher.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
         while (!socket.isClosed()) {
             try {
-                DispatcherDbServerMsg msg = (DispatcherDbServerMsg) fromDispatcher.readObject();
+                DispatcherDbServerMsg msg = (DispatcherDbServerMsg) fromClient.readObject();
 
                 System.out.println("[.] Just have gotten new message for " + msg.getTag() + " " + LocalDateTime.now());
-
-                User user;
 
                 // смотрим метку сообщения
                 switch (msg.getTag()) {
                     case "statistic": getStatistic(msg); break;
-
                     case "registration": registerUser(msg); break;
-
                     case "login": logIn(msg); break;
-
                     case "logout": mainServer.sendToAllDispatchers(new DispatcherDbServerMsg("out", msg.getUser())); break;
-
-                    case "out": authUsers.removeIf(u ->  u.getId() == msg.getUser().getId()); break;
-
-                    case "selectUser":
-                        user = dbManager.selectUser(msg.getUser().getId());
-                        toDispatcher.writeObject(new DispatcherDbServerMsg("selectUser", user));
-                        break;
-
-                    case "selectHero":
-                        Hero hero = dbManager.selectHero(msg.getHero().getId());
-                        toDispatcher.writeObject(new DispatcherDbServerMsg("selectHero", hero));
-                        break;
-
+                    case "selectUser": selectUser(msg);break;
+                    case "selectHero": selectHero(msg);break;
                     case "updateUser": dbManager.updateUser(msg.getUser()); break;
                     case "addHero": dbManager.insertHero(msg.getHero()); break;
+                    case "dispatcher":
+                        System.out.println("DispatcherServerHandler.newDispatcher");
+                        mainServer.getDispatchers().add(new MutablePair<>(fromClient, toClient));
+                        toClient.writeObject(new DispatcherDbServerMsg("allUsers", mainServer.getAuthUsers()));
+                        break;
                 }
 
-                toDispatcher.flush();
                 System.out.println("[.] Message to dispatcher was sent " + LocalDateTime.now());
 
             } catch (IOException | ClassNotFoundException e) {
@@ -112,32 +90,45 @@ class DispatcherServerHandler implements Runnable {
         }
     }
 
+    private void selectHero(DispatcherDbServerMsg msg) throws IOException {
+        Hero hero = dbManager.selectHero(msg.getHero().getId());
+        DispatcherDbServerMsg msg1 = new DispatcherDbServerMsg("selectHero", hero);
+        send(msg1);
+    }
+
+    private void selectUser(DispatcherDbServerMsg msg) throws IOException {
+        User user = dbManager.selectUser(msg.getUser().getId());
+        DispatcherDbServerMsg msg1 = new DispatcherDbServerMsg("selectUser", user);
+        send(msg1);
+    }
+
     private void logIn(DispatcherDbServerMsg msg) throws IOException {
         String login = msg.getUser().getLogin();
         String password = msg.getUser().getHash();
 
         String saltFromDb = dbManager.selectSalt(login);
-        String hash1 = cryptographyThis(saltFromDb + password);
+        String hash = cryptographyThis(saltFromDb + password);
 
-        User authUser = dbManager.selectUser(login, hash1);
-        Hero usersHero = dbManager.selectHero(authUser.getId());
-
-        // todo: почему подсказка: "всегда истина"?
-        if (authUser != null) {
-            authUsers.add(authUser);
-            mainServer.sendToAllDispatchers(new DispatcherDbServerMsg( "auth", authUser));
-            toDispatcher.writeObject(new DispatcherDbServerMsg("auth", new Object[]{ authUser, usersHero }));
-        } else {
-            toDispatcher.writeObject(new DispatcherDbServerMsg("badLoginPassword", null));
+        User authUser = dbManager.selectUser(login, hash);
+        if (authUser == null){
+            DispatcherDbServerMsg msg1 = new DispatcherDbServerMsg("badLoginPassword", null);
+            send(msg1);
+            return;
         }
+        // добавим аутент юзера
+        mainServer.sendToAllDispatchers(new DispatcherDbServerMsg("auth", authUser));
+
+        Hero usersHero = dbManager.selectHero(authUser.getId());
+        DispatcherDbServerMsg msg1 = new DispatcherDbServerMsg("auth", new Object[]{authUser, usersHero});
+        send(msg1);
     }
 
     private void registerUser(DispatcherDbServerMsg msg) throws IOException {
-        User user;
-        user = msg.getUser();
+        User user = msg.getUser();
         boolean isUnique = dbManager.isLoginUnique(user.getLogin());
         if (!isUnique) {
-            toDispatcher.writeObject(new DispatcherDbServerMsg("badLogin", null));
+            DispatcherDbServerMsg msg1 = new DispatcherDbServerMsg("badLogin", null);
+            send(msg1);
             return;
         }
 
@@ -145,13 +136,23 @@ class DispatcherServerHandler implements Runnable {
         String hash = cryptographyThis(generatedSalt + user.getHash());
         user.setHash(hash);
         user.setSalt(generatedSalt);
-
         dbManager.insertUser(user);
-        toDispatcher.writeObject(new DispatcherDbServerMsg("rega", user));
+
+        // добавим аутент юзера
+        mainServer.sendToAllDispatchers(new DispatcherDbServerMsg("auth", user));
+
+        DispatcherDbServerMsg msg1 = new DispatcherDbServerMsg("rega", user);
+        send(msg1);
     }
 
     private void getStatistic(DispatcherDbServerMsg msg) throws IOException {
         Statistic statistic = dbManager.selectStatistic(msg.getUser().getId());
-        toDispatcher.writeObject(new DispatcherDbServerMsg("statistic", statistic));
+        DispatcherDbServerMsg msg1 = new DispatcherDbServerMsg("statistic", statistic);
+        send(msg1);
+    }
+
+    private synchronized void send(DispatcherDbServerMsg msg1) throws IOException {
+        toClient.writeObject(msg1);
+        toClient.flush();
     }
 }
