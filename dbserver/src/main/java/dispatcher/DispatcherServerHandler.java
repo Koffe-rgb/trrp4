@@ -34,7 +34,9 @@ class DispatcherServerHandler implements Runnable {
             fromClient = new ObjectInputStream(socket.getInputStream());
             toClient = new ObjectOutputStream(socket.getOutputStream());
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("WARNING!");
+            System.err.println("[x] Couldn't connect to client");
+            //e.printStackTrace();
         }
     }
 
@@ -79,12 +81,15 @@ class DispatcherServerHandler implements Runnable {
                 System.out.println("[.] Message to dispatcher was sent " + LocalDateTime.now());
 
             } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
+                System.err.println("WARNING!");
+                System.err.println("[x] Invalid message");
+                //e.printStackTrace();
                 try {
                     socket.close();
-                    System.out.println("[x] Dispatcher closed connection " + LocalDateTime.now());
+                    System.err.println("WARNING!");
+                    System.err.println("[x] Dispatcher closed connection " + LocalDateTime.now());
                 } catch (IOException ioException) {
-                    ioException.printStackTrace();
+//                    ioException.printStackTrace();
                 }
             }
         }

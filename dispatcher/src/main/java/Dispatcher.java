@@ -203,6 +203,16 @@ public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
         int id = (int) request.getId();
         User stub = new User(id, "", "", "", "");
 
+        if (!idStreams.containsKey(id)) {
+            try {
+                Socket socket = new Socket(dbServerHost, dbServerPort);
+                ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+                ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+                idStreams.put(id, new MutablePair<>(ois, oos));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         MutablePair<ObjectInputStream, ObjectOutputStream> pair = idStreams.get(id);
 
         Sender outUser = new Sender(new DispatcherDbServerMsg(stub, "logout"), pair.left, pair.right);
@@ -244,6 +254,16 @@ public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
         int id = (int) request.getId();
         User stub = new User(id, "", "", "", "");
 
+        if (!idStreams.containsKey(id)) {
+            try {
+                Socket socket = new Socket(dbServerHost, dbServerPort);
+                ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+                ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+                idStreams.put(id, new MutablePair<>(ois, oos));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         MutablePair<ObjectInputStream, ObjectOutputStream> pair = idStreams.get(id);
 
         Sender getStat = new Sender(new DispatcherDbServerMsg(stub, "statistic"), pair.left, pair.right);
