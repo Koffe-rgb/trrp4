@@ -16,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class Server implements Runnable{
@@ -25,8 +26,8 @@ public class Server implements Runnable{
     private static final List<Client> duelsList = Collections.synchronizedList(new LinkedList<>());     // хранит список дуэлей
     private static final Hashtable<Integer, Player> playerInfoMap = new Hashtable<>(100);      // мап, хранящий инфу про клиента, полученную от диспетчера
     private static ExecutorService clientPool = Executors.newCachedThreadPool();           // пул, отвечающий за обработку конкретного клиента
-    private static ConcurrentMap<Integer, Duel> clientIdsInDuel = new ConcurrentHashMap<>(100);    // мап, хранящий дуэли и ид клиентов, участвующих на данный момент в дуэлях
-
+//    private static ConcurrentMap<Integer, Duel> clientIdsInDuel = new ConcurrentHashMap<>(100);    // мап, хранящий дуэли и ид клиентов, участвующих на данный момент в дуэлях
+    private static AtomicInteger clientsCurNumber = new AtomicInteger(0);
 
 
     @Override
@@ -64,7 +65,7 @@ public class Server implements Runnable{
                         DispatcherMsg msg = (DispatcherMsg) ois.readObject();
                         // если не получили инфу про игрока, значит нас просят вернуть колво людей на сервере
                         if (msg.getPlayer().getId()==-1){
-                            oos.writeObject(new DispatcherMsg(new Player(), clientIdsInDuel.size(), ""));
+                            oos.writeObject(new DispatcherMsg(new Player(), clientsCurNumber.get(), ""));
                         }
                         else{
                             System.out.println("[x] Добавляем клиента "+msg.getPlayer().getId());
@@ -123,8 +124,10 @@ public class Server implements Runnable{
                     if(pl.getId()==-1) {}
                     else {
                         System.out.println("Выделяем поток под дуэль");
-                        Duel _duel = new Duel(client, clientIdsInDuel, ois, oos, pl);
-                        pool.execute(_duel);
+                        clientsCurNumber.addAndGet(1);
+                        Duel _duel = new Duel(client, clientsCurNumber, ois, oos, pl);
+
+                        clientPool.execute(_duel);
                     }
                 } catch (IOException e) {
                     //if (!server.isClosed()){server.close();}

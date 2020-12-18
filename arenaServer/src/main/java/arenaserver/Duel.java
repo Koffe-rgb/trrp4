@@ -28,20 +28,20 @@ public class Duel implements Runnable {
     private BufferedReader ois;
     private PrintWriter oos;
     private ExecutorService pool = Executors.newFixedThreadPool(2);
-    private Map<Integer, Duel> clientIdsInDuel;
+    private AtomicInteger clientsCurNum;
     private AtomicInteger glas = new AtomicInteger(-1);
     private final int BAD_GLAS = 0;
     private final int GOOD_GLAS = 1;
 
 
-    public Duel(Socket client, Map<Integer, Duel> clientIdsInDuel, BufferedReader ois, PrintWriter oos, Player player) {
+    public Duel(Socket client, AtomicInteger clientsCurNum, BufferedReader ois, PrintWriter oos, Player player) {
         dailyMonsters = new String[]{"Aвитаминосец", "Aвтомогиль", "Aдепт Пивного Культа", "Aдминистратор Годвилля", "Aдский Вертихвост", "Aдский Вратарь", "Aктивированный Угорь", "Aленький Цветочник", "Aлименталист", "Aлкоголем", "Aлхимический Металлист", "Aль Монах", "Aльтер Эго", "Aльфа-кентавр", "Aнархиоптерикс", "Aнатомический Нонсенс", "Aнгел-Бранитель", "Aнгел-Хоронитель", "Aндед-Мороз", "Aнизотропный Голем", "Aнонимный Aнонимус", "Aнонимный Доброжелатель", "Aнтагонист", "Aнтигерой", "Aнтракторист", "Aнтропоморфный Дендромутант", "Aппручник", "Aргх-Aнгел", "Aривидервиш", "Aристокрот", "Aрхибаг", "Aрхивирус", "Aрхимедик", "Aсексуальный Маньяк", "Aссассинизатор", "Aстралопитек", "Aтомный Редактор", "Баал-Бес", "Байкер Из Склепа", "Банзаец", "Бардобрей", "Бармаглот", "Барон Суббота", "Барсук Кхорна", "Бахиллес", "Баш-Орк", "Безбашенный Всадник", "Безбашенный Кран", "Бездомный Домовой"};
         random = new Random();
         this.player1 = new Player(1, 300, "Cool Guy", "Hercules"); //player;
         this.player2 = new Player(-666, player1.getLives() + (random.nextInt(50) - 30), "Megamind", dailyMonsters[random.nextInt(dailyMonsters.length)]);
         player1Socket = client;
         chronicle = new LinkedList<>();
-        this.clientIdsInDuel = clientIdsInDuel;
+        this.clientsCurNum = clientsCurNum;
         this.oos = oos;
         this.ois = ois;
     }
@@ -91,7 +91,7 @@ public class Duel implements Runnable {
         pool.shutdownNow();
 
         // удаляем ид клиента
-        clientIdsInDuel.remove(player1.getId());
+        clientsCurNum.decrementAndGet();
     }
 
     // игра заканчивается, когда у противника на очередном ходе заканчивается здоровье
@@ -177,9 +177,7 @@ public class Duel implements Runnable {
                 ClientMsg clientMsg = new ClientMsg(msgType, hodNum, phrase, hodNum % 2 != 0 ? curPlayer.getLives() : enemy.getLives(), hodNum % 2 != 0 ? enemy.getLives() : curPlayer.getLives());
 
                 // TODO: клиент мб отлететь
-                //                    oos.writeObject(clientMsg);
                 oos.println(JSONParser.Parser(clientMsg));
-//                oos.flush();
                 if (oos.checkError()){
                     System.out.println("Не смогли доставить сообщение клиенту");
                     isDuelRunning = false;
@@ -215,7 +213,6 @@ public class Duel implements Runnable {
                 } catch (IOException e) {
                     System.out.println("[x] Сокет был закрыт. Прерываем поток чтения");
                     Close();
-//                    e.printStackTrace();
                 }
             }
         }
