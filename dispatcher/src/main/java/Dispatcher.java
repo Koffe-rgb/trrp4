@@ -23,8 +23,6 @@ import java.util.concurrent.*;
 public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
     static ConcurrentMap<Integer, Player> playerInfo = new ConcurrentHashMap<>();
     static ExecutorService pool = Executors.newCachedThreadPool();
-    static BlockingQueue<Integer> clientsQueue = new LinkedBlockingQueue<>();
-    static CopyOnWriteArrayList<Pair<String, Integer>> arenaServerIPs = new CopyOnWriteArrayList<>();     // адрес и порт
 
 
     private final Map<String, MutablePair<ObjectInputStream, ObjectOutputStream>> loginStreams = new HashMap<>();
@@ -34,8 +32,14 @@ public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
     private ObjectInputStream fromDbServer;
     private ObjectOutputStream toDbServer;
 
-    private Server grpcServer;
+    static ConcurrentMap<Integer, Player> playerInfo = new ConcurrentHashMap<>();
+    static ExecutorService pool = Executors.newCachedThreadPool();
+
+    private final ExecutorService poolForWriting = Executors.newSingleThreadExecutor();
+
     private final List<User> authUsers;
+
+    private Server grpcServer;
 
     private final ExecutorService poolForWriting = Executors.newCachedThreadPool();
     private final ExecutorService poolForListening = Executors.newSingleThreadExecutor();
@@ -201,11 +205,29 @@ public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
         responseObserver.onCompleted();
     }
 
-    // todo
+
+
+    /**
+     * Закрытие всех потоков
+     */
+    private void Close(){
+        pool.shutdownNow();
+    }
+
     @Override
     public void startDuel(ClientId request, StreamObserver<ServerIp> responseObserver) {
         System.out.println("Dispatcher.startDuel");
         super.startDuel(request, responseObserver);
+
+        // поиск арены для клиента
+        int id = (int) request.getId();
+        Future<String> addressF = pool.submit(new ArenaService(id, "dispatcher/src/main/resources/arenaServersIps.properties"));
+        try {
+            String address = addressF.get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+        // TODO: вернуть результат address клиенту
     }
 
     @Override

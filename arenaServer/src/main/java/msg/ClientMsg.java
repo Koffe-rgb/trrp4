@@ -10,7 +10,7 @@ import java.util.List;
 public class ClientMsg implements Serializable {
     private int type;       // 0-результат дуэли, 1-конец хода, 2-запрос клиента на подключение, 3-глас клиента, 4-начало дуэли
     private int hodNum;                 // номер хода (считает сервер)
-    private int idClient;
+    private String enemyName;
     private String phrase;        // фраза о том, кто одержал победу или фраза о начале дуэли или фраза хода
     private int glas;               // 1-хорошо, 0-плохо
     private int lives;              // колво жизней игрока (НЕ колво вычитаемой)
@@ -28,7 +28,7 @@ public class ClientMsg implements Serializable {
      * @param lives колво жизней игрока
      * @param enemyLives колво жизней противника
      */
-    public ClientMsg(String hiPhrase, int lives, int enemyLives, boolean isEven) {
+    public ClientMsg(String hiPhrase, int lives, int enemyLives, boolean isEven, String enemyName) {
         this.type = 4;
         hodNum = 0;
         this.phrase = hiPhrase;
@@ -36,6 +36,7 @@ public class ClientMsg implements Serializable {
         this.enemyLives = enemyLives;
         this.isEven = isEven;
         time = 0;
+        this.enemyName = enemyName;
     }
 
     /**
@@ -61,7 +62,7 @@ public class ClientMsg implements Serializable {
     public void clear(){
         type = -1;
         hodNum = -1;
-        idClient = -1;
+        enemyName = "";
         phrase = "";
         glas = -1;
         lives = -1;
@@ -95,15 +96,7 @@ public class ClientMsg implements Serializable {
 
     public void setHodNum(int hodNum) {
         this.hodNum = hodNum;
-    }
-
-    public int getIdClient() {
-        return idClient;
-    }
-
-    public void setIdClient(int idClient) {
-        this.idClient = idClient;
-    }
+    };
 
     public int getGlas() {
         return glas;
@@ -151,6 +144,14 @@ public class ClientMsg implements Serializable {
 
     public void setPhrase(String phrase) {
         this.phrase = phrase;
+    }
+
+    public String getEnemyName() {
+        return enemyName;
+    }
+
+    public void setEnemyName(String enemyName) {
+        this.enemyName = enemyName;
     }
 
     //endregion
