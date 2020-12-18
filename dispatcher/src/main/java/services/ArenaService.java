@@ -96,6 +96,7 @@ public class ArenaService implements Callable<String> {
             arenaServer++;
         }
 
+        String arenaAddress = "0.0.0.0:0000";
         if (clientsNums.size()>0) {
             // отправляем самому ненагруженному нечетному
             clientsNums.sort(Comparator.comparingInt(Pair::getValue));
@@ -103,17 +104,18 @@ public class ArenaService implements Callable<String> {
 
             // TODO: если никто не ответил, отправляем юзеру сообщение об этом
             if (clientsNums.get(0).getValue()==-1) {
-                return "-1";
+                return "0.0.0.0:0000";
             };
             arenaFreeIp = arenaServerIPs.get(num).getKey();
             arenaFreePort = arenaServerIPs.get(num).getValue();
-            sendPlayerInfo(arenaFreeIp, arenaFreePort);
+            arenaAddress = sendPlayerInfo(arenaFreeIp, arenaFreePort);
         }
-        return arenaFreeIp + ":" + arenaFreePort;
+        return arenaAddress;
     }
-    private void sendPlayerInfo(String ip, int port){
+    private String sendPlayerInfo(String ip, int port){
         ObjectInputStream ois = null;
         ObjectOutputStream oos = null;
+        String arenaAddress = "0.0.0.0:0000";
 
         try (Socket socket = new Socket(ip, port)) {
             socket.setSoTimeout(60 * 1000);     // ждем ответа минуту
@@ -123,8 +125,8 @@ public class ArenaService implements Callable<String> {
             oos.writeObject(new DispatcherMsg(player, -1,"Player Info"));    //TODO
             oos.flush();
             DispatcherMsg respond = (DispatcherMsg) ois.readObject();   // получаем ответ от арены
-
-            System.out.println("[x] Диспетчер "+ip+" "+port+" - "+ respond.getRespond()+" ");
+            arenaAddress = respond.getRequest();
+            System.out.println("[x] Диспетчер "+ip+" "+port+" - "+ respond.getRequest()+" ");
 
         } catch (IOException | ClassNotFoundException e) {
             System.out.println("[x] Ошибка подключения к серверу арены");
@@ -138,6 +140,6 @@ public class ArenaService implements Callable<String> {
                 e.printStackTrace();
             }
         }
-
+        return arenaAddress;
     }
 }

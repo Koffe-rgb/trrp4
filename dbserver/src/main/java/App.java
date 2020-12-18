@@ -15,10 +15,10 @@ public class App {
 
         DispatcherSocketServer server = new DispatcherSocketServer(dao, 8000);
         ArenaSocketServerListener listener = new ArenaSocketServerListener(dao, 8001);
-        ArenaMqServerConsumer consumer = new ArenaMqServerConsumer(dao);
+//        ArenaMqServerConsumer consumer = new ArenaMqServerConsumer(dao);
 
         executorService.execute(server);
         executorService.execute(listener);
-        executorService.execute(consumer);
+//        executorService.execute(consumer);
     }
 }
