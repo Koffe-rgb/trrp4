@@ -20,13 +20,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class Server implements Runnable{
-    private static ExecutorService pool = Executors.newFixedThreadPool(10);     // один на диспетчеров, остальные для дуэлей
-//    private static final List<Client> clientsQueue = Collections.synchronizedList(new LinkedList<>());  // хранит очередь клиентов, отправивших свой id
-
-    private static final List<Client> duelsList = Collections.synchronizedList(new LinkedList<>());     // хранит список дуэлей
+    private static ExecutorService pool = Executors.newFixedThreadPool(2);     // один на диспетчеров и один под клиентов
     private static final Hashtable<Integer, Player> playerInfoMap = new Hashtable<>(100);      // мап, хранящий инфу про клиента, полученную от диспетчера
     private static ExecutorService clientPool = Executors.newCachedThreadPool();           // пул, отвечающий за обработку конкретного клиента
-//    private static ConcurrentMap<Integer, Duel> clientIdsInDuel = new ConcurrentHashMap<>(100);    // мап, хранящий дуэли и ид клиентов, участвующих на данный момент в дуэлях
     private static AtomicInteger clientsCurNumber = new AtomicInteger(0);
 
 
@@ -34,9 +30,9 @@ public class Server implements Runnable{
     public void run() {
         System.out.println("Запускаем сервер арены");
         // запускаем слушателя диспетчера
-//        pool.execute(new DispatcherListener());
+        pool.execute(new DispatcherListener());
         // запускаем слушателя клиентов
-        pool.execute(new ClientListener());
+//        pool.execute(new ClientListener());
 
     }
 

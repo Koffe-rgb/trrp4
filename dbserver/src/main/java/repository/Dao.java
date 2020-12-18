@@ -140,6 +140,7 @@ public class Dao {
     }
 
     public void upsertStatistic(int idUser, int nWins, int nLoses) {
+        System.out.println("upsertStatistic begin");
         QStatistic qStatistic = QStatistic.statistic;
 
         Statistic existed = selectStatistic(idUser);
@@ -155,9 +156,11 @@ public class Dao {
                     .where(qStatistic.idUser.eq(idUser))
                     .execute();
         }
+        System.out.println("upsertStatistic end");
     }
 
     public void upsertStatistic(int idWinner, int idLoser) {
+        System.out.println("--->to dao");
         upsertStatistic(idWinner, 1, 0);
         upsertStatistic(idLoser, 0, 1);
     }

@@ -15,8 +15,8 @@ import java.util.concurrent.TimeoutException;
 public class ArenaMqServerConsumer implements Runnable {
     private String host = "localhost";
     private int port = 5672;
-    private String username = "koffe";
-    private String password = "koffe";
+    private String username = "guest";
+    private String password = "guest";
     private String queueName = "queue_arena_results";
 
     private final Dao dbManager;
@@ -33,11 +33,12 @@ public class ArenaMqServerConsumer implements Runnable {
         factory.setUsername(username);
         factory.setPassword(password);
 
-        try (Connection connection = factory.newConnection();
-             Channel channel = connection.createChannel()) {
+        try {
+            final Connection connection = factory.newConnection();
+            final Channel channel = connection.createChannel();
 
             channel.queueDeclare(queueName, true, false, false, null);
-            System.out.println("[x] Waiting for messages for MQ : " + LocalDateTime.now());
+            System.out.println("[A] Waiting for messages for MQ : " + LocalDateTime.now());
             channel.basicQos(1);
 
             DeliverCallback deliverCallback = (consumerTag, delivery) -> {
@@ -57,13 +58,13 @@ public class ArenaMqServerConsumer implements Runnable {
             };
             channel.basicConsume(queueName, false, deliverCallback, consumerTag -> { });
 
-        } catch (TimeoutException | IOException timeoutException) {
-            timeoutException.printStackTrace();
+        } catch (IOException | TimeoutException e) {
+            e.printStackTrace();
         }
-
     }
 
     private void sendDuelResultToDb(int[] pair) {
+        System.out.println(pair[0]+" "+pair[1]);
         dbManager.upsertStatistic(pair[0], pair[1]);
     }
 }
