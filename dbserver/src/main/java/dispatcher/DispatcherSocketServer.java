@@ -2,9 +2,11 @@ package dispatcher;
 
 import model.User;
 import msg.DispatcherDbServerMsg;
+import org.apache.commons.lang3.tuple.MutablePair;
 import repository.Dao;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -19,9 +21,9 @@ public class DispatcherSocketServer implements Runnable {
     private final Dao dbManager;
     private final ExecutorService threadPool;
     private final List<User> authUsers;
-    private int port;
+    private final int port;
 
-    private final List<Socket> dispatchers = new ArrayList<>();
+    private final List<MutablePair<ObjectInputStream, ObjectOutputStream>> dispatchers = new CopyOnWriteArrayList<>();
 
     public DispatcherSocketServer(Dao dbManager, int port) {
         this.dbManager = dbManager;
@@ -34,13 +36,22 @@ public class DispatcherSocketServer implements Runnable {
         return authUsers;
     }
 
+    public List<MutablePair<ObjectInputStream, ObjectOutputStream>> getDispatchers() {
+        return dispatchers;
+    }
+
     public void sendToAllDispatchers(DispatcherDbServerMsg msg) {
+        User user = (User) msg.getResponse();
         if (msg.getTag().equals("out")) {
-            authUsers.removeIf(user -> user.getId() == msg.getUser().getId());
+            authUsers.removeIf(u -> u.getId() == user.getId());
+            System.out.println("DispatcherSocketServer.out " + user.getId());
+        } else if (msg.getTag().equals("auth")) {
+            System.out.println("DispatcherSocketServer.auth " + user.getId());
+            authUsers.add(user);
         }
-        for (Socket dispatcher : dispatchers) {
+        for (MutablePair<ObjectInputStream, ObjectOutputStream> p : dispatchers) {
+            ObjectOutputStream oos = p.right;
             try {
-                ObjectOutputStream oos = new ObjectOutputStream(dispatcher.getOutputStream());
                 oos.writeObject(msg);
                 oos.flush();
             } catch (IOException e) {
@@ -63,7 +74,7 @@ public class DispatcherSocketServer implements Runnable {
             }));
 
             while (true) {
-                System.out.println("[.] Awaiting client-dispatcher on port " + port + " : " + LocalDateTime.now());
+                System.out.println("[.] Awaiting client on port " + port + " : " + LocalDateTime.now());
                 Socket clientSocket = serverSocket.accept();
 
                 DispatcherServerHandler handler = new DispatcherServerHandler(clientSocket, DispatcherSocketServer.this, dbManager);

@@ -6,6 +6,5 @@ public class App {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
     }
 }

@@ -8,7 +8,6 @@ import model.Statistic;
 import model.User;
 import msg.DispatcherDbServerMsg;
 import org.apache.commons.lang3.tuple.MutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import services.ArenaService;
 
 import java.io.IOException;
@@ -16,64 +15,86 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 
 public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
-    private ObjectInputStream fromDbServer;
-    private ObjectOutputStream toDbServer;
-
     static ConcurrentMap<Integer, Player> playerInfo = new ConcurrentHashMap<>();
     static ExecutorService pool = Executors.newCachedThreadPool();
 
-    private final ExecutorService poolForWriting = Executors.newSingleThreadExecutor();
+
+    private final Map<String, MutablePair<ObjectInputStream, ObjectOutputStream>> loginStreams = new HashMap<>();
+    private final Map<Integer, MutablePair<ObjectInputStream, ObjectOutputStream>> idStreams = new HashMap<>();
+    private final String dbServerHost;
+    private final int dbServerPort;
+    private ObjectInputStream fromDbServer;
+    private ObjectOutputStream toDbServer;
 
     private final List<User> authUsers;
 
-    private int grpcServerPort;
     private Server grpcServer;
+
+    private final ExecutorService poolForWriting = Executors.newCachedThreadPool();
+    private final ExecutorService poolForListening = Executors.newSingleThreadExecutor();
 
     public Dispatcher(String dbServerHost, int dbServerPort, int grpcServerPort) {
 
-        this.authUsers = new ArrayList<>();
+        this.authUsers = new CopyOnWriteArrayList<>();
 
-
+        this.dbServerHost = dbServerHost;
+        this.dbServerPort = dbServerPort;
 
         try {
-            Socket socket = new Socket(dbServerHost, dbServerPort);
-            toDbServer = new ObjectOutputStream(socket.getOutputStream());
-            fromDbServer = new ObjectInputStream(socket.getInputStream());
+            Socket dispatcherSocket = new Socket(dbServerHost, dbServerPort);
+            this.toDbServer = new ObjectOutputStream(dispatcherSocket.getOutputStream());
+            toDbServer.writeObject(new DispatcherDbServerMsg("dispatcher", null));
+            this.fromDbServer = new ObjectInputStream(dispatcherSocket.getInputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        poolForListening.execute(new Listener(fromDbServer, authUsers));
 
-            System.out.println("GRPC Server have started on localhost:" + grpcServerPort);
+
+        System.out.println("GRPC Server have started on localhost:" + grpcServerPort);
+        try {
             grpcServer = ServerBuilder
                     .forPort(grpcServerPort)
                     .addService(this)
                     .build()
                     .start();
-
-            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                System.out.println(("*** shutting down gRPC server since JVM is shutting down"));
-                try {
-                    stop();
-                } catch (InterruptedException e) {
-                    e.printStackTrace(System.err);
-                }
-                System.out.println("*** server shut down");
-            }));
-
-
-            // принимаем список аутентифицированных юзеров
-            authUsers.addAll(((List<User>) fromDbServer.readObject()));
-
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println(("*** shutting down gRPC server since JVM is shutting down"));
+            try {
+                stop();
+            } catch (InterruptedException e) {
+                e.printStackTrace(System.err);
+            }
+            System.out.println("*** server shut down");
+        }));
     }
+
+
 
     private void stop() throws InterruptedException {
         if (grpcServer != null) {
             grpcServer.shutdown().awaitTermination(5, TimeUnit.SECONDS);
+            poolForListening.shutdown();
+            poolForWriting.shutdown();
+            pool.shutdown();
+            loginStreams.forEach((s, p) -> {
+                try {
+                    p.left.close();
+                    p.right.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
         }
     }
 
@@ -87,11 +108,21 @@ public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
     public void login(LoginData request, StreamObserver<UserLoginOuput> responseObserver) {
         String login = request.getLogin();
         String password = request.getPassword();
-        User stub = new User(-1, login, password, "", "");
-        Sender logUser = new Sender(new DispatcherDbServerMsg(stub, "login"));
-        Future<Object> response = poolForWriting.submit(logUser);
 
         try {
+            if (!loginStreams.containsKey(login)) {
+                Socket socket = new Socket(dbServerHost, dbServerPort);
+                ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+                ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+                loginStreams.put(login, new MutablePair<>(ois, oos));
+            }
+
+            MutablePair<ObjectInputStream, ObjectOutputStream> pair = loginStreams.get(login);
+
+            User stub = new User(-1, login, password, "", "");
+            Sender logUser = new Sender(new DispatcherDbServerMsg(stub, "login"), pair.left, pair.right);
+            Future<Object> response = poolForWriting.submit(logUser);
+
             DispatcherDbServerMsg msg = (DispatcherDbServerMsg) response.get();
             // логин или пароль не подошли
             if (msg.getTag().equals("badLoginPassword")) {
@@ -105,6 +136,9 @@ public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
             User user = (User) objects[0];
             Hero hero = (Hero) objects[1];
 
+            idStreams.put(user.getId(), new MutablePair<>(pair.left, pair.right));
+            //loginStreams.remove(user.getLogin());
+
             UserLoginOuput userLoginOuput = UserLoginOuput.newBuilder()
                     .setId(user.getId())
                     .setNickname(user.getNickname())
@@ -114,7 +148,7 @@ public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
             responseObserver.onNext(userLoginOuput);
             responseObserver.onCompleted();
 
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (IOException | ExecutionException | InterruptedException e) {
             e.printStackTrace();
         }
     }
@@ -122,11 +156,18 @@ public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
     @Override
     public void register(RegisterData request, StreamObserver<UserRegOutput> responseObserver) {
         LoginData loginData = request.getLoginData();
-        User stub = new User(-1, loginData.getLogin(), loginData.getPassword(), "", request.getNickname());
-        Sender regUser = new Sender(new DispatcherDbServerMsg(stub, "registration"));
-        Future<Object> response = poolForWriting.submit(regUser);
+        String login = loginData.getLogin();
+        User stub = new User(-1, login, loginData.getPassword(), "", request.getNickname());
 
         try {
+            Socket socket = new Socket(dbServerHost, dbServerPort);
+            ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+            ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+            loginStreams.put(login, new MutablePair<>(ois, oos));
+
+            Sender regUser = new Sender(new DispatcherDbServerMsg(stub, "registration"), ois, oos);
+            Future<Object> response = poolForWriting.submit(regUser);
+
             DispatcherDbServerMsg msg = (DispatcherDbServerMsg) response.get();
             // если не уникальный логин, то вернем с ид -1
             if (msg.getTag().equals("badLogin")) {
@@ -137,6 +178,8 @@ public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
 
             // иначе отправляем фул данные и вставляем героя
             User registered = (User) msg.getResponse();
+            idStreams.put(registered.getId(), new MutablePair<>(ois, oos));
+
             UserRegOutput regOutput = UserRegOutput.newBuilder()
                     .setId(registered.getId())
                     .setLogin(registered.getLogin())
@@ -148,10 +191,9 @@ public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
             responseObserver.onCompleted();
 
             Hero hero = new Hero(-1, registered.getId(), request.getHeroname(), 100);
-            Sender sendHero = new Sender(new DispatcherDbServerMsg(hero, "addHero"));
+            Sender sendHero = new Sender(new DispatcherDbServerMsg(hero, "addHero"), ois, oos);
             poolForWriting.submit(sendHero);
-
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (IOException | InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
     }
@@ -160,7 +202,10 @@ public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
     public void logout(ClientId request, StreamObserver<Empty> responseObserver) {
         int id = (int) request.getId();
         User stub = new User(id, "", "", "", "");
-        Sender outUser = new Sender(new DispatcherDbServerMsg(stub, "logout"));
+
+        MutablePair<ObjectInputStream, ObjectOutputStream> pair = idStreams.get(id);
+
+        Sender outUser = new Sender(new DispatcherDbServerMsg(stub, "logout"), pair.left, pair.right);
         poolForWriting.submit(outUser);
         responseObserver.onNext(Empty.newBuilder().build());
         responseObserver.onCompleted();
@@ -185,22 +230,27 @@ public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
         Future<String> addressF = pool.submit(new ArenaService(id, "dispatcher/src/main/resources/arenaServersIps.properties"));
         try {
             String address = addressF.get();
+            responseObserver.onNext(ServerIp.newBuilder().setIp(address).build());
+            responseObserver.onCompleted();
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
         // TODO: вернуть результат address клиенту
+
     }
 
     @Override
     public void getStatistic(ClientId request, StreamObserver<greet.Statistic> responseObserver) {
         int id = (int) request.getId();
         User stub = new User(id, "", "", "", "");
-        Sender getStat = new Sender(new DispatcherDbServerMsg(stub, "statistic"));
+
+        MutablePair<ObjectInputStream, ObjectOutputStream> pair = idStreams.get(id);
+
+        Sender getStat = new Sender(new DispatcherDbServerMsg(stub, "statistic"), pair.left, pair.right);
         Future<Object> reponse = poolForWriting.submit(getStat);
 
-        DispatcherDbServerMsg msg = null;
         try {
-            msg = (DispatcherDbServerMsg) reponse.get();
+            DispatcherDbServerMsg msg = (DispatcherDbServerMsg) reponse.get();
             Statistic stat = (Statistic) msg.getResponse();
 
             if (stat == null) {
@@ -213,7 +263,7 @@ public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
                     .setLoses(stat.getLoses())
                     .build();
             responseObserver.onNext(statistic);
-            responseObserver.onCompleted();;
+            responseObserver.onCompleted();
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
@@ -225,23 +275,71 @@ public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
         responseObserver.onCompleted();
     }
 
-    private class Sender implements Callable<Object> {
+    private static class Sender implements Callable<Object> {
         private final DispatcherDbServerMsg messageToWrite;
+        private final ObjectInputStream ois;
+        private final ObjectOutputStream oos;
 
-        public Sender(DispatcherDbServerMsg messageToWrite) {
+        public Sender(DispatcherDbServerMsg messageToWrite, ObjectInputStream ois, ObjectOutputStream oos) {
             this.messageToWrite = messageToWrite;
+            this.ois = ois;
+            this.oos = oos;
         }
 
         @Override
         public Object call() throws Exception {
             System.out.println("[.] Start sending message to db server " + LocalDateTime.now());
-            toDbServer.writeObject(messageToWrite);
-            toDbServer.flush();
+            oos.writeObject(messageToWrite);
+            oos.flush();
             System.out.println("[.] Message has been sent " + LocalDateTime.now());
 
-            Object response = fromDbServer.readObject();
+            Object response = ois.readObject();
             System.out.println("[.] Got response " + LocalDateTime.now());
             return response;
+        }
+    }
+
+    private static class Listener implements Runnable {
+        private final ObjectInputStream ois;
+        private final List<User> auth;
+
+        public Listener(ObjectInputStream ois, List<User> auth) {
+            this.ois = ois;
+            this.auth = auth;
+        }
+
+        @Override
+        public void run() {
+            while (true) {
+                try {
+                    DispatcherDbServerMsg msg = (DispatcherDbServerMsg) ois.readObject();
+
+                    switch (msg.getTag()) {
+                        case "auth":
+                            User authUser = (User) msg.getResponse();
+                            System.out.println("Listener.newUser " + authUser.getId());
+                            auth.add(authUser);
+                            break;
+                        case "out":
+                            User respUser = (User) msg.getResponse();
+                            System.out.println("Listener.out " + respUser.getId());
+                            auth.removeIf(u -> u.getId() == respUser.getId());
+                            break;
+                        case "allUsers":
+                            System.out.println("Listener.allUsers");
+                            ((List<User>) msg.getResponse()).forEach(user -> {
+                                if (!auth.contains(user)) {
+                                    auth.add(user);
+                                    System.out.println(user.getId());
+                                }
+                            });
+                            break;
+                    }
+
+                } catch (IOException | ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 }
