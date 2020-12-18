@@ -158,8 +158,8 @@ public class Dao {
     }
 
     public void upsertStatistic(int idWinner, int idLoser) {
-        upsertStatistic(idWinner, 1, 0);
-        upsertStatistic(idLoser, 0, 1);
+        if (idWinner != -1) upsertStatistic(idWinner, 1, 0);
+        if (idLoser != -1) upsertStatistic(idLoser, 0, 1);
     }
 
     private List<String> selectPhrases(int type) {
