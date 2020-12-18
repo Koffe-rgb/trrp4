@@ -13,10 +13,10 @@
 
     <properties>
         <connectionString>
-            jdbc:postgresql://localhost:5432/trrp4db
+            jdbc:postgresql://localhost:5432/postgres
         </connectionString>
         <password>
-            qwert0p12
+            6c0eb00a33a84aa2bbeea42369408354
         </password>
         <dbUser>
             postgres
