@@ -109,6 +109,7 @@ namespace GodvilleClient
                     NetworkStream networkStream = tcpClient.GetStream();
                     StreamReader sr = new StreamReader(networkStream);
                     StreamWriter sw = new StreamWriter(networkStream);
+                    WriteStream.WriteNetworkStream = networkStream;
                     sr.BaseStream.ReadTimeout = 20 * 1000;
                     sw.WriteLine(Program.Client.Id.ToString());
                     sw.Flush();
@@ -187,7 +188,6 @@ namespace GodvilleClient
             }
         }
 
-
         private void btnGood_Click(object sender, EventArgs e)
         {
             btnGood.Enabled = false;
@@ -247,24 +247,24 @@ namespace GodvilleClient
                 MessageBox.Show("Операция временно недоступна");
                 return;
             }
-
-            Close();
+            if (e != null)
+                Close();
         }
 
         private void StartForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (WriteStream.WriteNetworkStream == null)
-                return;
-            WriteStream.WriteNetworkStream.Close();
+            if (WriteStream.WriteNetworkStream != null)
+                WriteStream.WriteNetworkStream.Close();
             if (readerThread != null)
                 readerThread.Interrupt();
+            linkLogout_LinkClicked(sender, null);
         }
 
         private void StartForm_FormClosed(object sender, FormClosedEventArgs e)
         {
             if (readerThread != null)
                 readerThread.Interrupt();
-        }
+        }   
     }
 
     class WriteStream
