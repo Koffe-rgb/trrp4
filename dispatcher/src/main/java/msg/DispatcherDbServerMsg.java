@@ -10,23 +10,27 @@ public class DispatcherDbServerMsg implements Serializable {
     private Hero hero;
     private String tag;
 
-    private Object response;
+    private Object response;    // ответ БД
 
+    // для ответов со стороны БД
     public DispatcherDbServerMsg(String tag, Object response) {
         this.tag = tag;
         this.response = response;
     }
 
+    // отправка на БД
     public DispatcherDbServerMsg(User user, String tag) {
         this.user = user;
         this.tag = tag;
     }
 
+    // отправка
     public DispatcherDbServerMsg(Hero hero, String tag) {
         this.hero = hero;
         this.tag = tag;
     }
 
+    // тоже отправка
     public DispatcherDbServerMsg(User user, Hero hero, String tag) {
         this.user = user;
         this.hero = hero;

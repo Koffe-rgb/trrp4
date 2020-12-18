@@ -4,27 +4,29 @@
 package greet;
 
 /**
- * Protobuf type {@code greet.RegisterData}
+ * Protobuf type {@code greet.UserRegOutput}
  */
-public final class RegisterData extends
+public final class UserRegOutput extends
     com.google.protobuf.GeneratedMessageV3 implements
-    // @@protoc_insertion_point(message_implements:greet.RegisterData)
-    RegisterDataOrBuilder {
+    // @@protoc_insertion_point(message_implements:greet.UserRegOutput)
+    UserRegOutputOrBuilder {
 private static final long serialVersionUID = 0L;
-  // Use RegisterData.newBuilder() to construct.
-  private RegisterData(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+  // Use UserRegOutput.newBuilder() to construct.
+  private UserRegOutput(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
     super(builder);
   }
-  private RegisterData() {
+  private UserRegOutput() {
+    login_ = "";
+    hash_ = "";
+    salt_ = "";
     nickname_ = "";
-    heroname_ = "";
   }
 
   @java.lang.Override
   @SuppressWarnings({"unused"})
   protected java.lang.Object newInstance(
       UnusedPrivateParameter unused) {
-    return new RegisterData();
+    return new UserRegOutput();
   }
 
   @java.lang.Override
@@ -32,7 +34,7 @@ private static final long serialVersionUID = 0L;
   getUnknownFields() {
     return this.unknownFields;
   }
-  private RegisterData(
+  private UserRegOutput(
       com.google.protobuf.CodedInputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
@@ -50,29 +52,33 @@ private static final long serialVersionUID = 0L;
           case 0:
             done = true;
             break;
-          case 10: {
-            greet.LoginData.Builder subBuilder = null;
-            if (loginData_ != null) {
-              subBuilder = loginData_.toBuilder();
-            }
-            loginData_ = input.readMessage(greet.LoginData.parser(), extensionRegistry);
-            if (subBuilder != null) {
-              subBuilder.mergeFrom(loginData_);
-              loginData_ = subBuilder.buildPartial();
-            }
+          case 8: {
 
+            id_ = input.readInt64();
             break;
           }
           case 18: {
             java.lang.String s = input.readStringRequireUtf8();
 
-            nickname_ = s;
+            login_ = s;
             break;
           }
           case 26: {
             java.lang.String s = input.readStringRequireUtf8();
 
-            heroname_ = s;
+            hash_ = s;
+            break;
+          }
+          case 34: {
+            java.lang.String s = input.readStringRequireUtf8();
+
+            salt_ = s;
+            break;
+          }
+          case 42: {
+            java.lang.String s = input.readStringRequireUtf8();
+
+            nickname_ = s;
             break;
           }
           default: {
@@ -96,47 +102,146 @@ private static final long serialVersionUID = 0L;
   }
   public static final com.google.protobuf.Descriptors.Descriptor
       getDescriptor() {
-    return greet.Godville.internal_static_greet_RegisterData_descriptor;
+    return greet.Godville.internal_static_greet_UserRegOutput_descriptor;
   }
 
   @java.lang.Override
   protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internalGetFieldAccessorTable() {
-    return greet.Godville.internal_static_greet_RegisterData_fieldAccessorTable
+    return greet.Godville.internal_static_greet_UserRegOutput_fieldAccessorTable
         .ensureFieldAccessorsInitialized(
-            greet.RegisterData.class, greet.RegisterData.Builder.class);
+            greet.UserRegOutput.class, greet.UserRegOutput.Builder.class);
   }
 
-  public static final int LOGINDATA_FIELD_NUMBER = 1;
-  private greet.LoginData loginData_;
+  public static final int ID_FIELD_NUMBER = 1;
+  private long id_;
   /**
-   * <code>.greet.LoginData loginData = 1;</code>
-   * @return Whether the loginData field is set.
+   * <code>int64 id = 1;</code>
+   * @return The id.
    */
   @java.lang.Override
-  public boolean hasLoginData() {
-    return loginData_ != null;
-  }
-  /**
-   * <code>.greet.LoginData loginData = 1;</code>
-   * @return The loginData.
-   */
-  @java.lang.Override
-  public greet.LoginData getLoginData() {
-    return loginData_ == null ? greet.LoginData.getDefaultInstance() : loginData_;
-  }
-  /**
-   * <code>.greet.LoginData loginData = 1;</code>
-   */
-  @java.lang.Override
-  public greet.LoginDataOrBuilder getLoginDataOrBuilder() {
-    return getLoginData();
+  public long getId() {
+    return id_;
   }
 
-  public static final int NICKNAME_FIELD_NUMBER = 2;
+  public static final int LOGIN_FIELD_NUMBER = 2;
+  private volatile java.lang.Object login_;
+  /**
+   * <code>string login = 2;</code>
+   * @return The login.
+   */
+  @java.lang.Override
+  public java.lang.String getLogin() {
+    java.lang.Object ref = login_;
+    if (ref instanceof java.lang.String) {
+      return (java.lang.String) ref;
+    } else {
+      com.google.protobuf.ByteString bs = 
+          (com.google.protobuf.ByteString) ref;
+      java.lang.String s = bs.toStringUtf8();
+      login_ = s;
+      return s;
+    }
+  }
+  /**
+   * <code>string login = 2;</code>
+   * @return The bytes for login.
+   */
+  @java.lang.Override
+  public com.google.protobuf.ByteString
+      getLoginBytes() {
+    java.lang.Object ref = login_;
+    if (ref instanceof java.lang.String) {
+      com.google.protobuf.ByteString b = 
+          com.google.protobuf.ByteString.copyFromUtf8(
+              (java.lang.String) ref);
+      login_ = b;
+      return b;
+    } else {
+      return (com.google.protobuf.ByteString) ref;
+    }
+  }
+
+  public static final int HASH_FIELD_NUMBER = 3;
+  private volatile java.lang.Object hash_;
+  /**
+   * <code>string hash = 3;</code>
+   * @return The hash.
+   */
+  @java.lang.Override
+  public java.lang.String getHash() {
+    java.lang.Object ref = hash_;
+    if (ref instanceof java.lang.String) {
+      return (java.lang.String) ref;
+    } else {
+      com.google.protobuf.ByteString bs = 
+          (com.google.protobuf.ByteString) ref;
+      java.lang.String s = bs.toStringUtf8();
+      hash_ = s;
+      return s;
+    }
+  }
+  /**
+   * <code>string hash = 3;</code>
+   * @return The bytes for hash.
+   */
+  @java.lang.Override
+  public com.google.protobuf.ByteString
+      getHashBytes() {
+    java.lang.Object ref = hash_;
+    if (ref instanceof java.lang.String) {
+      com.google.protobuf.ByteString b = 
+          com.google.protobuf.ByteString.copyFromUtf8(
+              (java.lang.String) ref);
+      hash_ = b;
+      return b;
+    } else {
+      return (com.google.protobuf.ByteString) ref;
+    }
+  }
+
+  public static final int SALT_FIELD_NUMBER = 4;
+  private volatile java.lang.Object salt_;
+  /**
+   * <code>string salt = 4;</code>
+   * @return The salt.
+   */
+  @java.lang.Override
+  public java.lang.String getSalt() {
+    java.lang.Object ref = salt_;
+    if (ref instanceof java.lang.String) {
+      return (java.lang.String) ref;
+    } else {
+      com.google.protobuf.ByteString bs = 
+          (com.google.protobuf.ByteString) ref;
+      java.lang.String s = bs.toStringUtf8();
+      salt_ = s;
+      return s;
+    }
+  }
+  /**
+   * <code>string salt = 4;</code>
+   * @return The bytes for salt.
+   */
+  @java.lang.Override
+  public com.google.protobuf.ByteString
+      getSaltBytes() {
+    java.lang.Object ref = salt_;
+    if (ref instanceof java.lang.String) {
+      com.google.protobuf.ByteString b = 
+          com.google.protobuf.ByteString.copyFromUtf8(
+              (java.lang.String) ref);
+      salt_ = b;
+      return b;
+    } else {
+      return (com.google.protobuf.ByteString) ref;
+    }
+  }
+
+  public static final int NICKNAME_FIELD_NUMBER = 5;
   private volatile java.lang.Object nickname_;
   /**
-   * <code>string nickname = 2;</code>
+   * <code>string nickname = 5;</code>
    * @return The nickname.
    */
   @java.lang.Override
@@ -153,7 +258,7 @@ private static final long serialVersionUID = 0L;
     }
   }
   /**
-   * <code>string nickname = 2;</code>
+   * <code>string nickname = 5;</code>
    * @return The bytes for nickname.
    */
   @java.lang.Override
@@ -165,44 +270,6 @@ private static final long serialVersionUID = 0L;
           com.google.protobuf.ByteString.copyFromUtf8(
               (java.lang.String) ref);
       nickname_ = b;
-      return b;
-    } else {
-      return (com.google.protobuf.ByteString) ref;
-    }
-  }
-
-  public static final int HERONAME_FIELD_NUMBER = 3;
-  private volatile java.lang.Object heroname_;
-  /**
-   * <code>string heroname = 3;</code>
-   * @return The heroname.
-   */
-  @java.lang.Override
-  public java.lang.String getHeroname() {
-    java.lang.Object ref = heroname_;
-    if (ref instanceof java.lang.String) {
-      return (java.lang.String) ref;
-    } else {
-      com.google.protobuf.ByteString bs = 
-          (com.google.protobuf.ByteString) ref;
-      java.lang.String s = bs.toStringUtf8();
-      heroname_ = s;
-      return s;
-    }
-  }
-  /**
-   * <code>string heroname = 3;</code>
-   * @return The bytes for heroname.
-   */
-  @java.lang.Override
-  public com.google.protobuf.ByteString
-      getHeronameBytes() {
-    java.lang.Object ref = heroname_;
-    if (ref instanceof java.lang.String) {
-      com.google.protobuf.ByteString b = 
-          com.google.protobuf.ByteString.copyFromUtf8(
-              (java.lang.String) ref);
-      heroname_ = b;
       return b;
     } else {
       return (com.google.protobuf.ByteString) ref;
@@ -223,14 +290,20 @@ private static final long serialVersionUID = 0L;
   @java.lang.Override
   public void writeTo(com.google.protobuf.CodedOutputStream output)
                       throws java.io.IOException {
-    if (loginData_ != null) {
-      output.writeMessage(1, getLoginData());
+    if (id_ != 0L) {
+      output.writeInt64(1, id_);
+    }
+    if (!getLoginBytes().isEmpty()) {
+      com.google.protobuf.GeneratedMessageV3.writeString(output, 2, login_);
+    }
+    if (!getHashBytes().isEmpty()) {
+      com.google.protobuf.GeneratedMessageV3.writeString(output, 3, hash_);
+    }
+    if (!getSaltBytes().isEmpty()) {
+      com.google.protobuf.GeneratedMessageV3.writeString(output, 4, salt_);
     }
     if (!getNicknameBytes().isEmpty()) {
-      com.google.protobuf.GeneratedMessageV3.writeString(output, 2, nickname_);
-    }
-    if (!getHeronameBytes().isEmpty()) {
-      com.google.protobuf.GeneratedMessageV3.writeString(output, 3, heroname_);
+      com.google.protobuf.GeneratedMessageV3.writeString(output, 5, nickname_);
     }
     unknownFields.writeTo(output);
   }
@@ -241,15 +314,21 @@ private static final long serialVersionUID = 0L;
     if (size != -1) return size;
 
     size = 0;
-    if (loginData_ != null) {
+    if (id_ != 0L) {
       size += com.google.protobuf.CodedOutputStream
-        .computeMessageSize(1, getLoginData());
+        .computeInt64Size(1, id_);
+    }
+    if (!getLoginBytes().isEmpty()) {
+      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, login_);
+    }
+    if (!getHashBytes().isEmpty()) {
+      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, hash_);
+    }
+    if (!getSaltBytes().isEmpty()) {
+      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, salt_);
     }
     if (!getNicknameBytes().isEmpty()) {
-      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, nickname_);
-    }
-    if (!getHeronameBytes().isEmpty()) {
-      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, heroname_);
+      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(5, nickname_);
     }
     size += unknownFields.getSerializedSize();
     memoizedSize = size;
@@ -261,20 +340,21 @@ private static final long serialVersionUID = 0L;
     if (obj == this) {
      return true;
     }
-    if (!(obj instanceof greet.RegisterData)) {
+    if (!(obj instanceof greet.UserRegOutput)) {
       return super.equals(obj);
     }
-    greet.RegisterData other = (greet.RegisterData) obj;
+    greet.UserRegOutput other = (greet.UserRegOutput) obj;
 
-    if (hasLoginData() != other.hasLoginData()) return false;
-    if (hasLoginData()) {
-      if (!getLoginData()
-          .equals(other.getLoginData())) return false;
-    }
+    if (getId()
+        != other.getId()) return false;
+    if (!getLogin()
+        .equals(other.getLogin())) return false;
+    if (!getHash()
+        .equals(other.getHash())) return false;
+    if (!getSalt()
+        .equals(other.getSalt())) return false;
     if (!getNickname()
         .equals(other.getNickname())) return false;
-    if (!getHeroname()
-        .equals(other.getHeroname())) return false;
     if (!unknownFields.equals(other.unknownFields)) return false;
     return true;
   }
@@ -286,82 +366,85 @@ private static final long serialVersionUID = 0L;
     }
     int hash = 41;
     hash = (19 * hash) + getDescriptor().hashCode();
-    if (hasLoginData()) {
-      hash = (37 * hash) + LOGINDATA_FIELD_NUMBER;
-      hash = (53 * hash) + getLoginData().hashCode();
-    }
+    hash = (37 * hash) + ID_FIELD_NUMBER;
+    hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+        getId());
+    hash = (37 * hash) + LOGIN_FIELD_NUMBER;
+    hash = (53 * hash) + getLogin().hashCode();
+    hash = (37 * hash) + HASH_FIELD_NUMBER;
+    hash = (53 * hash) + getHash().hashCode();
+    hash = (37 * hash) + SALT_FIELD_NUMBER;
+    hash = (53 * hash) + getSalt().hashCode();
     hash = (37 * hash) + NICKNAME_FIELD_NUMBER;
     hash = (53 * hash) + getNickname().hashCode();
-    hash = (37 * hash) + HERONAME_FIELD_NUMBER;
-    hash = (53 * hash) + getHeroname().hashCode();
     hash = (29 * hash) + unknownFields.hashCode();
     memoizedHashCode = hash;
     return hash;
   }
 
-  public static greet.RegisterData parseFrom(
+  public static greet.UserRegOutput parseFrom(
       java.nio.ByteBuffer data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static greet.RegisterData parseFrom(
+  public static greet.UserRegOutput parseFrom(
       java.nio.ByteBuffer data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static greet.RegisterData parseFrom(
+  public static greet.UserRegOutput parseFrom(
       com.google.protobuf.ByteString data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static greet.RegisterData parseFrom(
+  public static greet.UserRegOutput parseFrom(
       com.google.protobuf.ByteString data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static greet.RegisterData parseFrom(byte[] data)
+  public static greet.UserRegOutput parseFrom(byte[] data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static greet.RegisterData parseFrom(
+  public static greet.UserRegOutput parseFrom(
       byte[] data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static greet.RegisterData parseFrom(java.io.InputStream input)
+  public static greet.UserRegOutput parseFrom(java.io.InputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseWithIOException(PARSER, input);
   }
-  public static greet.RegisterData parseFrom(
+  public static greet.UserRegOutput parseFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseWithIOException(PARSER, input, extensionRegistry);
   }
-  public static greet.RegisterData parseDelimitedFrom(java.io.InputStream input)
+  public static greet.UserRegOutput parseDelimitedFrom(java.io.InputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseDelimitedWithIOException(PARSER, input);
   }
-  public static greet.RegisterData parseDelimitedFrom(
+  public static greet.UserRegOutput parseDelimitedFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
   }
-  public static greet.RegisterData parseFrom(
+  public static greet.UserRegOutput parseFrom(
       com.google.protobuf.CodedInputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseWithIOException(PARSER, input);
   }
-  public static greet.RegisterData parseFrom(
+  public static greet.UserRegOutput parseFrom(
       com.google.protobuf.CodedInputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
@@ -374,7 +457,7 @@ private static final long serialVersionUID = 0L;
   public static Builder newBuilder() {
     return DEFAULT_INSTANCE.toBuilder();
   }
-  public static Builder newBuilder(greet.RegisterData prototype) {
+  public static Builder newBuilder(greet.UserRegOutput prototype) {
     return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
   }
   @java.lang.Override
@@ -390,26 +473,26 @@ private static final long serialVersionUID = 0L;
     return builder;
   }
   /**
-   * Protobuf type {@code greet.RegisterData}
+   * Protobuf type {@code greet.UserRegOutput}
    */
   public static final class Builder extends
       com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-      // @@protoc_insertion_point(builder_implements:greet.RegisterData)
-      greet.RegisterDataOrBuilder {
+      // @@protoc_insertion_point(builder_implements:greet.UserRegOutput)
+      greet.UserRegOutputOrBuilder {
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return greet.Godville.internal_static_greet_RegisterData_descriptor;
+      return greet.Godville.internal_static_greet_UserRegOutput_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return greet.Godville.internal_static_greet_RegisterData_fieldAccessorTable
+      return greet.Godville.internal_static_greet_UserRegOutput_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              greet.RegisterData.class, greet.RegisterData.Builder.class);
+              greet.UserRegOutput.class, greet.UserRegOutput.Builder.class);
     }
 
-    // Construct using greet.RegisterData.newBuilder()
+    // Construct using greet.UserRegOutput.newBuilder()
     private Builder() {
       maybeForceBuilderInitialization();
     }
@@ -427,15 +510,15 @@ private static final long serialVersionUID = 0L;
     @java.lang.Override
     public Builder clear() {
       super.clear();
-      if (loginDataBuilder_ == null) {
-        loginData_ = null;
-      } else {
-        loginData_ = null;
-        loginDataBuilder_ = null;
-      }
-      nickname_ = "";
+      id_ = 0L;
 
-      heroname_ = "";
+      login_ = "";
+
+      hash_ = "";
+
+      salt_ = "";
+
+      nickname_ = "";
 
       return this;
     }
@@ -443,17 +526,17 @@ private static final long serialVersionUID = 0L;
     @java.lang.Override
     public com.google.protobuf.Descriptors.Descriptor
         getDescriptorForType() {
-      return greet.Godville.internal_static_greet_RegisterData_descriptor;
+      return greet.Godville.internal_static_greet_UserRegOutput_descriptor;
     }
 
     @java.lang.Override
-    public greet.RegisterData getDefaultInstanceForType() {
-      return greet.RegisterData.getDefaultInstance();
+    public greet.UserRegOutput getDefaultInstanceForType() {
+      return greet.UserRegOutput.getDefaultInstance();
     }
 
     @java.lang.Override
-    public greet.RegisterData build() {
-      greet.RegisterData result = buildPartial();
+    public greet.UserRegOutput build() {
+      greet.UserRegOutput result = buildPartial();
       if (!result.isInitialized()) {
         throw newUninitializedMessageException(result);
       }
@@ -461,15 +544,13 @@ private static final long serialVersionUID = 0L;
     }
 
     @java.lang.Override
-    public greet.RegisterData buildPartial() {
-      greet.RegisterData result = new greet.RegisterData(this);
-      if (loginDataBuilder_ == null) {
-        result.loginData_ = loginData_;
-      } else {
-        result.loginData_ = loginDataBuilder_.build();
-      }
+    public greet.UserRegOutput buildPartial() {
+      greet.UserRegOutput result = new greet.UserRegOutput(this);
+      result.id_ = id_;
+      result.login_ = login_;
+      result.hash_ = hash_;
+      result.salt_ = salt_;
       result.nickname_ = nickname_;
-      result.heroname_ = heroname_;
       onBuilt();
       return result;
     }
@@ -508,25 +589,33 @@ private static final long serialVersionUID = 0L;
     }
     @java.lang.Override
     public Builder mergeFrom(com.google.protobuf.Message other) {
-      if (other instanceof greet.RegisterData) {
-        return mergeFrom((greet.RegisterData)other);
+      if (other instanceof greet.UserRegOutput) {
+        return mergeFrom((greet.UserRegOutput)other);
       } else {
         super.mergeFrom(other);
         return this;
       }
     }
 
-    public Builder mergeFrom(greet.RegisterData other) {
-      if (other == greet.RegisterData.getDefaultInstance()) return this;
-      if (other.hasLoginData()) {
-        mergeLoginData(other.getLoginData());
+    public Builder mergeFrom(greet.UserRegOutput other) {
+      if (other == greet.UserRegOutput.getDefaultInstance()) return this;
+      if (other.getId() != 0L) {
+        setId(other.getId());
+      }
+      if (!other.getLogin().isEmpty()) {
+        login_ = other.login_;
+        onChanged();
+      }
+      if (!other.getHash().isEmpty()) {
+        hash_ = other.hash_;
+        onChanged();
+      }
+      if (!other.getSalt().isEmpty()) {
+        salt_ = other.salt_;
+        onChanged();
       }
       if (!other.getNickname().isEmpty()) {
         nickname_ = other.nickname_;
-        onChanged();
-      }
-      if (!other.getHeroname().isEmpty()) {
-        heroname_ = other.heroname_;
         onChanged();
       }
       this.mergeUnknownFields(other.unknownFields);
@@ -544,11 +633,11 @@ private static final long serialVersionUID = 0L;
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      greet.RegisterData parsedMessage = null;
+      greet.UserRegOutput parsedMessage = null;
       try {
         parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        parsedMessage = (greet.RegisterData) e.getUnfinishedMessage();
+        parsedMessage = (greet.UserRegOutput) e.getUnfinishedMessage();
         throw e.unwrapIOException();
       } finally {
         if (parsedMessage != null) {
@@ -558,128 +647,268 @@ private static final long serialVersionUID = 0L;
       return this;
     }
 
-    private greet.LoginData loginData_;
-    private com.google.protobuf.SingleFieldBuilderV3<
-        greet.LoginData, greet.LoginData.Builder, greet.LoginDataOrBuilder> loginDataBuilder_;
+    private long id_ ;
     /**
-     * <code>.greet.LoginData loginData = 1;</code>
-     * @return Whether the loginData field is set.
+     * <code>int64 id = 1;</code>
+     * @return The id.
      */
-    public boolean hasLoginData() {
-      return loginDataBuilder_ != null || loginData_ != null;
+    @java.lang.Override
+    public long getId() {
+      return id_;
     }
     /**
-     * <code>.greet.LoginData loginData = 1;</code>
-     * @return The loginData.
+     * <code>int64 id = 1;</code>
+     * @param value The id to set.
+     * @return This builder for chaining.
      */
-    public greet.LoginData getLoginData() {
-      if (loginDataBuilder_ == null) {
-        return loginData_ == null ? greet.LoginData.getDefaultInstance() : loginData_;
-      } else {
-        return loginDataBuilder_.getMessage();
-      }
-    }
-    /**
-     * <code>.greet.LoginData loginData = 1;</code>
-     */
-    public Builder setLoginData(greet.LoginData value) {
-      if (loginDataBuilder_ == null) {
-        if (value == null) {
-          throw new NullPointerException();
-        }
-        loginData_ = value;
-        onChanged();
-      } else {
-        loginDataBuilder_.setMessage(value);
-      }
-
-      return this;
-    }
-    /**
-     * <code>.greet.LoginData loginData = 1;</code>
-     */
-    public Builder setLoginData(
-        greet.LoginData.Builder builderForValue) {
-      if (loginDataBuilder_ == null) {
-        loginData_ = builderForValue.build();
-        onChanged();
-      } else {
-        loginDataBuilder_.setMessage(builderForValue.build());
-      }
-
-      return this;
-    }
-    /**
-     * <code>.greet.LoginData loginData = 1;</code>
-     */
-    public Builder mergeLoginData(greet.LoginData value) {
-      if (loginDataBuilder_ == null) {
-        if (loginData_ != null) {
-          loginData_ =
-            greet.LoginData.newBuilder(loginData_).mergeFrom(value).buildPartial();
-        } else {
-          loginData_ = value;
-        }
-        onChanged();
-      } else {
-        loginDataBuilder_.mergeFrom(value);
-      }
-
-      return this;
-    }
-    /**
-     * <code>.greet.LoginData loginData = 1;</code>
-     */
-    public Builder clearLoginData() {
-      if (loginDataBuilder_ == null) {
-        loginData_ = null;
-        onChanged();
-      } else {
-        loginData_ = null;
-        loginDataBuilder_ = null;
-      }
-
-      return this;
-    }
-    /**
-     * <code>.greet.LoginData loginData = 1;</code>
-     */
-    public greet.LoginData.Builder getLoginDataBuilder() {
+    public Builder setId(long value) {
       
+      id_ = value;
       onChanged();
-      return getLoginDataFieldBuilder().getBuilder();
+      return this;
     }
     /**
-     * <code>.greet.LoginData loginData = 1;</code>
+     * <code>int64 id = 1;</code>
+     * @return This builder for chaining.
      */
-    public greet.LoginDataOrBuilder getLoginDataOrBuilder() {
-      if (loginDataBuilder_ != null) {
-        return loginDataBuilder_.getMessageOrBuilder();
+    public Builder clearId() {
+      
+      id_ = 0L;
+      onChanged();
+      return this;
+    }
+
+    private java.lang.Object login_ = "";
+    /**
+     * <code>string login = 2;</code>
+     * @return The login.
+     */
+    public java.lang.String getLogin() {
+      java.lang.Object ref = login_;
+      if (!(ref instanceof java.lang.String)) {
+        com.google.protobuf.ByteString bs =
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        login_ = s;
+        return s;
       } else {
-        return loginData_ == null ?
-            greet.LoginData.getDefaultInstance() : loginData_;
+        return (java.lang.String) ref;
       }
     }
     /**
-     * <code>.greet.LoginData loginData = 1;</code>
+     * <code>string login = 2;</code>
+     * @return The bytes for login.
      */
-    private com.google.protobuf.SingleFieldBuilderV3<
-        greet.LoginData, greet.LoginData.Builder, greet.LoginDataOrBuilder> 
-        getLoginDataFieldBuilder() {
-      if (loginDataBuilder_ == null) {
-        loginDataBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-            greet.LoginData, greet.LoginData.Builder, greet.LoginDataOrBuilder>(
-                getLoginData(),
-                getParentForChildren(),
-                isClean());
-        loginData_ = null;
+    public com.google.protobuf.ByteString
+        getLoginBytes() {
+      java.lang.Object ref = login_;
+      if (ref instanceof String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        login_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
       }
-      return loginDataBuilder_;
+    }
+    /**
+     * <code>string login = 2;</code>
+     * @param value The login to set.
+     * @return This builder for chaining.
+     */
+    public Builder setLogin(
+        java.lang.String value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  
+      login_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>string login = 2;</code>
+     * @return This builder for chaining.
+     */
+    public Builder clearLogin() {
+      
+      login_ = getDefaultInstance().getLogin();
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>string login = 2;</code>
+     * @param value The bytes for login to set.
+     * @return This builder for chaining.
+     */
+    public Builder setLoginBytes(
+        com.google.protobuf.ByteString value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+      
+      login_ = value;
+      onChanged();
+      return this;
+    }
+
+    private java.lang.Object hash_ = "";
+    /**
+     * <code>string hash = 3;</code>
+     * @return The hash.
+     */
+    public java.lang.String getHash() {
+      java.lang.Object ref = hash_;
+      if (!(ref instanceof java.lang.String)) {
+        com.google.protobuf.ByteString bs =
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        hash_ = s;
+        return s;
+      } else {
+        return (java.lang.String) ref;
+      }
+    }
+    /**
+     * <code>string hash = 3;</code>
+     * @return The bytes for hash.
+     */
+    public com.google.protobuf.ByteString
+        getHashBytes() {
+      java.lang.Object ref = hash_;
+      if (ref instanceof String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        hash_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+    /**
+     * <code>string hash = 3;</code>
+     * @param value The hash to set.
+     * @return This builder for chaining.
+     */
+    public Builder setHash(
+        java.lang.String value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  
+      hash_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>string hash = 3;</code>
+     * @return This builder for chaining.
+     */
+    public Builder clearHash() {
+      
+      hash_ = getDefaultInstance().getHash();
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>string hash = 3;</code>
+     * @param value The bytes for hash to set.
+     * @return This builder for chaining.
+     */
+    public Builder setHashBytes(
+        com.google.protobuf.ByteString value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+      
+      hash_ = value;
+      onChanged();
+      return this;
+    }
+
+    private java.lang.Object salt_ = "";
+    /**
+     * <code>string salt = 4;</code>
+     * @return The salt.
+     */
+    public java.lang.String getSalt() {
+      java.lang.Object ref = salt_;
+      if (!(ref instanceof java.lang.String)) {
+        com.google.protobuf.ByteString bs =
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        salt_ = s;
+        return s;
+      } else {
+        return (java.lang.String) ref;
+      }
+    }
+    /**
+     * <code>string salt = 4;</code>
+     * @return The bytes for salt.
+     */
+    public com.google.protobuf.ByteString
+        getSaltBytes() {
+      java.lang.Object ref = salt_;
+      if (ref instanceof String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        salt_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+    /**
+     * <code>string salt = 4;</code>
+     * @param value The salt to set.
+     * @return This builder for chaining.
+     */
+    public Builder setSalt(
+        java.lang.String value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  
+      salt_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>string salt = 4;</code>
+     * @return This builder for chaining.
+     */
+    public Builder clearSalt() {
+      
+      salt_ = getDefaultInstance().getSalt();
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>string salt = 4;</code>
+     * @param value The bytes for salt to set.
+     * @return This builder for chaining.
+     */
+    public Builder setSaltBytes(
+        com.google.protobuf.ByteString value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+      
+      salt_ = value;
+      onChanged();
+      return this;
     }
 
     private java.lang.Object nickname_ = "";
     /**
-     * <code>string nickname = 2;</code>
+     * <code>string nickname = 5;</code>
      * @return The nickname.
      */
     public java.lang.String getNickname() {
@@ -695,7 +924,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>string nickname = 2;</code>
+     * <code>string nickname = 5;</code>
      * @return The bytes for nickname.
      */
     public com.google.protobuf.ByteString
@@ -712,7 +941,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>string nickname = 2;</code>
+     * <code>string nickname = 5;</code>
      * @param value The nickname to set.
      * @return This builder for chaining.
      */
@@ -727,7 +956,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>string nickname = 2;</code>
+     * <code>string nickname = 5;</code>
      * @return This builder for chaining.
      */
     public Builder clearNickname() {
@@ -737,7 +966,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>string nickname = 2;</code>
+     * <code>string nickname = 5;</code>
      * @param value The bytes for nickname to set.
      * @return This builder for chaining.
      */
@@ -749,82 +978,6 @@ private static final long serialVersionUID = 0L;
   checkByteStringIsUtf8(value);
       
       nickname_ = value;
-      onChanged();
-      return this;
-    }
-
-    private java.lang.Object heroname_ = "";
-    /**
-     * <code>string heroname = 3;</code>
-     * @return The heroname.
-     */
-    public java.lang.String getHeroname() {
-      java.lang.Object ref = heroname_;
-      if (!(ref instanceof java.lang.String)) {
-        com.google.protobuf.ByteString bs =
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        heroname_ = s;
-        return s;
-      } else {
-        return (java.lang.String) ref;
-      }
-    }
-    /**
-     * <code>string heroname = 3;</code>
-     * @return The bytes for heroname.
-     */
-    public com.google.protobuf.ByteString
-        getHeronameBytes() {
-      java.lang.Object ref = heroname_;
-      if (ref instanceof String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        heroname_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-    /**
-     * <code>string heroname = 3;</code>
-     * @param value The heroname to set.
-     * @return This builder for chaining.
-     */
-    public Builder setHeroname(
-        java.lang.String value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  
-      heroname_ = value;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string heroname = 3;</code>
-     * @return This builder for chaining.
-     */
-    public Builder clearHeroname() {
-      
-      heroname_ = getDefaultInstance().getHeroname();
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string heroname = 3;</code>
-     * @param value The bytes for heroname to set.
-     * @return This builder for chaining.
-     */
-    public Builder setHeronameBytes(
-        com.google.protobuf.ByteString value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-      
-      heroname_ = value;
       onChanged();
       return this;
     }
@@ -841,41 +994,41 @@ private static final long serialVersionUID = 0L;
     }
 
 
-    // @@protoc_insertion_point(builder_scope:greet.RegisterData)
+    // @@protoc_insertion_point(builder_scope:greet.UserRegOutput)
   }
 
-  // @@protoc_insertion_point(class_scope:greet.RegisterData)
-  private static final greet.RegisterData DEFAULT_INSTANCE;
+  // @@protoc_insertion_point(class_scope:greet.UserRegOutput)
+  private static final greet.UserRegOutput DEFAULT_INSTANCE;
   static {
-    DEFAULT_INSTANCE = new greet.RegisterData();
+    DEFAULT_INSTANCE = new greet.UserRegOutput();
   }
 
-  public static greet.RegisterData getDefaultInstance() {
+  public static greet.UserRegOutput getDefaultInstance() {
     return DEFAULT_INSTANCE;
   }
 
-  private static final com.google.protobuf.Parser<RegisterData>
-      PARSER = new com.google.protobuf.AbstractParser<RegisterData>() {
+  private static final com.google.protobuf.Parser<UserRegOutput>
+      PARSER = new com.google.protobuf.AbstractParser<UserRegOutput>() {
     @java.lang.Override
-    public RegisterData parsePartialFrom(
+    public UserRegOutput parsePartialFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
-      return new RegisterData(input, extensionRegistry);
+      return new UserRegOutput(input, extensionRegistry);
     }
   };
 
-  public static com.google.protobuf.Parser<RegisterData> parser() {
+  public static com.google.protobuf.Parser<UserRegOutput> parser() {
     return PARSER;
   }
 
   @java.lang.Override
-  public com.google.protobuf.Parser<RegisterData> getParserForType() {
+  public com.google.protobuf.Parser<UserRegOutput> getParserForType() {
     return PARSER;
   }
 
   @java.lang.Override
-  public greet.RegisterData getDefaultInstanceForType() {
+  public greet.UserRegOutput getDefaultInstanceForType() {
     return DEFAULT_INSTANCE;
   }
 

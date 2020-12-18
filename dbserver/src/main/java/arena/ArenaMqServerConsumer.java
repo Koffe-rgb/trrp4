@@ -33,11 +33,12 @@ public class ArenaMqServerConsumer implements Runnable {
         factory.setUsername(username);
         factory.setPassword(password);
 
-        try (Connection connection = factory.newConnection();
-             Channel channel = connection.createChannel()) {
+        try {
+            final Connection connection = factory.newConnection();
+            final Channel channel = connection.createChannel();
 
             channel.queueDeclare(queueName, true, false, false, null);
-            System.out.println("[x] Waiting for messages for MQ : " + LocalDateTime.now());
+            System.out.println("[A] Waiting for messages for MQ : " + LocalDateTime.now());
             channel.basicQos(1);
 
             DeliverCallback deliverCallback = (consumerTag, delivery) -> {
@@ -57,10 +58,9 @@ public class ArenaMqServerConsumer implements Runnable {
             };
             channel.basicConsume(queueName, false, deliverCallback, consumerTag -> { });
 
-        } catch (TimeoutException | IOException timeoutException) {
-            timeoutException.printStackTrace();
+        } catch (IOException | TimeoutException e) {
+            e.printStackTrace();
         }
-
     }
 
     private void sendDuelResultToDb(int[] pair) {

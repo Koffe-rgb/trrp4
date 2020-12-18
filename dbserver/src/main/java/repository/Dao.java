@@ -92,20 +92,20 @@ public class Dao {
         deleteUser(user.getId());
     }
 
-    public Hero selectHero(int id) {
+    public Hero selectHero(int userId) {
         QHeroes qHeroes = QHeroes.heroes;
         return queryFactory.select(Projections.constructor(Hero.class,
                 qHeroes.id, qHeroes.idUser, qHeroes.name, qHeroes.health))
                 .from(qHeroes)
-                .where(qHeroes.id.eq(id))
+                .where(qHeroes.idUser.eq(userId))
                 .fetchFirst();
     }
 
-    public void insertHero(Hero hero, int userId) {
+    public void insertHero(Hero hero) {
         QHeroes qHeroes = QHeroes.heroes;
         Integer key = queryFactory.insert(qHeroes)
                 .columns(qHeroes.idUser, qHeroes.name, qHeroes.health)
-                .values(userId, hero.getName(), hero.getHealth())
+                .values(hero.getIdUser(), hero.getName(), hero.getHealth())
                 .executeWithKey(Integer.class);
         hero.setId(key);
     }
@@ -158,8 +158,8 @@ public class Dao {
     }
 
     public void upsertStatistic(int idWinner, int idLoser) {
-        upsertStatistic(idWinner, 1, 0);
-        upsertStatistic(idLoser, 0, 1);
+        if (idWinner != -1) upsertStatistic(idWinner, 1, 0);
+        if (idLoser != -1) upsertStatistic(idLoser, 0, 1);
     }
 
     private List<String> selectPhrases(int type) {

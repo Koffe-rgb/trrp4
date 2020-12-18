@@ -30,16 +30,4 @@ public interface LoginDataOrBuilder extends
    */
   com.google.protobuf.ByteString
       getPasswordBytes();
-
-  /**
-   * <code>string clientIp = 3;</code>
-   * @return The clientIp.
-   */
-  java.lang.String getClientIp();
-  /**
-   * <code>string clientIp = 3;</code>
-   * @return The bytes for clientIp.
-   */
-  com.google.protobuf.ByteString
-      getClientIpBytes();
 }

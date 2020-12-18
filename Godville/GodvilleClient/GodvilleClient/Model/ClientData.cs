@@ -13,9 +13,9 @@ namespace GodvilleClient.Model
     [Serializable]
     public class ClientData 
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
         public string Nickname { get; set; }
-        public int CountLives { get; set; }
+        public long CountLives { get; set; }
         public string HeroName { get; set; }
 
         public ClientData()
@@ -52,11 +52,21 @@ namespace GodvilleClient.Model
             try
             {
                 string json = JsonSerializer.Serialize(this);
-                File.WriteAllText(Model.Config.MyIdFilePath, json);
+                File.WriteAllText(Config.MyIdFilePath, json);
             } catch(Exception e)
             {
                 Logger.AddErrorMessage(e.Message);
             }
+        }
+
+        public long GetLivesCount()
+        {
+            return 100;
+        }
+
+        public void ClearClientData()
+        {
+            File.WriteAllText(Config.MyIdFilePath, "");
         }
     }
 }

@@ -4,27 +4,26 @@
 package greet;
 
 /**
- * Protobuf type {@code greet.ClientData}
+ * Protobuf type {@code greet.ServerIp}
  */
-public final class ClientData extends
+public final class ServerIp extends
     com.google.protobuf.GeneratedMessageV3 implements
-    // @@protoc_insertion_point(message_implements:greet.ClientData)
-    ClientDataOrBuilder {
+    // @@protoc_insertion_point(message_implements:greet.ServerIp)
+    ServerIpOrBuilder {
 private static final long serialVersionUID = 0L;
-  // Use ClientData.newBuilder() to construct.
-  private ClientData(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+  // Use ServerIp.newBuilder() to construct.
+  private ServerIp(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
     super(builder);
   }
-  private ClientData() {
-    nickname_ = "";
-    heroName_ = "";
+  private ServerIp() {
+    ip_ = "";
   }
 
   @java.lang.Override
   @SuppressWarnings({"unused"})
   protected java.lang.Object newInstance(
       UnusedPrivateParameter unused) {
-    return new ClientData();
+    return new ServerIp();
   }
 
   @java.lang.Override
@@ -32,7 +31,7 @@ private static final long serialVersionUID = 0L;
   getUnknownFields() {
     return this.unknownFields;
   }
-  private ClientData(
+  private ServerIp(
       com.google.protobuf.CodedInputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
@@ -50,26 +49,10 @@ private static final long serialVersionUID = 0L;
           case 0:
             done = true;
             break;
-          case 8: {
-
-            id_ = input.readInt64();
-            break;
-          }
-          case 18: {
+          case 10: {
             java.lang.String s = input.readStringRequireUtf8();
 
-            nickname_ = s;
-            break;
-          }
-          case 24: {
-
-            healthCount_ = input.readInt64();
-            break;
-          }
-          case 34: {
-            java.lang.String s = input.readStringRequireUtf8();
-
-            heroName_ = s;
+            ip_ = s;
             break;
           }
           default: {
@@ -93,109 +76,49 @@ private static final long serialVersionUID = 0L;
   }
   public static final com.google.protobuf.Descriptors.Descriptor
       getDescriptor() {
-    return greet.Godville.internal_static_greet_ClientData_descriptor;
+    return greet.Godville.internal_static_greet_ServerIp_descriptor;
   }
 
   @java.lang.Override
   protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internalGetFieldAccessorTable() {
-    return greet.Godville.internal_static_greet_ClientData_fieldAccessorTable
+    return greet.Godville.internal_static_greet_ServerIp_fieldAccessorTable
         .ensureFieldAccessorsInitialized(
-            greet.ClientData.class, greet.ClientData.Builder.class);
+            greet.ServerIp.class, greet.ServerIp.Builder.class);
   }
 
-  public static final int ID_FIELD_NUMBER = 1;
-  private long id_;
+  public static final int IP_FIELD_NUMBER = 1;
+  private volatile java.lang.Object ip_;
   /**
-   * <code>int64 id = 1;</code>
-   * @return The id.
+   * <code>string ip = 1;</code>
+   * @return The ip.
    */
   @java.lang.Override
-  public long getId() {
-    return id_;
-  }
-
-  public static final int NICKNAME_FIELD_NUMBER = 2;
-  private volatile java.lang.Object nickname_;
-  /**
-   * <code>string nickname = 2;</code>
-   * @return The nickname.
-   */
-  @java.lang.Override
-  public java.lang.String getNickname() {
-    java.lang.Object ref = nickname_;
+  public java.lang.String getIp() {
+    java.lang.Object ref = ip_;
     if (ref instanceof java.lang.String) {
       return (java.lang.String) ref;
     } else {
       com.google.protobuf.ByteString bs = 
           (com.google.protobuf.ByteString) ref;
       java.lang.String s = bs.toStringUtf8();
-      nickname_ = s;
+      ip_ = s;
       return s;
     }
   }
   /**
-   * <code>string nickname = 2;</code>
-   * @return The bytes for nickname.
+   * <code>string ip = 1;</code>
+   * @return The bytes for ip.
    */
   @java.lang.Override
   public com.google.protobuf.ByteString
-      getNicknameBytes() {
-    java.lang.Object ref = nickname_;
+      getIpBytes() {
+    java.lang.Object ref = ip_;
     if (ref instanceof java.lang.String) {
       com.google.protobuf.ByteString b = 
           com.google.protobuf.ByteString.copyFromUtf8(
               (java.lang.String) ref);
-      nickname_ = b;
-      return b;
-    } else {
-      return (com.google.protobuf.ByteString) ref;
-    }
-  }
-
-  public static final int HEALTHCOUNT_FIELD_NUMBER = 3;
-  private long healthCount_;
-  /**
-   * <code>int64 healthCount = 3;</code>
-   * @return The healthCount.
-   */
-  @java.lang.Override
-  public long getHealthCount() {
-    return healthCount_;
-  }
-
-  public static final int HERONAME_FIELD_NUMBER = 4;
-  private volatile java.lang.Object heroName_;
-  /**
-   * <code>string heroName = 4;</code>
-   * @return The heroName.
-   */
-  @java.lang.Override
-  public java.lang.String getHeroName() {
-    java.lang.Object ref = heroName_;
-    if (ref instanceof java.lang.String) {
-      return (java.lang.String) ref;
-    } else {
-      com.google.protobuf.ByteString bs = 
-          (com.google.protobuf.ByteString) ref;
-      java.lang.String s = bs.toStringUtf8();
-      heroName_ = s;
-      return s;
-    }
-  }
-  /**
-   * <code>string heroName = 4;</code>
-   * @return The bytes for heroName.
-   */
-  @java.lang.Override
-  public com.google.protobuf.ByteString
-      getHeroNameBytes() {
-    java.lang.Object ref = heroName_;
-    if (ref instanceof java.lang.String) {
-      com.google.protobuf.ByteString b = 
-          com.google.protobuf.ByteString.copyFromUtf8(
-              (java.lang.String) ref);
-      heroName_ = b;
+      ip_ = b;
       return b;
     } else {
       return (com.google.protobuf.ByteString) ref;
@@ -216,17 +139,8 @@ private static final long serialVersionUID = 0L;
   @java.lang.Override
   public void writeTo(com.google.protobuf.CodedOutputStream output)
                       throws java.io.IOException {
-    if (id_ != 0L) {
-      output.writeInt64(1, id_);
-    }
-    if (!getNicknameBytes().isEmpty()) {
-      com.google.protobuf.GeneratedMessageV3.writeString(output, 2, nickname_);
-    }
-    if (healthCount_ != 0L) {
-      output.writeInt64(3, healthCount_);
-    }
-    if (!getHeroNameBytes().isEmpty()) {
-      com.google.protobuf.GeneratedMessageV3.writeString(output, 4, heroName_);
+    if (!getIpBytes().isEmpty()) {
+      com.google.protobuf.GeneratedMessageV3.writeString(output, 1, ip_);
     }
     unknownFields.writeTo(output);
   }
@@ -237,19 +151,8 @@ private static final long serialVersionUID = 0L;
     if (size != -1) return size;
 
     size = 0;
-    if (id_ != 0L) {
-      size += com.google.protobuf.CodedOutputStream
-        .computeInt64Size(1, id_);
-    }
-    if (!getNicknameBytes().isEmpty()) {
-      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, nickname_);
-    }
-    if (healthCount_ != 0L) {
-      size += com.google.protobuf.CodedOutputStream
-        .computeInt64Size(3, healthCount_);
-    }
-    if (!getHeroNameBytes().isEmpty()) {
-      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, heroName_);
+    if (!getIpBytes().isEmpty()) {
+      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, ip_);
     }
     size += unknownFields.getSerializedSize();
     memoizedSize = size;
@@ -261,19 +164,13 @@ private static final long serialVersionUID = 0L;
     if (obj == this) {
      return true;
     }
-    if (!(obj instanceof greet.ClientData)) {
+    if (!(obj instanceof greet.ServerIp)) {
       return super.equals(obj);
     }
-    greet.ClientData other = (greet.ClientData) obj;
+    greet.ServerIp other = (greet.ServerIp) obj;
 
-    if (getId()
-        != other.getId()) return false;
-    if (!getNickname()
-        .equals(other.getNickname())) return false;
-    if (getHealthCount()
-        != other.getHealthCount()) return false;
-    if (!getHeroName()
-        .equals(other.getHeroName())) return false;
+    if (!getIp()
+        .equals(other.getIp())) return false;
     if (!unknownFields.equals(other.unknownFields)) return false;
     return true;
   }
@@ -285,84 +182,76 @@ private static final long serialVersionUID = 0L;
     }
     int hash = 41;
     hash = (19 * hash) + getDescriptor().hashCode();
-    hash = (37 * hash) + ID_FIELD_NUMBER;
-    hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
-        getId());
-    hash = (37 * hash) + NICKNAME_FIELD_NUMBER;
-    hash = (53 * hash) + getNickname().hashCode();
-    hash = (37 * hash) + HEALTHCOUNT_FIELD_NUMBER;
-    hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
-        getHealthCount());
-    hash = (37 * hash) + HERONAME_FIELD_NUMBER;
-    hash = (53 * hash) + getHeroName().hashCode();
+    hash = (37 * hash) + IP_FIELD_NUMBER;
+    hash = (53 * hash) + getIp().hashCode();
     hash = (29 * hash) + unknownFields.hashCode();
     memoizedHashCode = hash;
     return hash;
   }
 
-  public static greet.ClientData parseFrom(
+  public static greet.ServerIp parseFrom(
       java.nio.ByteBuffer data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static greet.ClientData parseFrom(
+  public static greet.ServerIp parseFrom(
       java.nio.ByteBuffer data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static greet.ClientData parseFrom(
+  public static greet.ServerIp parseFrom(
       com.google.protobuf.ByteString data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static greet.ClientData parseFrom(
+  public static greet.ServerIp parseFrom(
       com.google.protobuf.ByteString data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static greet.ClientData parseFrom(byte[] data)
+  public static greet.ServerIp parseFrom(byte[] data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static greet.ClientData parseFrom(
+  public static greet.ServerIp parseFrom(
       byte[] data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static greet.ClientData parseFrom(java.io.InputStream input)
+  public static greet.ServerIp parseFrom(java.io.InputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseWithIOException(PARSER, input);
   }
-  public static greet.ClientData parseFrom(
+  public static greet.ServerIp parseFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseWithIOException(PARSER, input, extensionRegistry);
   }
-  public static greet.ClientData parseDelimitedFrom(java.io.InputStream input)
+  public static greet.ServerIp parseDelimitedFrom(java.io.InputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseDelimitedWithIOException(PARSER, input);
   }
-  public static greet.ClientData parseDelimitedFrom(
+  public static greet.ServerIp parseDelimitedFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
   }
-  public static greet.ClientData parseFrom(
+  public static greet.ServerIp parseFrom(
       com.google.protobuf.CodedInputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseWithIOException(PARSER, input);
   }
-  public static greet.ClientData parseFrom(
+  public static greet.ServerIp parseFrom(
       com.google.protobuf.CodedInputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
@@ -375,7 +264,7 @@ private static final long serialVersionUID = 0L;
   public static Builder newBuilder() {
     return DEFAULT_INSTANCE.toBuilder();
   }
-  public static Builder newBuilder(greet.ClientData prototype) {
+  public static Builder newBuilder(greet.ServerIp prototype) {
     return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
   }
   @java.lang.Override
@@ -391,26 +280,26 @@ private static final long serialVersionUID = 0L;
     return builder;
   }
   /**
-   * Protobuf type {@code greet.ClientData}
+   * Protobuf type {@code greet.ServerIp}
    */
   public static final class Builder extends
       com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-      // @@protoc_insertion_point(builder_implements:greet.ClientData)
-      greet.ClientDataOrBuilder {
+      // @@protoc_insertion_point(builder_implements:greet.ServerIp)
+      greet.ServerIpOrBuilder {
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return greet.Godville.internal_static_greet_ClientData_descriptor;
+      return greet.Godville.internal_static_greet_ServerIp_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return greet.Godville.internal_static_greet_ClientData_fieldAccessorTable
+      return greet.Godville.internal_static_greet_ServerIp_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              greet.ClientData.class, greet.ClientData.Builder.class);
+              greet.ServerIp.class, greet.ServerIp.Builder.class);
     }
 
-    // Construct using greet.ClientData.newBuilder()
+    // Construct using greet.ServerIp.newBuilder()
     private Builder() {
       maybeForceBuilderInitialization();
     }
@@ -428,13 +317,7 @@ private static final long serialVersionUID = 0L;
     @java.lang.Override
     public Builder clear() {
       super.clear();
-      id_ = 0L;
-
-      nickname_ = "";
-
-      healthCount_ = 0L;
-
-      heroName_ = "";
+      ip_ = "";
 
       return this;
     }
@@ -442,17 +325,17 @@ private static final long serialVersionUID = 0L;
     @java.lang.Override
     public com.google.protobuf.Descriptors.Descriptor
         getDescriptorForType() {
-      return greet.Godville.internal_static_greet_ClientData_descriptor;
+      return greet.Godville.internal_static_greet_ServerIp_descriptor;
     }
 
     @java.lang.Override
-    public greet.ClientData getDefaultInstanceForType() {
-      return greet.ClientData.getDefaultInstance();
+    public greet.ServerIp getDefaultInstanceForType() {
+      return greet.ServerIp.getDefaultInstance();
     }
 
     @java.lang.Override
-    public greet.ClientData build() {
-      greet.ClientData result = buildPartial();
+    public greet.ServerIp build() {
+      greet.ServerIp result = buildPartial();
       if (!result.isInitialized()) {
         throw newUninitializedMessageException(result);
       }
@@ -460,12 +343,9 @@ private static final long serialVersionUID = 0L;
     }
 
     @java.lang.Override
-    public greet.ClientData buildPartial() {
-      greet.ClientData result = new greet.ClientData(this);
-      result.id_ = id_;
-      result.nickname_ = nickname_;
-      result.healthCount_ = healthCount_;
-      result.heroName_ = heroName_;
+    public greet.ServerIp buildPartial() {
+      greet.ServerIp result = new greet.ServerIp(this);
+      result.ip_ = ip_;
       onBuilt();
       return result;
     }
@@ -504,28 +384,18 @@ private static final long serialVersionUID = 0L;
     }
     @java.lang.Override
     public Builder mergeFrom(com.google.protobuf.Message other) {
-      if (other instanceof greet.ClientData) {
-        return mergeFrom((greet.ClientData)other);
+      if (other instanceof greet.ServerIp) {
+        return mergeFrom((greet.ServerIp)other);
       } else {
         super.mergeFrom(other);
         return this;
       }
     }
 
-    public Builder mergeFrom(greet.ClientData other) {
-      if (other == greet.ClientData.getDefaultInstance()) return this;
-      if (other.getId() != 0L) {
-        setId(other.getId());
-      }
-      if (!other.getNickname().isEmpty()) {
-        nickname_ = other.nickname_;
-        onChanged();
-      }
-      if (other.getHealthCount() != 0L) {
-        setHealthCount(other.getHealthCount());
-      }
-      if (!other.getHeroName().isEmpty()) {
-        heroName_ = other.heroName_;
+    public Builder mergeFrom(greet.ServerIp other) {
+      if (other == greet.ServerIp.getDefaultInstance()) return this;
+      if (!other.getIp().isEmpty()) {
+        ip_ = other.ip_;
         onChanged();
       }
       this.mergeUnknownFields(other.unknownFields);
@@ -543,11 +413,11 @@ private static final long serialVersionUID = 0L;
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      greet.ClientData parsedMessage = null;
+      greet.ServerIp parsedMessage = null;
       try {
         parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        parsedMessage = (greet.ClientData) e.getUnfinishedMessage();
+        parsedMessage = (greet.ServerIp) e.getUnfinishedMessage();
         throw e.unwrapIOException();
       } finally {
         if (parsedMessage != null) {
@@ -557,216 +427,78 @@ private static final long serialVersionUID = 0L;
       return this;
     }
 
-    private long id_ ;
+    private java.lang.Object ip_ = "";
     /**
-     * <code>int64 id = 1;</code>
-     * @return The id.
+     * <code>string ip = 1;</code>
+     * @return The ip.
      */
-    @java.lang.Override
-    public long getId() {
-      return id_;
-    }
-    /**
-     * <code>int64 id = 1;</code>
-     * @param value The id to set.
-     * @return This builder for chaining.
-     */
-    public Builder setId(long value) {
-      
-      id_ = value;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>int64 id = 1;</code>
-     * @return This builder for chaining.
-     */
-    public Builder clearId() {
-      
-      id_ = 0L;
-      onChanged();
-      return this;
-    }
-
-    private java.lang.Object nickname_ = "";
-    /**
-     * <code>string nickname = 2;</code>
-     * @return The nickname.
-     */
-    public java.lang.String getNickname() {
-      java.lang.Object ref = nickname_;
+    public java.lang.String getIp() {
+      java.lang.Object ref = ip_;
       if (!(ref instanceof java.lang.String)) {
         com.google.protobuf.ByteString bs =
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
-        nickname_ = s;
+        ip_ = s;
         return s;
       } else {
         return (java.lang.String) ref;
       }
     }
     /**
-     * <code>string nickname = 2;</code>
-     * @return The bytes for nickname.
+     * <code>string ip = 1;</code>
+     * @return The bytes for ip.
      */
     public com.google.protobuf.ByteString
-        getNicknameBytes() {
-      java.lang.Object ref = nickname_;
+        getIpBytes() {
+      java.lang.Object ref = ip_;
       if (ref instanceof String) {
         com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
-        nickname_ = b;
+        ip_ = b;
         return b;
       } else {
         return (com.google.protobuf.ByteString) ref;
       }
     }
     /**
-     * <code>string nickname = 2;</code>
-     * @param value The nickname to set.
+     * <code>string ip = 1;</code>
+     * @param value The ip to set.
      * @return This builder for chaining.
      */
-    public Builder setNickname(
+    public Builder setIp(
         java.lang.String value) {
       if (value == null) {
     throw new NullPointerException();
   }
   
-      nickname_ = value;
+      ip_ = value;
       onChanged();
       return this;
     }
     /**
-     * <code>string nickname = 2;</code>
+     * <code>string ip = 1;</code>
      * @return This builder for chaining.
      */
-    public Builder clearNickname() {
+    public Builder clearIp() {
       
-      nickname_ = getDefaultInstance().getNickname();
+      ip_ = getDefaultInstance().getIp();
       onChanged();
       return this;
     }
     /**
-     * <code>string nickname = 2;</code>
-     * @param value The bytes for nickname to set.
+     * <code>string ip = 1;</code>
+     * @param value The bytes for ip to set.
      * @return This builder for chaining.
      */
-    public Builder setNicknameBytes(
+    public Builder setIpBytes(
         com.google.protobuf.ByteString value) {
       if (value == null) {
     throw new NullPointerException();
   }
   checkByteStringIsUtf8(value);
       
-      nickname_ = value;
-      onChanged();
-      return this;
-    }
-
-    private long healthCount_ ;
-    /**
-     * <code>int64 healthCount = 3;</code>
-     * @return The healthCount.
-     */
-    @java.lang.Override
-    public long getHealthCount() {
-      return healthCount_;
-    }
-    /**
-     * <code>int64 healthCount = 3;</code>
-     * @param value The healthCount to set.
-     * @return This builder for chaining.
-     */
-    public Builder setHealthCount(long value) {
-      
-      healthCount_ = value;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>int64 healthCount = 3;</code>
-     * @return This builder for chaining.
-     */
-    public Builder clearHealthCount() {
-      
-      healthCount_ = 0L;
-      onChanged();
-      return this;
-    }
-
-    private java.lang.Object heroName_ = "";
-    /**
-     * <code>string heroName = 4;</code>
-     * @return The heroName.
-     */
-    public java.lang.String getHeroName() {
-      java.lang.Object ref = heroName_;
-      if (!(ref instanceof java.lang.String)) {
-        com.google.protobuf.ByteString bs =
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        heroName_ = s;
-        return s;
-      } else {
-        return (java.lang.String) ref;
-      }
-    }
-    /**
-     * <code>string heroName = 4;</code>
-     * @return The bytes for heroName.
-     */
-    public com.google.protobuf.ByteString
-        getHeroNameBytes() {
-      java.lang.Object ref = heroName_;
-      if (ref instanceof String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        heroName_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-    /**
-     * <code>string heroName = 4;</code>
-     * @param value The heroName to set.
-     * @return This builder for chaining.
-     */
-    public Builder setHeroName(
-        java.lang.String value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  
-      heroName_ = value;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string heroName = 4;</code>
-     * @return This builder for chaining.
-     */
-    public Builder clearHeroName() {
-      
-      heroName_ = getDefaultInstance().getHeroName();
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string heroName = 4;</code>
-     * @param value The bytes for heroName to set.
-     * @return This builder for chaining.
-     */
-    public Builder setHeroNameBytes(
-        com.google.protobuf.ByteString value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-      
-      heroName_ = value;
+      ip_ = value;
       onChanged();
       return this;
     }
@@ -783,41 +515,41 @@ private static final long serialVersionUID = 0L;
     }
 
 
-    // @@protoc_insertion_point(builder_scope:greet.ClientData)
+    // @@protoc_insertion_point(builder_scope:greet.ServerIp)
   }
 
-  // @@protoc_insertion_point(class_scope:greet.ClientData)
-  private static final greet.ClientData DEFAULT_INSTANCE;
+  // @@protoc_insertion_point(class_scope:greet.ServerIp)
+  private static final greet.ServerIp DEFAULT_INSTANCE;
   static {
-    DEFAULT_INSTANCE = new greet.ClientData();
+    DEFAULT_INSTANCE = new greet.ServerIp();
   }
 
-  public static greet.ClientData getDefaultInstance() {
+  public static greet.ServerIp getDefaultInstance() {
     return DEFAULT_INSTANCE;
   }
 
-  private static final com.google.protobuf.Parser<ClientData>
-      PARSER = new com.google.protobuf.AbstractParser<ClientData>() {
+  private static final com.google.protobuf.Parser<ServerIp>
+      PARSER = new com.google.protobuf.AbstractParser<ServerIp>() {
     @java.lang.Override
-    public ClientData parsePartialFrom(
+    public ServerIp parsePartialFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
-      return new ClientData(input, extensionRegistry);
+      return new ServerIp(input, extensionRegistry);
     }
   };
 
-  public static com.google.protobuf.Parser<ClientData> parser() {
+  public static com.google.protobuf.Parser<ServerIp> parser() {
     return PARSER;
   }
 
   @java.lang.Override
-  public com.google.protobuf.Parser<ClientData> getParserForType() {
+  public com.google.protobuf.Parser<ServerIp> getParserForType() {
     return PARSER;
   }
 
   @java.lang.Override
-  public greet.ClientData getDefaultInstanceForType() {
+  public greet.ServerIp getDefaultInstanceForType() {
     return DEFAULT_INSTANCE;
   }
 

@@ -35,14 +35,14 @@ public interface RegisterDataOrBuilder extends
       getNicknameBytes();
 
   /**
-   * <code>string clientIp = 3;</code>
-   * @return The clientIp.
+   * <code>string heroname = 3;</code>
+   * @return The heroname.
    */
-  java.lang.String getClientIp();
+  java.lang.String getHeroname();
   /**
-   * <code>string clientIp = 3;</code>
-   * @return The bytes for clientIp.
+   * <code>string heroname = 3;</code>
+   * @return The bytes for heroname.
    */
   com.google.protobuf.ByteString
-      getClientIpBytes();
+      getHeronameBytes();
 }

@@ -25,25 +25,35 @@ public final class Godville {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_greet_RegisterData_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_greet_ServerAddress_descriptor;
+    internal_static_greet_UserLoginOuput_descriptor;
   static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_greet_ServerAddress_fieldAccessorTable;
+      internal_static_greet_UserLoginOuput_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_greet_UserRegOutput_descriptor;
+  static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_greet_UserRegOutput_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_greet_ClientId_descriptor;
   static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_greet_ClientId_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_greet_ClientData_descriptor;
-  static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_greet_ClientData_fieldAccessorTable;
-  static final com.google.protobuf.Descriptors.Descriptor
     internal_static_greet_Empty_descriptor;
   static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_greet_Empty_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_greet_ServerIp_descriptor;
+  static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_greet_ServerIp_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_greet_Statistic_descriptor;
+  static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_greet_Statistic_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -53,23 +63,26 @@ public final class Godville {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\016godville.proto\022\005greet\">\n\tLoginData\022\r\n\005" +
-      "login\030\001 \001(\t\022\020\n\010password\030\002 \001(\t\022\020\n\010clientI" +
-      "p\030\003 \001(\t\"W\n\014RegisterData\022#\n\tloginData\030\001 \001" +
-      "(\0132\020.greet.LoginData\022\020\n\010nickname\030\002 \001(\t\022\020" +
-      "\n\010clientIp\030\003 \001(\t\"\033\n\rServerAddress\022\n\n\002ip\030" +
-      "\001 \001(\t\"\026\n\010ClientId\022\n\n\002id\030\001 \001(\003\"Q\n\nClientD" +
-      "ata\022\n\n\002id\030\001 \001(\003\022\020\n\010nickname\030\002 \001(\t\022\023\n\013hea" +
-      "lthCount\030\003 \001(\003\022\020\n\010heroName\030\004 \001(\t\"\007\n\005Empt" +
-      "y2\265\002\n\017GodvilleService\022/\n\005Login\022\020.greet.L" +
-      "oginData\032\024.greet.ServerAddress\0225\n\010Regist" +
-      "er\022\023.greet.RegisterData\032\024.greet.ServerAd" +
-      "dress\022\'\n\006Logout\022\017.greet.ClientId\032\014.greet" +
-      ".Empty\0224\n\tStartDuel\022\021.greet.ClientData\032\024" +
-      ".greet.ServerAddress\0226\n\rGetStatistics\022\017." +
-      "greet.ClientId\032\024.greet.ServerAddress\022#\n\005" +
-      "Check\022\014.greet.Empty\032\014.greet.EmptyB\026P\001\210\001\001" +
-      "\252\002\016GodvilleClientb\006proto3"
+      "\n\016godville.proto\022\005greet\",\n\tLoginData\022\r\n\005" +
+      "login\030\001 \001(\t\022\020\n\010password\030\002 \001(\t\"W\n\014Registe" +
+      "rData\022#\n\tloginData\030\001 \001(\0132\020.greet.LoginDa" +
+      "ta\022\020\n\010nickname\030\002 \001(\t\022\020\n\010heroname\030\003 \001(\t\"U" +
+      "\n\016UserLoginOuput\022\n\n\002id\030\001 \001(\003\022\020\n\010nickname" +
+      "\030\002 \001(\t\022\023\n\013healthCount\030\003 \001(\003\022\020\n\010heroName\030" +
+      "\004 \001(\t\"X\n\rUserRegOutput\022\n\n\002id\030\001 \001(\003\022\r\n\005lo" +
+      "gin\030\002 \001(\t\022\014\n\004hash\030\003 \001(\t\022\014\n\004salt\030\004 \001(\t\022\020\n" +
+      "\010nickname\030\005 \001(\t\"\026\n\010ClientId\022\n\n\002id\030\001 \001(\003\"" +
+      "\007\n\005Empty\"\026\n\010ServerIp\022\n\n\002ip\030\001 \001(\t\"(\n\tStat" +
+      "istic\022\014\n\004wins\030\001 \001(\003\022\r\n\005loses\030\002 \001(\0032\252\002\n\017G" +
+      "odvilleService\0220\n\005Login\022\020.greet.LoginDat" +
+      "a\032\025.greet.UserLoginOuput\0225\n\010Register\022\023.g" +
+      "reet.RegisterData\032\024.greet.UserRegOutput\022" +
+      "\'\n\006Logout\022\017.greet.ClientId\032\014.greet.Empty" +
+      "\022-\n\tStartDuel\022\017.greet.ClientId\032\017.greet.S" +
+      "erverIp\0221\n\014GetStatistic\022\017.greet.ClientId" +
+      "\032\020.greet.Statistic\022#\n\005Check\022\014.greet.Empt" +
+      "y\032\014.greet.EmptyB\026P\001\210\001\001\252\002\016GodvilleClientb" +
+      "\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -80,37 +93,49 @@ public final class Godville {
     internal_static_greet_LoginData_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_greet_LoginData_descriptor,
-        new java.lang.String[] { "Login", "Password", "ClientIp", });
+        new java.lang.String[] { "Login", "Password", });
     internal_static_greet_RegisterData_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_greet_RegisterData_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_greet_RegisterData_descriptor,
-        new java.lang.String[] { "LoginData", "Nickname", "ClientIp", });
-    internal_static_greet_ServerAddress_descriptor =
+        new java.lang.String[] { "LoginData", "Nickname", "Heroname", });
+    internal_static_greet_UserLoginOuput_descriptor =
       getDescriptor().getMessageTypes().get(2);
-    internal_static_greet_ServerAddress_fieldAccessorTable = new
+    internal_static_greet_UserLoginOuput_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_greet_ServerAddress_descriptor,
-        new java.lang.String[] { "Ip", });
-    internal_static_greet_ClientId_descriptor =
+        internal_static_greet_UserLoginOuput_descriptor,
+        new java.lang.String[] { "Id", "Nickname", "HealthCount", "HeroName", });
+    internal_static_greet_UserRegOutput_descriptor =
       getDescriptor().getMessageTypes().get(3);
+    internal_static_greet_UserRegOutput_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_greet_UserRegOutput_descriptor,
+        new java.lang.String[] { "Id", "Login", "Hash", "Salt", "Nickname", });
+    internal_static_greet_ClientId_descriptor =
+      getDescriptor().getMessageTypes().get(4);
     internal_static_greet_ClientId_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_greet_ClientId_descriptor,
         new java.lang.String[] { "Id", });
-    internal_static_greet_ClientData_descriptor =
-      getDescriptor().getMessageTypes().get(4);
-    internal_static_greet_ClientData_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_greet_ClientData_descriptor,
-        new java.lang.String[] { "Id", "Nickname", "HealthCount", "HeroName", });
     internal_static_greet_Empty_descriptor =
       getDescriptor().getMessageTypes().get(5);
     internal_static_greet_Empty_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_greet_Empty_descriptor,
         new java.lang.String[] { });
+    internal_static_greet_ServerIp_descriptor =
+      getDescriptor().getMessageTypes().get(6);
+    internal_static_greet_ServerIp_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_greet_ServerIp_descriptor,
+        new java.lang.String[] { "Ip", });
+    internal_static_greet_Statistic_descriptor =
+      getDescriptor().getMessageTypes().get(7);
+    internal_static_greet_Statistic_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_greet_Statistic_descriptor,
+        new java.lang.String[] { "Wins", "Loses", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

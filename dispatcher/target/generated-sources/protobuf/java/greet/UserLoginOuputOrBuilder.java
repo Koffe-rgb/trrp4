@@ -3,8 +3,8 @@
 
 package greet;
 
-public interface ClientDataOrBuilder extends
-    // @@protoc_insertion_point(interface_extends:greet.ClientData)
+public interface UserLoginOuputOrBuilder extends
+    // @@protoc_insertion_point(interface_extends:greet.UserLoginOuput)
     com.google.protobuf.MessageOrBuilder {
 
   /**

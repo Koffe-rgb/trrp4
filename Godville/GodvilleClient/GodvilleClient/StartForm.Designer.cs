@@ -30,7 +30,6 @@ namespace GodvilleClient
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(StartForm));
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.lvDuelHistory = new System.Windows.Forms.ListView();
             this.btnGood = new System.Windows.Forms.Button();
             this.btnBad = new System.Windows.Forms.Button();
@@ -46,18 +45,9 @@ namespace GodvilleClient
             this.lblYourHealth = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.lblHeroName = new System.Windows.Forms.Label();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
-            // 
-            // pictureBox1
-            // 
-            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
-            this.pictureBox1.Location = new System.Drawing.Point(34, 2);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(722, 64);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pictureBox1.TabIndex = 1;
-            this.pictureBox1.TabStop = false;
             // 
             // lvDuelHistory
             // 
@@ -201,11 +191,22 @@ namespace GodvilleClient
             this.lblHeroName.Size = new System.Drawing.Size(0, 28);
             this.lblHeroName.TabIndex = 16;
             // 
+            // pictureBox1
+            // 
+            //this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
+            this.pictureBox1.Location = new System.Drawing.Point(153, -1);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(515, 72);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox1.TabIndex = 17;
+            this.pictureBox1.TabStop = false;
+            // 
             // StartForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 28F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 740);
+            this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.lblHeroName);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.lblYourHealth);
@@ -221,7 +222,6 @@ namespace GodvilleClient
             this.Controls.Add(this.btnBad);
             this.Controls.Add(this.btnGood);
             this.Controls.Add(this.lvDuelHistory);
-            this.Controls.Add(this.pictureBox1);
             this.Font = new System.Drawing.Font("Trebuchet MS", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.Name = "StartForm";
             this.Text = "Добро пожаловать в Godville!";
@@ -233,7 +233,6 @@ namespace GodvilleClient
         }
 
         #endregion
-        private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.ListView lvDuelHistory;
         private System.Windows.Forms.Button btnGood;
         private System.Windows.Forms.Button btnBad;
@@ -249,5 +248,6 @@ namespace GodvilleClient
         private System.Windows.Forms.Label lblYourHealth;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label lblHeroName;
+        private System.Windows.Forms.PictureBox pictureBox1;
     }
 }

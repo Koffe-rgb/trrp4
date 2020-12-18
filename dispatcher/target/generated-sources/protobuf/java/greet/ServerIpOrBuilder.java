@@ -3,8 +3,8 @@
 
 package greet;
 
-public interface ServerAddressOrBuilder extends
-    // @@protoc_insertion_point(interface_extends:greet.ServerAddress)
+public interface ServerIpOrBuilder extends
+    // @@protoc_insertion_point(interface_extends:greet.ServerIp)
     com.google.protobuf.MessageOrBuilder {
 
   /**

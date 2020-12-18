@@ -12,20 +12,20 @@ public  abstract class GodvilleService
 
   public interface Interface {
     /**
-     * <code>rpc Login(.greet.LoginData) returns (.greet.ServerAddress);</code>
+     * <code>rpc Login(.greet.LoginData) returns (.greet.UserLoginOuput);</code>
      */
     public abstract void login(
         com.google.protobuf.RpcController controller,
         greet.LoginData request,
-        com.google.protobuf.RpcCallback<greet.ServerAddress> done);
+        com.google.protobuf.RpcCallback<greet.UserLoginOuput> done);
 
     /**
-     * <code>rpc Register(.greet.RegisterData) returns (.greet.ServerAddress);</code>
+     * <code>rpc Register(.greet.RegisterData) returns (.greet.UserRegOutput);</code>
      */
     public abstract void register(
         com.google.protobuf.RpcController controller,
         greet.RegisterData request,
-        com.google.protobuf.RpcCallback<greet.ServerAddress> done);
+        com.google.protobuf.RpcCallback<greet.UserRegOutput> done);
 
     /**
      * <code>rpc Logout(.greet.ClientId) returns (.greet.Empty);</code>
@@ -36,20 +36,20 @@ public  abstract class GodvilleService
         com.google.protobuf.RpcCallback<greet.Empty> done);
 
     /**
-     * <code>rpc StartDuel(.greet.ClientData) returns (.greet.ServerAddress);</code>
+     * <code>rpc StartDuel(.greet.ClientId) returns (.greet.ServerIp);</code>
      */
     public abstract void startDuel(
         com.google.protobuf.RpcController controller,
-        greet.ClientData request,
-        com.google.protobuf.RpcCallback<greet.ServerAddress> done);
+        greet.ClientId request,
+        com.google.protobuf.RpcCallback<greet.ServerIp> done);
 
     /**
-     * <code>rpc GetStatistics(.greet.ClientId) returns (.greet.ServerAddress);</code>
+     * <code>rpc GetStatistic(.greet.ClientId) returns (.greet.Statistic);</code>
      */
-    public abstract void getStatistics(
+    public abstract void getStatistic(
         com.google.protobuf.RpcController controller,
         greet.ClientId request,
-        com.google.protobuf.RpcCallback<greet.ServerAddress> done);
+        com.google.protobuf.RpcCallback<greet.Statistic> done);
 
     /**
      * <code>rpc Check(.greet.Empty) returns (.greet.Empty);</code>
@@ -68,7 +68,7 @@ public  abstract class GodvilleService
       public  void login(
           com.google.protobuf.RpcController controller,
           greet.LoginData request,
-          com.google.protobuf.RpcCallback<greet.ServerAddress> done) {
+          com.google.protobuf.RpcCallback<greet.UserLoginOuput> done) {
         impl.login(controller, request, done);
       }
 
@@ -76,7 +76,7 @@ public  abstract class GodvilleService
       public  void register(
           com.google.protobuf.RpcController controller,
           greet.RegisterData request,
-          com.google.protobuf.RpcCallback<greet.ServerAddress> done) {
+          com.google.protobuf.RpcCallback<greet.UserRegOutput> done) {
         impl.register(controller, request, done);
       }
 
@@ -91,17 +91,17 @@ public  abstract class GodvilleService
       @java.lang.Override
       public  void startDuel(
           com.google.protobuf.RpcController controller,
-          greet.ClientData request,
-          com.google.protobuf.RpcCallback<greet.ServerAddress> done) {
+          greet.ClientId request,
+          com.google.protobuf.RpcCallback<greet.ServerIp> done) {
         impl.startDuel(controller, request, done);
       }
 
       @java.lang.Override
-      public  void getStatistics(
+      public  void getStatistic(
           com.google.protobuf.RpcController controller,
           greet.ClientId request,
-          com.google.protobuf.RpcCallback<greet.ServerAddress> done) {
-        impl.getStatistics(controller, request, done);
+          com.google.protobuf.RpcCallback<greet.Statistic> done) {
+        impl.getStatistic(controller, request, done);
       }
 
       @java.lang.Override
@@ -141,9 +141,9 @@ public  abstract class GodvilleService
           case 2:
             return impl.logout(controller, (greet.ClientId)request);
           case 3:
-            return impl.startDuel(controller, (greet.ClientData)request);
+            return impl.startDuel(controller, (greet.ClientId)request);
           case 4:
-            return impl.getStatistics(controller, (greet.ClientId)request);
+            return impl.getStatistic(controller, (greet.ClientId)request);
           case 5:
             return impl.check(controller, (greet.Empty)request);
           default:
@@ -167,7 +167,7 @@ public  abstract class GodvilleService
           case 2:
             return greet.ClientId.getDefaultInstance();
           case 3:
-            return greet.ClientData.getDefaultInstance();
+            return greet.ClientId.getDefaultInstance();
           case 4:
             return greet.ClientId.getDefaultInstance();
           case 5:
@@ -187,15 +187,15 @@ public  abstract class GodvilleService
         }
         switch(method.getIndex()) {
           case 0:
-            return greet.ServerAddress.getDefaultInstance();
+            return greet.UserLoginOuput.getDefaultInstance();
           case 1:
-            return greet.ServerAddress.getDefaultInstance();
+            return greet.UserRegOutput.getDefaultInstance();
           case 2:
             return greet.Empty.getDefaultInstance();
           case 3:
-            return greet.ServerAddress.getDefaultInstance();
+            return greet.ServerIp.getDefaultInstance();
           case 4:
-            return greet.ServerAddress.getDefaultInstance();
+            return greet.Statistic.getDefaultInstance();
           case 5:
             return greet.Empty.getDefaultInstance();
           default:
@@ -207,20 +207,20 @@ public  abstract class GodvilleService
   }
 
   /**
-   * <code>rpc Login(.greet.LoginData) returns (.greet.ServerAddress);</code>
+   * <code>rpc Login(.greet.LoginData) returns (.greet.UserLoginOuput);</code>
    */
   public abstract void login(
       com.google.protobuf.RpcController controller,
       greet.LoginData request,
-      com.google.protobuf.RpcCallback<greet.ServerAddress> done);
+      com.google.protobuf.RpcCallback<greet.UserLoginOuput> done);
 
   /**
-   * <code>rpc Register(.greet.RegisterData) returns (.greet.ServerAddress);</code>
+   * <code>rpc Register(.greet.RegisterData) returns (.greet.UserRegOutput);</code>
    */
   public abstract void register(
       com.google.protobuf.RpcController controller,
       greet.RegisterData request,
-      com.google.protobuf.RpcCallback<greet.ServerAddress> done);
+      com.google.protobuf.RpcCallback<greet.UserRegOutput> done);
 
   /**
    * <code>rpc Logout(.greet.ClientId) returns (.greet.Empty);</code>
@@ -231,20 +231,20 @@ public  abstract class GodvilleService
       com.google.protobuf.RpcCallback<greet.Empty> done);
 
   /**
-   * <code>rpc StartDuel(.greet.ClientData) returns (.greet.ServerAddress);</code>
+   * <code>rpc StartDuel(.greet.ClientId) returns (.greet.ServerIp);</code>
    */
   public abstract void startDuel(
       com.google.protobuf.RpcController controller,
-      greet.ClientData request,
-      com.google.protobuf.RpcCallback<greet.ServerAddress> done);
+      greet.ClientId request,
+      com.google.protobuf.RpcCallback<greet.ServerIp> done);
 
   /**
-   * <code>rpc GetStatistics(.greet.ClientId) returns (.greet.ServerAddress);</code>
+   * <code>rpc GetStatistic(.greet.ClientId) returns (.greet.Statistic);</code>
    */
-  public abstract void getStatistics(
+  public abstract void getStatistic(
       com.google.protobuf.RpcController controller,
       greet.ClientId request,
-      com.google.protobuf.RpcCallback<greet.ServerAddress> done);
+      com.google.protobuf.RpcCallback<greet.Statistic> done);
 
   /**
    * <code>rpc Check(.greet.Empty) returns (.greet.Empty);</code>
@@ -278,12 +278,12 @@ public  abstract class GodvilleService
     switch(method.getIndex()) {
       case 0:
         this.login(controller, (greet.LoginData)request,
-          com.google.protobuf.RpcUtil.<greet.ServerAddress>specializeCallback(
+          com.google.protobuf.RpcUtil.<greet.UserLoginOuput>specializeCallback(
             done));
         return;
       case 1:
         this.register(controller, (greet.RegisterData)request,
-          com.google.protobuf.RpcUtil.<greet.ServerAddress>specializeCallback(
+          com.google.protobuf.RpcUtil.<greet.UserRegOutput>specializeCallback(
             done));
         return;
       case 2:
@@ -292,13 +292,13 @@ public  abstract class GodvilleService
             done));
         return;
       case 3:
-        this.startDuel(controller, (greet.ClientData)request,
-          com.google.protobuf.RpcUtil.<greet.ServerAddress>specializeCallback(
+        this.startDuel(controller, (greet.ClientId)request,
+          com.google.protobuf.RpcUtil.<greet.ServerIp>specializeCallback(
             done));
         return;
       case 4:
-        this.getStatistics(controller, (greet.ClientId)request,
-          com.google.protobuf.RpcUtil.<greet.ServerAddress>specializeCallback(
+        this.getStatistic(controller, (greet.ClientId)request,
+          com.google.protobuf.RpcUtil.<greet.Statistic>specializeCallback(
             done));
         return;
       case 5:
@@ -327,7 +327,7 @@ public  abstract class GodvilleService
       case 2:
         return greet.ClientId.getDefaultInstance();
       case 3:
-        return greet.ClientData.getDefaultInstance();
+        return greet.ClientId.getDefaultInstance();
       case 4:
         return greet.ClientId.getDefaultInstance();
       case 5:
@@ -347,15 +347,15 @@ public  abstract class GodvilleService
     }
     switch(method.getIndex()) {
       case 0:
-        return greet.ServerAddress.getDefaultInstance();
+        return greet.UserLoginOuput.getDefaultInstance();
       case 1:
-        return greet.ServerAddress.getDefaultInstance();
+        return greet.UserRegOutput.getDefaultInstance();
       case 2:
         return greet.Empty.getDefaultInstance();
       case 3:
-        return greet.ServerAddress.getDefaultInstance();
+        return greet.ServerIp.getDefaultInstance();
       case 4:
-        return greet.ServerAddress.getDefaultInstance();
+        return greet.Statistic.getDefaultInstance();
       case 5:
         return greet.Empty.getDefaultInstance();
       default:
@@ -382,31 +382,31 @@ public  abstract class GodvilleService
     public  void login(
         com.google.protobuf.RpcController controller,
         greet.LoginData request,
-        com.google.protobuf.RpcCallback<greet.ServerAddress> done) {
+        com.google.protobuf.RpcCallback<greet.UserLoginOuput> done) {
       channel.callMethod(
         getDescriptor().getMethods().get(0),
         controller,
         request,
-        greet.ServerAddress.getDefaultInstance(),
+        greet.UserLoginOuput.getDefaultInstance(),
         com.google.protobuf.RpcUtil.generalizeCallback(
           done,
-          greet.ServerAddress.class,
-          greet.ServerAddress.getDefaultInstance()));
+          greet.UserLoginOuput.class,
+          greet.UserLoginOuput.getDefaultInstance()));
     }
 
     public  void register(
         com.google.protobuf.RpcController controller,
         greet.RegisterData request,
-        com.google.protobuf.RpcCallback<greet.ServerAddress> done) {
+        com.google.protobuf.RpcCallback<greet.UserRegOutput> done) {
       channel.callMethod(
         getDescriptor().getMethods().get(1),
         controller,
         request,
-        greet.ServerAddress.getDefaultInstance(),
+        greet.UserRegOutput.getDefaultInstance(),
         com.google.protobuf.RpcUtil.generalizeCallback(
           done,
-          greet.ServerAddress.class,
-          greet.ServerAddress.getDefaultInstance()));
+          greet.UserRegOutput.class,
+          greet.UserRegOutput.getDefaultInstance()));
     }
 
     public  void logout(
@@ -426,32 +426,32 @@ public  abstract class GodvilleService
 
     public  void startDuel(
         com.google.protobuf.RpcController controller,
-        greet.ClientData request,
-        com.google.protobuf.RpcCallback<greet.ServerAddress> done) {
+        greet.ClientId request,
+        com.google.protobuf.RpcCallback<greet.ServerIp> done) {
       channel.callMethod(
         getDescriptor().getMethods().get(3),
         controller,
         request,
-        greet.ServerAddress.getDefaultInstance(),
+        greet.ServerIp.getDefaultInstance(),
         com.google.protobuf.RpcUtil.generalizeCallback(
           done,
-          greet.ServerAddress.class,
-          greet.ServerAddress.getDefaultInstance()));
+          greet.ServerIp.class,
+          greet.ServerIp.getDefaultInstance()));
     }
 
-    public  void getStatistics(
+    public  void getStatistic(
         com.google.protobuf.RpcController controller,
         greet.ClientId request,
-        com.google.protobuf.RpcCallback<greet.ServerAddress> done) {
+        com.google.protobuf.RpcCallback<greet.Statistic> done) {
       channel.callMethod(
         getDescriptor().getMethods().get(4),
         controller,
         request,
-        greet.ServerAddress.getDefaultInstance(),
+        greet.Statistic.getDefaultInstance(),
         com.google.protobuf.RpcUtil.generalizeCallback(
           done,
-          greet.ServerAddress.class,
-          greet.ServerAddress.getDefaultInstance()));
+          greet.Statistic.class,
+          greet.Statistic.getDefaultInstance()));
     }
 
     public  void check(
@@ -476,12 +476,12 @@ public  abstract class GodvilleService
   }
 
   public interface BlockingInterface {
-    public greet.ServerAddress login(
+    public greet.UserLoginOuput login(
         com.google.protobuf.RpcController controller,
         greet.LoginData request)
         throws com.google.protobuf.ServiceException;
 
-    public greet.ServerAddress register(
+    public greet.UserRegOutput register(
         com.google.protobuf.RpcController controller,
         greet.RegisterData request)
         throws com.google.protobuf.ServiceException;
@@ -491,12 +491,12 @@ public  abstract class GodvilleService
         greet.ClientId request)
         throws com.google.protobuf.ServiceException;
 
-    public greet.ServerAddress startDuel(
+    public greet.ServerIp startDuel(
         com.google.protobuf.RpcController controller,
-        greet.ClientData request)
+        greet.ClientId request)
         throws com.google.protobuf.ServiceException;
 
-    public greet.ServerAddress getStatistics(
+    public greet.Statistic getStatistic(
         com.google.protobuf.RpcController controller,
         greet.ClientId request)
         throws com.google.protobuf.ServiceException;
@@ -514,27 +514,27 @@ public  abstract class GodvilleService
 
     private final com.google.protobuf.BlockingRpcChannel channel;
 
-    public greet.ServerAddress login(
+    public greet.UserLoginOuput login(
         com.google.protobuf.RpcController controller,
         greet.LoginData request)
         throws com.google.protobuf.ServiceException {
-      return (greet.ServerAddress) channel.callBlockingMethod(
+      return (greet.UserLoginOuput) channel.callBlockingMethod(
         getDescriptor().getMethods().get(0),
         controller,
         request,
-        greet.ServerAddress.getDefaultInstance());
+        greet.UserLoginOuput.getDefaultInstance());
     }
 
 
-    public greet.ServerAddress register(
+    public greet.UserRegOutput register(
         com.google.protobuf.RpcController controller,
         greet.RegisterData request)
         throws com.google.protobuf.ServiceException {
-      return (greet.ServerAddress) channel.callBlockingMethod(
+      return (greet.UserRegOutput) channel.callBlockingMethod(
         getDescriptor().getMethods().get(1),
         controller,
         request,
-        greet.ServerAddress.getDefaultInstance());
+        greet.UserRegOutput.getDefaultInstance());
     }
 
 
@@ -550,27 +550,27 @@ public  abstract class GodvilleService
     }
 
 
-    public greet.ServerAddress startDuel(
-        com.google.protobuf.RpcController controller,
-        greet.ClientData request)
-        throws com.google.protobuf.ServiceException {
-      return (greet.ServerAddress) channel.callBlockingMethod(
-        getDescriptor().getMethods().get(3),
-        controller,
-        request,
-        greet.ServerAddress.getDefaultInstance());
-    }
-
-
-    public greet.ServerAddress getStatistics(
+    public greet.ServerIp startDuel(
         com.google.protobuf.RpcController controller,
         greet.ClientId request)
         throws com.google.protobuf.ServiceException {
-      return (greet.ServerAddress) channel.callBlockingMethod(
+      return (greet.ServerIp) channel.callBlockingMethod(
+        getDescriptor().getMethods().get(3),
+        controller,
+        request,
+        greet.ServerIp.getDefaultInstance());
+    }
+
+
+    public greet.Statistic getStatistic(
+        com.google.protobuf.RpcController controller,
+        greet.ClientId request)
+        throws com.google.protobuf.ServiceException {
+      return (greet.Statistic) channel.callBlockingMethod(
         getDescriptor().getMethods().get(4),
         controller,
         request,
-        greet.ServerAddress.getDefaultInstance());
+        greet.Statistic.getDefaultInstance());
     }
 
 

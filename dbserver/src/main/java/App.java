@@ -1,3 +1,5 @@
+import arena.ArenaMqServerConsumer;
+import arena.ArenaSocketServerListener;
 import dispatcher.DispatcherSocketServer;
 import repository.Dao;
 
@@ -9,8 +11,15 @@ public class App {
     static ExecutorService executorService = Executors.newCachedThreadPool();
 
     public static void main(String[] args) {
-        DispatcherSocketServer server = new DispatcherSocketServer(new Dao(), 8000);
+        Dao dao = new Dao();
+
+        DispatcherSocketServer server = new DispatcherSocketServer(dao, 8000);
+        ArenaSocketServerListener listener = new ArenaSocketServerListener(dao, 8001);
+        ArenaMqServerConsumer consumer = new ArenaMqServerConsumer(dao);
 
         executorService.execute(server);
+        executorService.execute(listener);
+        executorService.execute(consumer);
+
     }
 }
