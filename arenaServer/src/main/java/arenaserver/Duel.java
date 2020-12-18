@@ -6,13 +6,10 @@ import classes.Player;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
-import com.sun.xml.internal.ws.resources.ClientMessages;
 import msg.ClientMsg;
 
 import java.io.*;
 import java.net.Socket;
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -63,9 +60,12 @@ public class Duel implements Runnable {
         chronicle.add(hiPhrase);
         ClientMsg clientMsg1 = new ClientMsg(hiPhrase, player1.getLives(), player2.getLives(), false, player2.getNickname());
 
-        //            oos.writeObject(clientMsg1);
         oos.println(JSONParser.Parser(clientMsg1));
-        oos.flush();
+        if (oos.checkError()) {
+            System.out.println("Не смогли доставить сообщение клиенту");
+            Close();
+            return;
+        }
         System.out.println("[x] Приветы отправленны");
 
         pool.execute(new Reader());
@@ -131,22 +131,25 @@ public class Duel implements Runnable {
     private class Sender implements Runnable {
         @Override
         public void run() {
-            sendHod();
+            try {
+                sendHod();
+            } catch (InterruptedException e) {
+                System.out.println("Клиент был отключен и поток прерван");
+                e.printStackTrace();
+            }
             Close();
         }
 
-        private void sendHod() {
+        private void sendHod() throws InterruptedException {
             boolean isDuelRunning = true;
             Player curPlayer;
             Player enemy;
 
             // начинаем дуэль
             while (isDuelRunning) {
-                try {
-                    Thread.sleep(5 * 1000);         // отправляем результат каждые ... секунд
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+
+                Thread.sleep(5 * 1000);         // отправляем результат каждые ... секунд
+
                 if (hodNum % 2 == 0) {
                     curPlayer = player1;
                     enemy = player2;
@@ -176,7 +179,11 @@ public class Duel implements Runnable {
                 // TODO: клиент мб отлететь
                 //                    oos.writeObject(clientMsg);
                 oos.println(JSONParser.Parser(clientMsg));
-                oos.flush();
+//                oos.flush();
+                if (oos.checkError()){
+                    System.out.println("Не смогли доставить сообщение клиенту");
+                    isDuelRunning = false;
+                }
 
                 chronicle.add(phrase);
                 hodNum++;
@@ -207,7 +214,8 @@ public class Duel implements Runnable {
                     System.out.println(n);
                 } catch (IOException e) {
                     System.out.println("[x] Сокет был закрыт. Прерываем поток чтения");
-                    e.printStackTrace();
+                    Close();
+//                    e.printStackTrace();
                 }
             }
         }

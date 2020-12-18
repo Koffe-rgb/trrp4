@@ -47,7 +47,7 @@ public class Server implements Runnable{
         public void run() {
             System.out.println("Запускаем слушателя диспетчеров");
             try {
-                server = new ServerSocket(8002);
+                server = new ServerSocket(8016);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -102,7 +102,7 @@ public class Server implements Runnable{
         public void run() {
             System.out.println("Запускаем слушателя клиентов");
             try {
-                server = new ServerSocket(8006);
+                server = new ServerSocket(8017);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -112,8 +112,6 @@ public class Server implements Runnable{
                     System.out.println("Ожидание нового клиента");
                     Socket client = server.accept();
 
-//                    ObjectInputStream ois = new ObjectInputStream(client.getInputStream());
-//                    ObjectOutputStream oos = new ObjectOutputStream(client.getOutputStream());
                     BufferedReader ois = new BufferedReader(new InputStreamReader(client.getInputStream()));
                     PrintWriter oos = new PrintWriter(new OutputStreamWriter(client.getOutputStream()), true);
 
