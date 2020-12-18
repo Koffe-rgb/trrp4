@@ -8,7 +8,7 @@ import model.Statistic;
 import model.User;
 import msg.DispatcherDbServerMsg;
 import org.apache.commons.lang3.tuple.MutablePair;
-import org.apache.commons.lang3.tuple.Pair;
+import services.ArenaService;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -31,11 +31,6 @@ public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
     private final int dbServerPort;
     private ObjectInputStream fromDbServer;
     private ObjectOutputStream toDbServer;
-
-    static ConcurrentMap<Integer, Player> playerInfo = new ConcurrentHashMap<>();
-    static ExecutorService pool = Executors.newCachedThreadPool();
-
-    private final ExecutorService poolForWriting = Executors.newSingleThreadExecutor();
 
     private final List<User> authUsers;
 
@@ -89,6 +84,17 @@ public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
     private void stop() throws InterruptedException {
         if (grpcServer != null) {
             grpcServer.shutdown().awaitTermination(5, TimeUnit.SECONDS);
+            poolForListening.shutdown();
+            poolForWriting.shutdown();
+            pool.shutdown();
+            loginStreams.forEach((s, p) -> {
+                try {
+                    p.left.close();
+                    p.right.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
         }
     }
 
@@ -224,10 +230,13 @@ public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
         Future<String> addressF = pool.submit(new ArenaService(id, "dispatcher/src/main/resources/arenaServersIps.properties"));
         try {
             String address = addressF.get();
+            responseObserver.onNext(ServerIp.newBuilder().setIp(address).build());
+            responseObserver.onCompleted();
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
         // TODO: вернуть результат address клиенту
+
     }
 
     @Override
