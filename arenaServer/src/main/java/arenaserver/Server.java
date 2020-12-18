@@ -26,6 +26,9 @@ public class Server implements Runnable{
     private static ExecutorService clientPool = Executors.newCachedThreadPool();           // пул, отвечающий за обработку конкретного клиента
     private static AtomicInteger clientsCurNumber = new AtomicInteger(0);
     private Phrases phrases;
+    private String  IP = "192.168.0.9";
+    private int  DISPATCHER_PORT = 8016;
+    private int  CLIENT_PORT = 8017;
 
     public Server(Phrases phrases) {
         this.phrases = phrases;
@@ -49,7 +52,7 @@ public class Server implements Runnable{
         public void run() {
             System.out.println("Запускаем слушателя диспетчеров");
             try {
-                server = new ServerSocket(8016);
+                server = new ServerSocket(DISPATCHER_PORT);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -72,7 +75,7 @@ public class Server implements Runnable{
                             System.out.println("[x] Добавляем клиента "+msg.getPlayer().getId());
                             playerInfoMap.putIfAbsent(msg.getPlayer().getId(), msg.getPlayer());        // добавляем данные про игрока
                             System.out.println("[x] Колво данных об игроках = "+playerInfoMap.size());
-                            oos.writeObject(new DispatcherMsg(new Player(), -1, ""));
+                            oos.writeObject(new DispatcherMsg(new Player(), -1, IP+":"+CLIENT_PORT));
                         }
                         oos.flush();        // отправляем ответ диспетчеру
 
@@ -103,7 +106,7 @@ public class Server implements Runnable{
         public void run() {
             System.out.println("Запускаем слушателя клиентов");
             try {
-                server = new ServerSocket(8017);
+                server = new ServerSocket(CLIENT_PORT);
             } catch (IOException e) {
                 e.printStackTrace();
             }

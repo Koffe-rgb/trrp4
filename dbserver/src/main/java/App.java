@@ -13,12 +13,12 @@ public class App {
     public static void main(String[] args) {
         Dao dao = new Dao();
 
-        DispatcherSocketServer server = new DispatcherSocketServer(new Dao(), 8000);
+        DispatcherSocketServer server = new DispatcherSocketServer(dao, 8000);
         ArenaSocketServerListener listener = new ArenaSocketServerListener(dao, 8001);
-        ArenaMqServerConsumer consumer = new ArenaMqServerConsumer(dao);
+//        ArenaMqServerConsumer consumer = new ArenaMqServerConsumer(dao);
 
         executorService.execute(server);
         executorService.execute(listener);
-        executorService.execute(consumer);
+//        executorService.execute(consumer);
     }
 }

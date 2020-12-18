@@ -25,8 +25,8 @@ public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
     static ExecutorService pool = Executors.newCachedThreadPool();
 
 
-    private final Map<String, MutablePair<ObjectInputStream, ObjectOutputStream>> loginStreams = new HashMap<>();
-    private final Map<Integer, MutablePair<ObjectInputStream, ObjectOutputStream>> idStreams = new HashMap<>();
+    private final Map<String, MutablePair<ObjectInputStream, ObjectOutputStream>> loginStreams = new ConcurrentHashMap<>();
+    private final Map<Integer, MutablePair<ObjectInputStream, ObjectOutputStream>> idStreams = new ConcurrentHashMap<>();
     private final String dbServerHost;
     private final int dbServerPort;
     private ObjectInputStream fromDbServer;
@@ -39,7 +39,7 @@ public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
     private final ExecutorService poolForWriting = Executors.newCachedThreadPool();
     private final ExecutorService poolForListening = Executors.newSingleThreadExecutor();
 
-    public Dispatcher(String dbServerHost, int dbServerPort, int grpcServerPort) {
+    public Dispatcher(String dbServerHost, int dbServerPort, Socket socket, int grpcServerPort) {
 
         this.authUsers = new CopyOnWriteArrayList<>();
 
@@ -47,10 +47,10 @@ public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
         this.dbServerPort = dbServerPort;
 
         try {
-            Socket dispatcherSocket = new Socket(dbServerHost, dbServerPort);
-            this.toDbServer = new ObjectOutputStream(dispatcherSocket.getOutputStream());
+            socket.setSoTimeout(0);
+            this.toDbServer = new ObjectOutputStream(socket.getOutputStream());
             toDbServer.writeObject(new DispatcherDbServerMsg("dispatcher", null));
-            this.fromDbServer = new ObjectInputStream(dispatcherSocket.getInputStream());
+            this.fromDbServer = new ObjectInputStream(socket.getInputStream());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -207,6 +207,16 @@ public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
         int id = (int) request.getId();
         User stub = new User(id, "", "", "", "");
 
+        if (!idStreams.containsKey(id)) {
+            try {
+                Socket socket = new Socket(dbServerHost, dbServerPort);
+                ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+                ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+                idStreams.put(id, new MutablePair<>(ois, oos));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         MutablePair<ObjectInputStream, ObjectOutputStream> pair = idStreams.get(id);
 
         Sender outUser = new Sender(new DispatcherDbServerMsg(stub, "logout"), pair.left, pair.right);
@@ -227,8 +237,6 @@ public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
     @Override
     public void startDuel(ClientId request, StreamObserver<ServerIp> responseObserver) {
         System.out.println("Dispatcher.startDuel");
-        super.startDuel(request, responseObserver);
-
 
         // поиск арены для клиента
         int id = (int) request.getId();
@@ -247,8 +255,6 @@ public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
-        // TODO: вернуть результат address клиенту
-
     }
 
     @Override
@@ -256,6 +262,16 @@ public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
         int id = (int) request.getId();
         User stub = new User(id, "", "", "", "");
 
+        if (!idStreams.containsKey(id)) {
+            try {
+                Socket socket = new Socket(dbServerHost, dbServerPort);
+                ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+                ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+                idStreams.put(id, new MutablePair<>(ois, oos));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         MutablePair<ObjectInputStream, ObjectOutputStream> pair = idStreams.get(id);
 
         Sender getStat = new Sender(new DispatcherDbServerMsg(stub, "statistic"), pair.left, pair.right);

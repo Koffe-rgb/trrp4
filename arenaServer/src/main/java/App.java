@@ -1,3 +1,4 @@
+import arenaserver.Duel;
 import arenaserver.Server;
 import classes.Phrases;
 import com.rabbitmq.client.Channel;
