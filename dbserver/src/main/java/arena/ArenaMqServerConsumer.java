@@ -15,8 +15,8 @@ import java.util.concurrent.TimeoutException;
 public class ArenaMqServerConsumer implements Runnable {
     private String host = "localhost";
     private int port = 5672;
-    private String username = "koffe";
-    private String password = "koffe";
+    private String username = "guest";
+    private String password = "guest";
     private String queueName = "queue_arena_results";
 
     private final Dao dbManager;
@@ -64,6 +64,7 @@ public class ArenaMqServerConsumer implements Runnable {
     }
 
     private void sendDuelResultToDb(int[] pair) {
+        System.out.println(pair[0]+" "+pair[1]);
         dbManager.upsertStatistic(pair[0], pair[1]);
     }
 }

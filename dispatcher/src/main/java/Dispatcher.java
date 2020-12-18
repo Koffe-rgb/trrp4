@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.concurrent.*;
 
 public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
-    static ConcurrentMap<Integer, Player> playerInfo = new ConcurrentHashMap<>();
+    static ConcurrentMap<Integer, Player> playerInfo = new ConcurrentHashMap<>();   // хранит инфу про зареганых юзеров
     static ExecutorService pool = Executors.newCachedThreadPool();
 
 
@@ -135,6 +135,8 @@ public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
             Object[] objects = (Object[]) msg.getResponse();
             User user = (User) objects[0];
             Hero hero = (Hero) objects[1];
+            playerInfo.putIfAbsent(user.getId(), new Player(user.getId(), hero.getHealth(), user.getNickname(), hero.getName()));
+
 
             idStreams.put(user.getId(), new MutablePair<>(pair.left, pair.right));
             //loginStreams.remove(user.getLogin());
@@ -191,6 +193,8 @@ public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
             responseObserver.onCompleted();
 
             Hero hero = new Hero(-1, registered.getId(), request.getHeroname(), 100);
+            playerInfo.putIfAbsent(registered.getId(), new Player(registered.getId(), hero.getHealth(), registered.getNickname(), hero.getName()));
+
             Sender sendHero = new Sender(new DispatcherDbServerMsg(hero, "addHero"), ois, oos);
             poolForWriting.submit(sendHero);
         } catch (IOException | InterruptedException | ExecutionException e) {
@@ -235,11 +239,19 @@ public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
         System.out.println("Dispatcher.startDuel");
         super.startDuel(request, responseObserver);
 
+
         // поиск арены для клиента
         int id = (int) request.getId();
-        Future<String> addressF = pool.submit(new ArenaService(id, "dispatcher/src/main/resources/arenaServersIps.properties"));
+        // проверка, что данные об игроке есть на сервере
+        Player pl = playerInfo.getOrDefault(id, null);
+        Future<String> addressF;
+        if (pl!=null)
+            addressF = pool.submit(new ArenaService(id, "dispatcher/src/main/resources/arenaServersIps.properties", pl));
+        else addressF = null;
         try {
-            String address = addressF.get();
+            String address = "0.0.0.0:0000";
+            if (addressF!=null)
+                address = addressF.get();
             responseObserver.onNext(ServerIp.newBuilder().setIp(address).build());
             responseObserver.onCompleted();
         } catch (InterruptedException | ExecutionException e) {

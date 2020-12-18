@@ -13,6 +13,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -25,12 +26,14 @@ public class ArenaService implements Callable<String> {
     private FileInputStream fis;
     private int serverArenaNum;
     private String propertiesFile;
+    private Player player;
     private List<MutablePair<String, Integer>> arenaServerIPs;
 
-    public ArenaService(int id, String propertiesFile) {
+    public ArenaService(int id, String propertiesFile, Player player) {
         this.id = id;
         this.propertiesFile = propertiesFile;
         this.arenaServerIPs = new LinkedList<>();
+        this.player = player;
     }
 
     @Override
@@ -117,7 +120,7 @@ public class ArenaService implements Callable<String> {
             ois = new ObjectInputStream(socket.getInputStream());
             oos = new ObjectOutputStream(socket.getOutputStream());
 
-            oos.writeObject(new DispatcherMsg(new Player(idPl), -1,"Player Info"));    //TODO
+            oos.writeObject(new DispatcherMsg(player, -1,"Player Info"));    //TODO
             oos.flush();
             DispatcherMsg respond = (DispatcherMsg) ois.readObject();   // получаем ответ от арены
 

@@ -20,6 +20,5 @@ public class App {
         executorService.execute(server);
         executorService.execute(listener);
         executorService.execute(consumer);
-
     }
 }

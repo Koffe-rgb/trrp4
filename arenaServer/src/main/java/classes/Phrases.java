@@ -14,22 +14,23 @@ public class Phrases implements Serializable {
         this.badPhrases = badPhrases;
         this.goodPhrases = goodPhrases;
     }
-    public String getUsualPhrase(String attacker, String defender){
-        return getPhrase(attacker, defender, usualPhrases);
+    public String getUsualPhrase(String god, String attacker, String defender){
+        return getPhrase(god, attacker, defender, usualPhrases);
     }
-    public String getBadPhrase(String attacker, String defender){
-        return getPhrase(attacker, defender, badPhrases);
+    public String getBadPhrase(String god, String attacker, String defender){
+        return getPhrase(god, attacker, defender, badPhrases);
     }
-    public String getGoodPhrase(String attacker, String defender){
-        return getPhrase(attacker, defender, goodPhrases);
+    public String getGoodPhrase(String god, String attacker, String defender){
+        return getPhrase(god, attacker, defender, goodPhrases);
 
     }
 
-    private String getPhrase(String attacker, String defender, String[] phrases){
+    private String getPhrase(String god, String attacker, String defender, String[] phrases){
         int phraseNum = random.nextInt(phrases.length);
         String phrase = phrases[phraseNum];
         phrase = phrase.replaceFirst("attacker", attacker);
         phrase = phrase.replaceFirst("defender", defender);
+        phrase = phrase.replaceFirst("god", god);
 
         return phrase;
     }
