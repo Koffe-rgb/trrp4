@@ -42,8 +42,8 @@ namespace GodvilleClient.Model
         public int Time { get; set; }
 
         // ход клиента чет или нечет
-        [JsonProperty(PropertyName = "isEven")]
-        public bool IsEven { get; set; }
+        //[JsonProperty(PropertyName = "isEven")]
+        //public bool IsEven { get; set; }
 
         // хроника событий
         [JsonProperty(PropertyName = "cronicle")]
@@ -65,7 +65,7 @@ namespace GodvilleClient.Model
             Phrase = hiPhrase;
             Lives = lives;
             EnemyLives = enemyLives;
-            IsEven = isEven;
+            //IsEven = isEven;
             Time = 0;
         }
 
@@ -96,7 +96,7 @@ namespace GodvilleClient.Model
             Glas = -1;
             Lives = -1;
             EnemyLives = -1;
-            IsEven = false;
+            //IsEven = false;
             Time = -1;
         }
     }

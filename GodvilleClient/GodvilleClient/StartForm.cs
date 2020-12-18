@@ -58,7 +58,10 @@ namespace GodvilleClient
         void ToggleDuelState(bool duelStarted)
         {
             btnGood.SetPropertyThreadSafe(() => btnGood.Visible, duelStarted);
+            btnGood.SetPropertyThreadSafe(() => btnGood.Enabled, false);
             btnBad.SetPropertyThreadSafe(() => btnBad.Visible, duelStarted);
+            btnBad.SetPropertyThreadSafe(() => btnBad.Enabled, false);
+
             btnStartDuel.SetPropertyThreadSafe(() => btnStartDuel.Visible, !duelStarted);
             btnGetStat.SetPropertyThreadSafe(() => btnGetStat.Enabled, !duelStarted);
             if (!duelStarted)
@@ -67,6 +70,7 @@ namespace GodvilleClient
                 lblEnemyName.SetPropertyThreadSafe(() => lblEnemyName.Text, "");
                 TestFormControlHelper.ControlInvoke(lvDuelHistory, () => lvDuelHistory.Items.Clear());
             }
+            
         }
 
         void ToggleMyHod(bool isMyHod)
@@ -92,19 +96,20 @@ namespace GodvilleClient
             //}
 
             //заглушка
-            serverIp = "127.0.0.1:8006";
+            serverIp = "127.0.0.1:8017";
 
             var lines = serverIp.Split(":");
             int port = int.Parse(lines[1]);
             string server = lines[1];
 
-            try {
+            try
+            {
                 using (TcpClient tcpClient = new TcpClient(lines[0], port))
                 {
                     NetworkStream networkStream = tcpClient.GetStream();
                     StreamReader sr = new StreamReader(networkStream);
                     StreamWriter sw = new StreamWriter(networkStream);
-                    sr.BaseStream.ReadTimeout = 20*1000;
+                    sr.BaseStream.ReadTimeout = 20 * 1000;
                     sw.WriteLine(Program.Client.Id.ToString());
                     sw.Flush();
 
@@ -118,35 +123,49 @@ namespace GodvilleClient
                             if ((input = sr.ReadLine()) != null)
                             {
                                 clientMsg = JsonConvert.DeserializeObject<Model.ClientMsg>(input);
-                            }   
+                            }
                             else
                                 continue;
                         }
                         catch (IOException e)
                         {
-                            MessageBox.Show("Вашего противника унесла хищная птица. Дуэль завершена, теперь вы можете найти ее в статистике");
+                            MessageBox.Show("Дуэль была прервана обстоятельствами, теперь вы можете найти ее в статистике");
                             Logger.AddErrorMessage(e.Message);
                             ToggleDuelState(false);
                             return;
                         }
                         if (clientMsg != null)
                         {
+                            bool isHodEven = clientMsg.HodNum % 2 == 0;
+
+                            if (clientMsg.Type != 4)
+                                ToggleMyHod(isHodEven);
+
                             if (clientMsg.Type == 4)
-                            {
                                 lblEnemyName.SetPropertyThreadSafe(() => lblEnemyName.Text, clientMsg.EnemyName);
-                            }
-                            if (clientMsg.Glas != -1)
+
+                            TestFormControlHelper.ControlInvoke(lvDuelHistory, () => lvDuelHistory.Items.Add(clientMsg.Phrase));
+                            if (clientMsg.Glas != -1 && clientMsg.Type != 4)
                             {
-                                string glasMsg = clientMsg.Glas == 0 ?
-                                    "Противник сделал плохо. Ваше здоровье уменьшилось" :
-                                    "Противник сделал хорошо. Его герой вылечился";
+                                string glasMsg;
+                                if (isHodEven) // в ход клиента приходит глас от противника
+                                {
+                                    glasMsg = clientMsg.Glas == 0 ?
+                                        "Противник сделал плохо. Ваше здоровье уменьшилось" :
+                                        "Противник сделал хорошо. Его герой вылечился";
+                                }
+                                else // в ход противника видим глас с нашего прошлого хода (если сработал)
+                                {
+                                    glasMsg = clientMsg.Glas == 0 ?
+                                        "Вы сделали плохо. Здоровье противника уменьшилось" :
+                                        "Вы сделали хорошо. Ваш герой подлатал раны";
+                                }
                                 TestFormControlHelper.ControlInvoke(lvDuelHistory, () => lvDuelHistory.Items.Add(glasMsg));
                                 TestFormControlHelper.ControlInvoke(
                                     lvDuelHistory,
-                                    () => lvDuelHistory.Items[lvDuelHistory.Items.Count - 1].BackColor = Color.Cyan);
+                                    () => lvDuelHistory.Items[lvDuelHistory.Items.Count - 1].BackColor = Color.PeachPuff);
                             }
 
-                            TestFormControlHelper.ControlInvoke(lvDuelHistory, () => lvDuelHistory.Items.Add(clientMsg.Phrase));
                             TestFormControlHelper.ControlInvoke(lvDuelHistory, () => lvDuelHistory.EnsureVisible(lvDuelHistory.Items.Count - 1));
                             lblEnemyHealth.SetPropertyThreadSafe(() => lblEnemyHealth.Text, clientMsg.EnemyLives.ToString());
                             lblYourHealth.SetPropertyThreadSafe(() => lblYourHealth.Text, clientMsg.Lives.ToString());
@@ -159,7 +178,8 @@ namespace GodvilleClient
                         }
                     }
                 }
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 MessageBox.Show("Дуэль закончилась, не начавшись: ваш противник внезано провалился сквозь землю");
                 Logger.AddErrorMessage(e.Message);
@@ -170,15 +190,19 @@ namespace GodvilleClient
 
         private void btnGood_Click(object sender, EventArgs e)
         {
+            btnGood.Enabled = false;
+            btnBad.Enabled = false;
             if (WriteStream.WriteNetworkStream == null)
                 return;
             string response = "1";
             byte[] data = Encoding.UTF8.GetBytes(response);
-            WriteStream.WriteNetworkStream.Write(data, 0, data.Length); // сказать серверу, что клиент сделал хорошо
+            WriteStream.WriteNetworkStream.Write(data, 0, data.Length); // сказать серверу, что клиент сделал хорошо   
         }
 
         private void btnBad_Click(object sender, EventArgs e)
         {
+            btnGood.Enabled = false;
+            btnBad.Enabled = false;
             if (WriteStream.WriteNetworkStream == null)
                 return;
             string response = "0";
@@ -246,7 +270,7 @@ namespace GodvilleClient
     class WriteStream
     {
         public WriteStream()
-        {        }
+        { }
         public static NetworkStream WriteNetworkStream { get; set; }
     }
 }
