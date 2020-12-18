@@ -226,6 +226,7 @@ namespace GodvilleClient
             this.Name = "StartForm";
             this.Text = "Добро пожаловать в Godville!";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.StartForm_FormClosing);
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.StartForm_FormClosed);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
