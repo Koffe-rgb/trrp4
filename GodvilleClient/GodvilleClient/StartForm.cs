@@ -81,19 +81,19 @@ namespace GodvilleClient
         void ReadClientMsg()
         {
             string serverIp;
-            //try
-            //{
-            //    GrpcChannel channel = Connection.GetDispatcherChannel();
-            //    var client = new GodvilleServiceClient(channel);
-            //    serverIp = client.StartDuel(new ClientId { Id = Program.Client.Id }).Ip;
-            //}
-            //catch (Exception e)
-            //{
-            //    //Выбранный диспетчер вдруг умер после проверки на активность
-            //    Logger.AddErrorMessage(e.Message);
-            //    MessageBox.Show("Дуэль не может быть начата");
-            //    return;
-            //}
+            try
+            {
+                GrpcChannel channel = Connection.GetDispatcherChannel();
+                var client = new GodvilleServiceClient(channel);
+                serverIp = client.StartDuel(new ClientId { Id = Program.Client.Id }).Ip;
+            }
+            catch (Exception e)
+            {
+                //Выбранный диспетчер вдруг умер после проверки на активность
+                Logger.AddErrorMessage(e.Message);
+                MessageBox.Show("Дуэль не может быть начата");
+                return;
+            }
 
             //заглушка
             serverIp = "127.0.0.1:8017";
