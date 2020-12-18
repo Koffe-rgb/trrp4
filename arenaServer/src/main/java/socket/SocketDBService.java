@@ -20,7 +20,7 @@ public class SocketDBService {
 
     public boolean loadConfig(String propertiesFile) {
         try {
-            fis = new FileInputStream(propertiesFile); //"src/main/resources/JdbcConfig.properties"
+            fis = new FileInputStream(propertiesFile);
             properties.load(fis);
         } catch (IOException e) {
             System.out.println("Не удалось загрузить конфиг файл");
@@ -70,7 +70,7 @@ public class SocketDBService {
             }
 
             serverDb++;
-            serverDb = serverDb >= serverDbNum ? 0 : serverDb;        // если нам никто не ответил, идем по новой
+//            serverDb = serverDb >= serverDbNum ? 0 : serverDb;        // если нам никто не ответил, идем по новой
         }
         return phrases;
     }

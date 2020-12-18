@@ -34,11 +34,12 @@ public class Duel implements Runnable {
     private final int GOOD_GLAS = 1;
 
 
-    public Duel(Socket client, AtomicInteger clientsCurNum, BufferedReader ois, PrintWriter oos, Player player) {
+    public Duel(Socket client, AtomicInteger clientsCurNum, BufferedReader ois, PrintWriter oos, Player player, Phrases prases) {
+        this.phrases = prases;
         dailyMonsters = new String[]{"Aвитаминосец", "Aвтомогиль", "Aдепт Пивного Культа", "Aдминистратор Годвилля", "Aдский Вертихвост", "Aдский Вратарь", "Aктивированный Угорь", "Aленький Цветочник", "Aлименталист", "Aлкоголем", "Aлхимический Металлист", "Aль Монах", "Aльтер Эго", "Aльфа-кентавр", "Aнархиоптерикс", "Aнатомический Нонсенс", "Aнгел-Бранитель", "Aнгел-Хоронитель", "Aндед-Мороз", "Aнизотропный Голем", "Aнонимный Aнонимус", "Aнонимный Доброжелатель", "Aнтагонист", "Aнтигерой", "Aнтракторист", "Aнтропоморфный Дендромутант", "Aппручник", "Aргх-Aнгел", "Aривидервиш", "Aристокрот", "Aрхибаг", "Aрхивирус", "Aрхимедик", "Aсексуальный Маньяк", "Aссассинизатор", "Aстралопитек", "Aтомный Редактор", "Баал-Бес", "Байкер Из Склепа", "Банзаец", "Бардобрей", "Бармаглот", "Барон Суббота", "Барсук Кхорна", "Бахиллес", "Баш-Орк", "Безбашенный Всадник", "Безбашенный Кран", "Бездомный Домовой"};
         random = new Random();
-        this.player1 = new Player(1, 300, "Cool Guy", "Hercules"); //player;
-        this.player2 = new Player(-666, player1.getLives() + (random.nextInt(50) - 30), "Megamind", dailyMonsters[random.nextInt(dailyMonsters.length)]);
+        this.player1 = player;
+        this.player2 = new Player(-1, player1.getLives() + (random.nextInt(50) - 30), "Megamind", dailyMonsters[random.nextInt(dailyMonsters.length)]);
         player1Socket = client;
         chronicle = new LinkedList<>();
         this.clientsCurNum = clientsCurNum;
@@ -49,7 +50,8 @@ public class Duel implements Runnable {
     @Override
     public void run() {
         runDuel();
-
+        // отправляем результаты в БД
+        sendResultToDB();       // TODO: возможны траблы
     }
 
     private void runDuel() {
@@ -70,10 +72,6 @@ public class Duel implements Runnable {
 
         pool.execute(new Reader());
         pool.execute(new Sender());
-
-
-        // отправляем результаты в БД
-        // sendResultToDB();
 
     }
 
@@ -112,15 +110,15 @@ public class Duel implements Runnable {
     private String getHodResult(Player curPlayer, Player enemy) {
         int damage = random.nextInt(40) + 20;         //дамаг от 20 до 60
         int plus = random.nextInt(40) + 20;     // лечение или доп урон
-//        String phrase = phrases.getUsualPhrase(curPlayer.getHero(), enemy.getHero());
-        String phrase = "Ход номер " + hodNum;
+        String phrase = phrases.getUsualPhrase(curPlayer.getNickname(), curPlayer.getHero(), enemy.getHero());
+//        String phrase = "Ход номер " + hodNum;
         enemy.setLives(enemy.getLives() - damage);
         if (glas.get() == 0) {   //"плохо"
             enemy.setLives(enemy.getLives() - plus);
-//            phrase = phrases.getBadPhrase(curPlayer.getHero(), enemy.getHero());
+            phrase = phrases.getBadPhrase(curPlayer.getNickname(), curPlayer.getHero(), enemy.getHero());
         } else if (glas.get() == 1) {   //"хорошо"
             curPlayer.setLives(curPlayer.getLives() + plus);
-//            phrase = phrases.getGoodPhrase(curPlayer.getHero(), enemy.getHero());
+            phrase = phrases.getGoodPhrase(curPlayer.getNickname(), curPlayer.getHero(), enemy.getHero());
         }
         if (enemy.getLives() < 0) enemy.setLives(0);
         glas.set(-1);
@@ -226,7 +224,7 @@ public class Duel implements Runnable {
         final String QUEUE_NAME = "queue_arena_results";
         final int CONNECTION_TIMEOUT = 60000; // seconds
         factory = new ConnectionFactory();
-        factory.setHost("192.168.0.9");
+        factory.setHost("192.168.0.9");     //TODO: id
         try (Connection connection = factory.newConnection();
              Channel channel = connection.createChannel()) {
             channel.queueDeclare(QUEUE_NAME, true, false, false, null);

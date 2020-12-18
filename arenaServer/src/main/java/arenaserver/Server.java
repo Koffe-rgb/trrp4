@@ -1,5 +1,6 @@
 package arenaserver;
 
+import classes.Phrases;
 import classes.Player;
 import msg.DispatcherMsg;
 
@@ -24,7 +25,11 @@ public class Server implements Runnable{
     private static final Hashtable<Integer, Player> playerInfoMap = new Hashtable<>(100);      // мап, хранящий инфу про клиента, полученную от диспетчера
     private static ExecutorService clientPool = Executors.newCachedThreadPool();           // пул, отвечающий за обработку конкретного клиента
     private static AtomicInteger clientsCurNumber = new AtomicInteger(0);
+    private Phrases phrases;
 
+    public Server(Phrases phrases) {
+        this.phrases = phrases;
+    }
 
     @Override
     public void run() {
@@ -32,7 +37,7 @@ public class Server implements Runnable{
         // запускаем слушателя диспетчера
         pool.execute(new DispatcherListener());
         // запускаем слушателя клиентов
-//        pool.execute(new ClientListener());
+        pool.execute(new ClientListener());
 
     }
 
@@ -67,7 +72,6 @@ public class Server implements Runnable{
                             System.out.println("[x] Добавляем клиента "+msg.getPlayer().getId());
                             playerInfoMap.putIfAbsent(msg.getPlayer().getId(), msg.getPlayer());        // добавляем данные про игрока
                             System.out.println("[x] Колво данных об игроках = "+playerInfoMap.size());
-//                            clientsQueue.add(new Client(msg.getPlayer()));     //TODO - убрать
                             oos.writeObject(new DispatcherMsg(new Player(), -1, ""));
                         }
                         oos.flush();        // отправляем ответ диспетчеру
@@ -117,20 +121,21 @@ public class Server implements Runnable{
                     Player pl = handleWithSocket(client, oos, ois);
                     System.out.println("----> client id:");
                     System.out.println(pl.getId());
-                    if(pl.getId()==-1) {}
+                    if(pl.getId()==-1) {
+                        if (!client.isClosed())oos.close();
+                        if (!client.isClosed()) ois.close();
+                        if (!client.isClosed()) client.close();
+                    }
                     else {
                         System.out.println("Выделяем поток под дуэль");
                         clientsCurNumber.addAndGet(1);
-                        Duel _duel = new Duel(client, clientsCurNumber, ois, oos, pl);
-
+                        Duel _duel = new Duel(client, clientsCurNumber, ois, oos, pl, phrases);
                         clientPool.execute(_duel);
                     }
                 } catch (IOException e) {
-                    //if (!server.isClosed()){server.close();}
                     System.out.println("Сервер закрыт - "+server.isClosed());
 
                     System.out.println(e.getMessage());
-                    //System.exit(1);
                 }
             }
 
@@ -151,27 +156,23 @@ public class Server implements Runnable{
             try {
                 System.out.println("Получаем ид");
                 id = ois.read();
-//                id = ois.readInt();
                 // проверяем, что у нас есть данные об этом клиенте
-//                pl1 = playerInfoMap.get(id);
+                pl1 = playerInfoMap.get(id);
 
-//                if (pl1!=null) {
-//                    System.out.println("[x] клиент: "+player1Socket.getLocalAddress()+" был добавлен");
-//                    oos.writeInt(1);
-//                }
-//                else {
-//                    pl1 = new Player(-1);
-//                    oos.writeInt(-1);
-//                }
-//                oos.flush();
+                if (pl1!=null) {
+                    System.out.println("[x] клиент: "+player1Socket.getLocalAddress()+" был добавлен");
+                }
+                else {
+                    System.out.println("[x] клиент: "+player1Socket.getLocalAddress()+" не существует");
+                    pl1 = new Player(-1);
+                }
                 System.out.println("Ид получен");
                 player1Socket.setSoTimeout(100*60*1000);   // ждем id от клиента в течение минуты
             } catch (IOException  e) {
                 System.out.println("Ошибка при получении ид");
                 e.printStackTrace();
             }
-//            return pl1;
-            return new Player(1);
+            return pl1;
         }
     }
 }
