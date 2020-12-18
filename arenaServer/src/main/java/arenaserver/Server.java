@@ -144,7 +144,7 @@ public class Server implements Runnable{
          * возвращает ответ клиенту, добавляет его в очередь
          */
         private Player handleWithSocket(Socket player1Socket, PrintWriter oos, BufferedReader ois){
-            System.out.println("sth");
+            System.out.println("[x] Текущее колво клиентов: "+clientsCurNumber.get());
             int id = -1;
             try {
                 player1Socket.setSoTimeout(60*1000);   // ждем id от клиента в течение минуты
