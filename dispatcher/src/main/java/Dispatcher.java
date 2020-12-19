@@ -245,6 +245,7 @@ public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
         int id = (int) request.getId();
         // проверка, что данные об игроке есть на сервере
         Player pl = playerInfo.getOrDefault(id, null);
+        System.out.println("client id "+id);
         Future<String> addressF;
         if (pl!=null)
             addressF = pool.submit(new ArenaService(id, "dispatcher/src/main/resources/arenaServersIps.properties", pl));

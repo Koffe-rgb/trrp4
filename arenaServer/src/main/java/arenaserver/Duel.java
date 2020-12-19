@@ -80,17 +80,16 @@ public class Duel implements Runnable {
                 if (ois != null) ois.close();
                 if (oos != null) oos.close();
                 player1Socket.close();
+                // удаляем ид клиента
+                clientsCurNum.decrementAndGet();
                 // отправляем результаты в БД
-                sendResultToDB();       // TODO: возможны траблы
+//                sendResultToDB();       // TODO: возможны траблы
             }
         } catch (IOException e) {
 //            e.printStackTrace();
         }
         pool.shutdownNow();
 
-
-        // удаляем ид клиента
-        clientsCurNum.decrementAndGet();
     }
 
     // игра заканчивается, когда у противника на очередном ходе заканчивается здоровье

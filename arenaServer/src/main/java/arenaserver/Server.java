@@ -70,6 +70,7 @@ public class Server implements Runnable{
                         // если не получили инфу про игрока, значит нас просят вернуть колво людей на сервере
                         if (msg.getPlayer().getId()==-1){
                             oos.writeObject(new DispatcherMsg(new Player(), clientsCurNumber.get(), ""));
+                            System.out.println("Отправляем колво игроков");
                         }
                         else{
                             System.out.println("[x] Добавляем клиента "+msg.getPlayer().getId());
@@ -78,6 +79,7 @@ public class Server implements Runnable{
                             System.out.println(msg.getPlayer().getId());
                             System.out.println("[x] Колво данных об игроках = "+playerInfoMap.size());
                             oos.writeObject(new DispatcherMsg(new Player(), -1, IP+":"+CLIENT_PORT));
+                            System.out.println("Отправляем адрес");
                         }
                         oos.flush();        // отправляем ответ диспетчеру
 
