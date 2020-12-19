@@ -41,6 +41,8 @@ public class DispatcherSocketServer implements Runnable {
     }
 
     public void sendToAllDispatchers(DispatcherDbServerMsg msg) {
+        List<MutablePair<ObjectInputStream, ObjectOutputStream>> toDelete = new ArrayList<>();
+
         User user = (User) msg.getResponse();
         if (msg.getTag().equals("out")) {
             authUsers.removeIf(u -> u.getId() == user.getId());
@@ -55,9 +57,13 @@ public class DispatcherSocketServer implements Runnable {
                 oos.writeObject(msg);
                 oos.flush();
             } catch (IOException e) {
+                toDelete.add(p);
                 e.printStackTrace();
             }
         }
+
+        toDelete.forEach(dispatchers::remove);
+        toDelete.clear();
     }
 
     @Override
