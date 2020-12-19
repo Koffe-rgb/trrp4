@@ -23,10 +23,12 @@ public class App {
             return;
         }
         phrases = socketDBService.run();
+
         if (phrases==null) {
             System.out.println("[!] Не удалось загрузить фразы");
             return;
         }
+        System.out.println(phrases.getUsualPhrase("f","d","a"));
 
         Server arenaServer = new Server(phrases);
         arenaServer.run();

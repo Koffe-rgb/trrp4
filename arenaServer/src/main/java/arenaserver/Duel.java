@@ -50,8 +50,6 @@ public class Duel implements Runnable {
     @Override
     public void run() {
         runDuel();
-        // отправляем результаты в БД
-        sendResultToDB();       // TODO: возможны траблы
     }
 
     private void runDuel() {
@@ -82,11 +80,14 @@ public class Duel implements Runnable {
                 if (ois != null) ois.close();
                 if (oos != null) oos.close();
                 player1Socket.close();
+                // отправляем результаты в БД
+                sendResultToDB();       // TODO: возможны траблы
             }
         } catch (IOException e) {
 //            e.printStackTrace();
         }
         pool.shutdownNow();
+
 
         // удаляем ид клиента
         clientsCurNum.decrementAndGet();
@@ -95,7 +96,7 @@ public class Duel implements Runnable {
     // игра заканчивается, когда у противника на очередном ходе заканчивается здоровье
     private boolean isGameFinished() {
         // если ход четный, проверяем здоровье второго (нечетного) игрока
-        if (hodNum % 2 == 0)
+        if (hodNum % 2 ==  0)
             return player1.getLives() <= 0;
         else return player2.getLives() <= 0;
     }
@@ -125,7 +126,6 @@ public class Duel implements Runnable {
         return phrase;
     }
 
-
     private class Sender implements Runnable {
         @Override
         public void run() {
@@ -148,7 +148,7 @@ public class Duel implements Runnable {
 
                 Thread.sleep(5 * 1000);         // отправляем результат каждые ... секунд
 
-                if (hodNum % 2 == 0) {
+                if (hodNum % 2 == 1) {
                     curPlayer = player1;
                     enemy = player2;
                 } else {
@@ -197,9 +197,17 @@ public class Duel implements Runnable {
             while (!player1Socket.isClosed()) {
                 System.out.println("[x] Ждем сообщения...");
                 try {
-                    int n = ois.read();
+//                    String nS = ois.readLine();
+//                    int n;
+                    int n=ois.read();
+//                    try {
+//                        n = Integer.parseInt(nS);
+//                    }catch (NumberFormatException e){}
+
+                    System.out.println("[x] Получен глас "+n);
+                    if (n==-1) Close();
                     // хорошо
-                    if (n == 1) {
+                    if (n == 49) {
                         glas.set(GOOD_GLAS);
                     }
                     // плохо
@@ -220,6 +228,7 @@ public class Duel implements Runnable {
      * Отправляет результаты в бд
      */
     private void sendResultToDB() {
+        System.out.println("[x] Отправка результатов в бд");
         ConnectionFactory factory = null;
         final String QUEUE_NAME = "queue_arena_results";
         final int CONNECTION_TIMEOUT = 60000; // seconds

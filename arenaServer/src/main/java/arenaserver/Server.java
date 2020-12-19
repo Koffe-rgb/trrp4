@@ -58,7 +58,7 @@ public class Server implements Runnable{
             }
             while(!server.isClosed()){
                 try {
-                    System.out.println("[x] Ожидание диспетчера");
+                    System.out.println("Ожидание диспетчера");
                     client = server.accept();          // принимаем диспетчера
                     System.out.println("[x] Диспетчер был добавлен");
                     client.setSoTimeout(20*1000);       // даем диспетчеру 20 секунд, чтобы тот сказал все, что хотел
@@ -74,6 +74,8 @@ public class Server implements Runnable{
                         else{
                             System.out.println("[x] Добавляем клиента "+msg.getPlayer().getId());
                             playerInfoMap.putIfAbsent(msg.getPlayer().getId(), msg.getPlayer());        // добавляем данные про игрока
+                            playerInfoMap.replace(msg.getPlayer().getId(), msg.getPlayer());
+                            System.out.println(msg.getPlayer().getId());
                             System.out.println("[x] Колво данных об игроках = "+playerInfoMap.size());
                             oos.writeObject(new DispatcherMsg(new Player(), -1, IP+":"+CLIENT_PORT));
                         }
@@ -115,6 +117,7 @@ public class Server implements Runnable{
                 try {
                     System.out.println("Ожидание нового клиента");
                     Socket client = server.accept();
+                    System.out.println("[x] Получен новый клиент");
 
                     BufferedReader ois = new BufferedReader(new InputStreamReader(client.getInputStream()));
                     PrintWriter oos = new PrintWriter(new OutputStreamWriter(client.getOutputStream()), true);
@@ -149,6 +152,7 @@ public class Server implements Runnable{
          */
         private Player handleWithSocket(Socket player1Socket, PrintWriter oos, BufferedReader ois){
             System.out.println("[x] Текущее колво клиентов: "+clientsCurNumber.get());
+            String idS = "";
             int id = -1;
             try {
                 player1Socket.setSoTimeout(60*1000);   // ждем id от клиента в течение минуты
@@ -158,8 +162,11 @@ public class Server implements Runnable{
             Player pl1 = new Player(-1);
             try {
                 System.out.println("Получаем ид");
-                id = ois.read();
+                idS = ois.readLine();
+
+                System.out.println(idS);
                 // проверяем, что у нас есть данные об этом клиенте
+                id = Integer.parseInt(idS);
                 pl1 = playerInfoMap.get(id);
 
                 if (pl1!=null) {

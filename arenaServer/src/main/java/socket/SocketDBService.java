@@ -49,7 +49,7 @@ public class SocketDBService {
             ip = properties.getProperty("ip."+serverDb);
             port = Integer.parseInt(properties.getProperty("port."+serverDb));
             try (Socket socket = new Socket(ip, port)) {
-                socket.setSoTimeout(60 * 1000);     // ждем ответа минуту
+                socket.setSoTimeout(5 * 1000);     // ждем ответа минуту
 
                 ois = new ObjectInputStream(socket.getInputStream());
                 DBMsg msg = (DBMsg) ois.readObject();       // получаем фразы от дб

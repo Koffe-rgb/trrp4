@@ -8,7 +8,7 @@ public class App {
     private static FileInputStream fis;
 
     public static void main(String[] args) {
-        if (!loadConfig("dispatcher/src/main/resources/dbServersIps.properties")){
+        if (!loadConfig("dispatcher/src/main/resources/dbServersIps_properties.properties")){
             System.err.println("Couldn't find config file");
             return;
         }
