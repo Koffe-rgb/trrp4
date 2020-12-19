@@ -332,7 +332,7 @@ public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
     }
 
     private static class Listener implements Runnable {
-        private final ObjectInputStream ois;
+        private ObjectInputStream ois;
         private final List<User> auth;
 
         public Listener(ObjectInputStream ois, List<User> auth) {
@@ -342,7 +342,7 @@ public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
 
         @Override
         public void run() {
-            while (true) {
+            while (ois != null) {
                 try {
                     DispatcherDbServerMsg msg = (DispatcherDbServerMsg) ois.readObject();
 
@@ -370,6 +370,12 @@ public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
 
                 } catch (IOException | ClassNotFoundException e) {
                     e.printStackTrace();
+                    try {
+                        ois.close();
+                        ois = null;
+                    } catch (IOException ioException) {
+                        ioException.printStackTrace();
+                    }
                 }
             }
         }
