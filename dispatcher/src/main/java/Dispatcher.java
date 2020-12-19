@@ -139,7 +139,7 @@ public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
 
 
             idStreams.put(user.getId(), new MutablePair<>(pair.left, pair.right));
-            //loginStreams.remove(user.getLogin());
+            loginStreams.remove(user.getLogin());
 
             UserLoginOuput userLoginOuput = UserLoginOuput.newBuilder()
                     .setId(user.getId())
@@ -181,6 +181,7 @@ public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
             // иначе отправляем фул данные и вставляем героя
             User registered = (User) msg.getResponse();
             idStreams.put(registered.getId(), new MutablePair<>(ois, oos));
+            loginStreams.remove(login);
 
             UserRegOutput regOutput = UserRegOutput.newBuilder()
                     .setId(registered.getId())
@@ -221,6 +222,8 @@ public class Dispatcher extends GodvilleServiceGrpc.GodvilleServiceImplBase {
 
         Sender outUser = new Sender(new DispatcherDbServerMsg(stub, "logout"), pair.left, pair.right);
         poolForWriting.submit(outUser);
+        idStreams.remove(id);
+
         responseObserver.onNext(Empty.newBuilder().build());
         responseObserver.onCompleted();
     }
